@@ -1,7 +1,7 @@
 Summary: A TLS implementation.
 Name: gnutls
 Version: 1.0.20
-Release: 5
+Release: 6
 License: LGPL
 Group: System Environment/Libraries
 BuildPrereq: libgcrypt-devel
@@ -71,6 +71,9 @@ rm -fr $RPM_BUILD_ROOT
 %{_datadir}/aclocal/*
 
 %changelog
+* Wed Mar  2 2005 Warren Togami <wtogami@redhat.com> 1.0.20-6
+- gcc4 rebuild
+
 * Tue Jan  4 2005 Ivana Varekova <varekova@redhat.com> 1.0.20-5
 - add gnutls Requires zlib-devel (#144069)
 
