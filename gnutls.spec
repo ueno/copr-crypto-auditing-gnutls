@@ -1,7 +1,7 @@
 Summary: A TLS implementation.
 Name: gnutls
 Version: 1.0.20
-Release: 2
+Release: 3
 License: LGPL
 Group: System Environment/Libraries
 BuildPrereq: libgcrypt-devel
@@ -68,6 +68,9 @@ rm -fr $RPM_BUILD_ROOT
 %{_datadir}/aclocal/*
 
 %changelog
+* Tue Sep 21 2004 Jeff Johnson <jbj@redhat.com> 1.0.20-3
+- rebuild with release++, otherwise unchanged.
+
 * Tue Sep  7 2004 Jeff Johnson <jbj@redhat.com> 1.0.20-2
 - patent tainted SRP code removed.
 
