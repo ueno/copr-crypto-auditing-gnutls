@@ -1,7 +1,7 @@
 Summary: A TLS implementation.
 Name: gnutls
 Version: 1.0.20
-Release: 4
+Release: 5
 License: LGPL
 Group: System Environment/Libraries
 BuildPrereq: libgcrypt-devel
@@ -20,6 +20,8 @@ Summary: Development files for the %{name} package.
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
 Requires: libgcrypt-devel
+Requires: zlib-devel
+
 
 %description
 The GNU TLS library implements TLS.  Someone needs to fix this description.
@@ -69,6 +71,9 @@ rm -fr $RPM_BUILD_ROOT
 %{_datadir}/aclocal/*
 
 %changelog
+* Tue Jan  4 2005 Ivana Varekova <varekova@redhat.com> 1.0.20-5
+- add gnutls Requires zlib-devel (#144069)
+
 * Mon Nov 08 2004 Colin Walters <walters@redhat.com> 1.0.20-4
 - Make gnutls-devel Require libgcrypt-devel
 
