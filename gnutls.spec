@@ -1,7 +1,7 @@
 Summary: A TLS implementation.
 Name: gnutls
-Version: 1.0.20
-Release: 6
+Version: 1.0.24
+Release: 1
 License: LGPL
 Group: System Environment/Libraries
 BuildPrereq: libgcrypt-devel
@@ -11,7 +11,7 @@ URL: http://www.gnutls.org/
 #Source0: ftp://ftp.gnutls.org/pub/gnutls/devel/%{name}-%{version}.tar.gz
 #Source1: ftp://ftp.gnutls.org/pub/gnutls/devel/%{name}-%{version}.tar.gz.sig
 # XXX patent tainted SRP code removed.
-Source0: %{name}-%{version}-nosrp.tar.gz
+Source0: %{name}-%{version}-nosrp.tar.bz2
 Patch0: gnutls-1.0.20-nosrp.patch
 BuildRoot: %{_tmppath}/%{name}-root
 
@@ -69,8 +69,12 @@ rm -fr $RPM_BUILD_ROOT
 %{_libdir}/*.so
 %{_mandir}/man1/*
 %{_datadir}/aclocal/*
+%{_libdir}/pkgconfig/*.pc
 
 %changelog
+* Fri Apr 22 2005 Tomas Mraz <tmraz@redhat.com> 1.0.24-1
+- update to the latest upstream version on the 1.0 branch
+
 * Wed Mar  2 2005 Warren Togami <wtogami@redhat.com> 1.0.20-6
 - gcc4 rebuild
 
