@@ -1,7 +1,7 @@
-Summary: A TLS implementation.
+Summary: A TLS protocol implementation.
 Name: gnutls
 Version: 1.0.25
-Release: 1
+Release: 2
 License: LGPL
 Group: System Environment/Libraries
 BuildPrereq: libgcrypt-devel
@@ -23,6 +23,10 @@ Requires: %{name} = %{version}-%{release}
 Requires: libgcrypt-devel
 Requires: zlib-devel
 
+%package utils
+Summary: Command line tools for TLS protocol.
+Group: Applications/System
+Requires: %{name} = %{version}-%{release}
 
 %description
 GnuTLS is a project that aims to develop a library which provides a secure 
@@ -35,6 +39,13 @@ layer, over a reliable transport layer. Currently the GnuTLS library implements
 the proposed standards by the IETF's TLS working group.
 This package contains files needed for developing applications with
 the GnuTLS library.
+
+%description utils
+GnuTLS is a project that aims to develop a library which provides a secure
+layer, over a reliable transport layer. Currently the GnuTLS library implements
+the proposed standards by the IETF's TLS working group.
+This package contains command line TLS client and server and certificate
+manipulation tools.
 
 %prep
 %setup -q
@@ -51,6 +62,9 @@ make
 %install
 rm -fr $RPM_BUILD_ROOT
 %makeinstall
+rm -f $RPM_BUILD_ROOT/%{_bindir}/srptool
+rm -f $RPM_BUILD_ROOT/%{_bindir}/gnutls-srpcrypt
+rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/srptool.1
 
 %check
 make check
@@ -68,16 +82,24 @@ rm -fr $RPM_BUILD_ROOT
 
 %files devel
 %defattr(-,root,root)
-%{_bindir}/*
+%{_bindir}/libgnutls*
 %{_includedir}/*
 %{_libdir}/*.a
 %{_libdir}/*.la
 %{_libdir}/*.so
-%{_mandir}/man1/*
 %{_datadir}/aclocal/*
 %{_libdir}/pkgconfig/*.pc
 
+%files utils
+%defattr(-,root,root)
+%{_bindir}/certtool
+%{_bindir}/gnutls*
+%{_mandir}/man1/*
+
 %changelog
+* Mon Jul  4 2005 Tomas Mraz <tmraz@redhat.com> 1.0.25-2
+- split the command line tools to utils subpackage
+
 * Sat Apr 30 2005 Tomas Mraz <tmraz@redhat.com> 1.0.25-1
 - new upstream version fixes potential DOS attack
 
