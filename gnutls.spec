@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation.
 Name: gnutls
-Version: 1.0.25
-Release: 2
+Version: 1.2.6
+Release: 1
 License: LGPL
 Group: System Environment/Libraries
 BuildPrereq: libgcrypt-devel
@@ -12,8 +12,7 @@ URL: http://www.gnutls.org/
 #Source1: ftp://ftp.gnutls.org/pub/gnutls/devel/%{name}-%{version}.tar.gz.sig
 # XXX patent tainted SRP code removed.
 Source0: %{name}-%{version}-nosrp.tar.bz2
-Patch0: gnutls-1.0.25-nosrp.patch
-Patch1: gnutls-1.0.24-version-script.patch
+Patch0: gnutls-1.2.6-nosrp.patch
 BuildRoot: %{_tmppath}/%{name}-root
 
 %package devel
@@ -50,9 +49,9 @@ manipulation tools.
 %prep
 %setup -q
 %patch0 -p1 -b .nosrp
-%patch1 -p1 -b .version-script
+
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
-    touch libextra/$i
+    touch lib/$i
 done
 
 %build
@@ -65,6 +64,7 @@ rm -fr $RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT/%{_bindir}/srptool
 rm -f $RPM_BUILD_ROOT/%{_bindir}/gnutls-srpcrypt
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/srptool.1
+rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/*srp*
 
 %check
 make check
@@ -89,6 +89,8 @@ rm -fr $RPM_BUILD_ROOT
 %{_libdir}/*.so
 %{_datadir}/aclocal/*
 %{_libdir}/pkgconfig/*.pc
+%{_mandir}/man3/*
+%{_infodir}/gnutls*
 
 %files utils
 %defattr(-,root,root)
@@ -97,6 +99,9 @@ rm -fr $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Sun Aug  7 2005 Tomas Mraz <tmraz@redhat.com> 1.2.6-1
+- upgrade to newest upstream (rebuild of dependencies necessary)
+
 * Mon Jul  4 2005 Tomas Mraz <tmraz@redhat.com> 1.0.25-2
 - split the command line tools to utils subpackage
 
