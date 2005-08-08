@@ -65,6 +65,7 @@ rm -f $RPM_BUILD_ROOT/%{_bindir}/srptool
 rm -f $RPM_BUILD_ROOT/%{_bindir}/gnutls-srpcrypt
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/srptool.1
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/*srp*
+rm -f $RPM_BUILD_ROOT/%{_infodir}/dir
 
 %check
 make check
@@ -75,6 +76,16 @@ rm -fr $RPM_BUILD_ROOT
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
+
+%post devel
+if [ -f %{_infodir}/gnutls.info.gz ]; then
+    /sbin/install-info %{_infodir}/gnutls.info.gz %{_infodir}/dir
+fi
+
+%preun devel
+if [ $1 = 0 -a -f %{_infodir}/gnutls.info.gz ]; then
+   /sbin/install-info --delete %{_infodir}/gnutls.info.gz %{_infodir}/dir
+fi
 
 %files
 %defattr(-,root,root)
