@@ -1,10 +1,10 @@
 Summary: A TLS protocol implementation.
 Name: gnutls
-Version: 1.2.6
+Version: 1.2.9
 Release: 1
 License: LGPL
 Group: System Environment/Libraries
-BuildPrereq: libgcrypt-devel
+BuildPrereq: libgcrypt-devel >= 1.2.2
 #BuildPrereq: libtasn1-devel
 #BuildPrereq: opencdk-devel
 URL: http://www.gnutls.org/
@@ -12,8 +12,9 @@ URL: http://www.gnutls.org/
 #Source1: ftp://ftp.gnutls.org/pub/gnutls/devel/%{name}-%{version}.tar.gz.sig
 # XXX patent tainted SRP code removed.
 Source0: %{name}-%{version}-nosrp.tar.bz2
-Patch0: gnutls-1.2.6-nosrp.patch
+Patch0: gnutls-1.2.9-nosrp.patch
 BuildRoot: %{_tmppath}/%{name}-root
+Requires: libgcrypt >= 1.2.2
 
 %package devel
 Summary: Development files for the %{name} package.
@@ -66,6 +67,7 @@ rm -f $RPM_BUILD_ROOT/%{_bindir}/gnutls-srpcrypt
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/srptool.1
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/*srp*
 rm -f $RPM_BUILD_ROOT/%{_infodir}/dir
+rm -f $RPM_BUILD_ROOT/%{_libdir}/*.la
 
 %check
 make check
@@ -96,7 +98,6 @@ fi
 %{_bindir}/libgnutls*
 %{_includedir}/*
 %{_libdir}/*.a
-%{_libdir}/*.la
 %{_libdir}/*.so
 %{_datadir}/aclocal/*
 %{_libdir}/pkgconfig/*.pc
@@ -110,6 +111,10 @@ fi
 %{_mandir}/man1/*
 
 %changelog
+* Wed Nov 23 2005 Tomas Mraz <tmraz@redhat.com> 1.2.9-1
+- upgrade to newest upstream
+- removed .la files (#172635)
+
 * Sun Aug  7 2005 Tomas Mraz <tmraz@redhat.com> 1.2.6-1
 - upgrade to newest upstream (rebuild of dependencies necessary)
 
