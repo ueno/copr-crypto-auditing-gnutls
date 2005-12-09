@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation.
 Name: gnutls
 Version: 1.2.9
-Release: 1
+Release: 2
 License: LGPL
 Group: System Environment/Libraries
 BuildPrereq: libgcrypt-devel >= 1.2.2
@@ -12,6 +12,7 @@ URL: http://www.gnutls.org/
 #Source1: ftp://ftp.gnutls.org/pub/gnutls/devel/%{name}-%{version}.tar.gz.sig
 # XXX patent tainted SRP code removed.
 Source0: %{name}-%{version}-nosrp.tar.bz2
+Source1: libgnutls-config
 Patch0: gnutls-1.2.9-nosrp.patch
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: libgcrypt >= 1.2.2
@@ -62,12 +63,14 @@ make
 %install
 rm -fr $RPM_BUILD_ROOT
 %makeinstall
-rm -f $RPM_BUILD_ROOT/%{_bindir}/srptool
-rm -f $RPM_BUILD_ROOT/%{_bindir}/gnutls-srpcrypt
-rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/srptool.1
-rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/*srp*
-rm -f $RPM_BUILD_ROOT/%{_infodir}/dir
-rm -f $RPM_BUILD_ROOT/%{_libdir}/*.la
+rm -f $RPM_BUILD_ROOT%{_bindir}/srptool
+rm -f $RPM_BUILD_ROOT%{_bindir}/gnutls-srpcrypt
+cp -f %{SOURCE1} $RPM_BUILD_ROOT%{_bindir}/libgnutls-config
+cp -f %{SOURCE1} $RPM_BUILD_ROOT%{_bindir}/libgnutls-extra-config
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/srptool.1
+rm -f $RPM_BUILD_ROOT%{_mandir}/man3/*srp*
+rm -f $RPM_BUILD_ROOT%{_infodir}/dir
+rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
 %check
 make check
@@ -95,7 +98,7 @@ fi
 
 %files devel
 %defattr(-,root,root)
-%{_bindir}/libgnutls*
+%{_bindir}/libgnutls*-config
 %{_includedir}/*
 %{_libdir}/*.a
 %{_libdir}/*.so
@@ -111,6 +114,10 @@ fi
 %{_mandir}/man1/*
 
 %changelog
+* Fri Dec  9 2005 Tomas Mraz <tmraz@redhat.com> 1.2.9-2
+- replaced *-config scripts with calls to pkg-config to
+  solve multilib conflicts
+
 * Wed Nov 23 2005 Tomas Mraz <tmraz@redhat.com> 1.2.9-1
 - upgrade to newest upstream
 - removed .la files (#172635)
