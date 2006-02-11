@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation.
 Name: gnutls
 Version: 1.2.9
-Release: 3.1
+Release: 3.2
 License: LGPL
 Group: System Environment/Libraries
 BuildPrereq: libgcrypt-devel >= 1.2.2
@@ -114,6 +114,9 @@ fi
 %{_mandir}/man1/*
 
 %changelog
+* Fri Feb 10 2006 Jesse Keating <jkeating@redhat.com> - 1.2.9-3.2
+- bump again for double-long bug on ppc(64)
+
 * Tue Feb 07 2006 Jesse Keating <jkeating@redhat.com> - 1.2.9-3.1
 - rebuilt for new gcc4.1 snapshot and glibc changes
 
