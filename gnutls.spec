@@ -1,10 +1,11 @@
 Summary: A TLS protocol implementation.
 Name: gnutls
 Version: 1.2.10
-Release: 1
+Release: 2
 License: LGPL
 Group: System Environment/Libraries
-BuildPrereq: libgcrypt-devel >= 1.2.2
+BuildRequires: libgcrypt-devel >= 1.2.2
+BuildRequires: zlib-devel, readline-devel, libtermcap-devel
 #BuildPrereq: libtasn1-devel
 #BuildPrereq: opencdk-devel
 URL: http://www.gnutls.org/
@@ -114,6 +115,9 @@ fi
 %{_mandir}/man1/*
 
 %changelog
+* Tue May 16 2006 Tomas Mraz <tmraz@redhat.com> - 1.2.10-2
+- added missing buildrequires
+
 * Mon Feb 13 2006 Tomas Mraz <tmraz@redhat.com> - 1.2.10-1
 - updated to new version (fixes CVE-2006-0645)
 
