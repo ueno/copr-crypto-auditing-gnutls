@@ -1,10 +1,10 @@
 Summary: A TLS protocol implementation.
 Name: gnutls
-Version: 1.2.10
-Release: 2
+Version: 1.4.0
+Release: 1
 License: LGPL
 Group: System Environment/Libraries
-BuildRequires: libgcrypt-devel >= 1.2.2
+BuildRequires: libgcrypt-devel >= 1.2.2, gettext
 BuildRequires: zlib-devel, readline-devel, libtermcap-devel
 #BuildPrereq: libtasn1-devel
 #BuildPrereq: opencdk-devel
@@ -14,7 +14,8 @@ URL: http://www.gnutls.org/
 # XXX patent tainted SRP code removed.
 Source0: %{name}-%{version}-nosrp.tar.bz2
 Source1: libgnutls-config
-Patch0: gnutls-1.2.9-nosrp.patch
+Patch0: gnutls-1.4.0-nosrp.patch
+Patch1: gnutls-1.4.0-enable-psk.patch
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: libgcrypt >= 1.2.2
 
@@ -52,6 +53,7 @@ manipulation tools.
 %prep
 %setup -q
 %patch0 -p1 -b .nosrp
+%patch1 -p1 -b .enable-psk
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
@@ -72,6 +74,7 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/srptool.1
 rm -f $RPM_BUILD_ROOT%{_mandir}/man3/*srp*
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
+%find_lang %{name}
 
 %check
 make check
@@ -93,7 +96,7 @@ if [ $1 = 0 -a -f %{_infodir}/gnutls.info.gz ]; then
    /sbin/install-info --delete %{_infodir}/gnutls.info.gz %{_infodir}/dir
 fi
 
-%files
+%files -f %{name}.lang
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
@@ -111,10 +114,15 @@ fi
 %files utils
 %defattr(-,root,root)
 %{_bindir}/certtool
+%{_bindir}/psktool
 %{_bindir}/gnutls*
 %{_mandir}/man1/*
 
 %changelog
+* Wed Jun 14 2006 Tomas Mraz <tmraz@redhat.com> - 1.4.0-1
+- upgrade to new upstream version (#192070), rebuild
+  of dependent packages required
+
 * Tue May 16 2006 Tomas Mraz <tmraz@redhat.com> - 1.2.10-2
 - added missing buildrequires
 
