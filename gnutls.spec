@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation.
 Name: gnutls
-Version: 1.4.0
-Release: 1.1
+Version: 1.4.1
+Release: 1
 License: LGPL
 Group: System Environment/Libraries
 BuildRequires: libgcrypt-devel >= 1.2.2, gettext
@@ -15,7 +15,7 @@ URL: http://www.gnutls.org/
 Source0: %{name}-%{version}-nosrp.tar.bz2
 Source1: libgnutls-config
 Patch0: gnutls-1.4.0-nosrp.patch
-Patch1: gnutls-1.4.0-enable-psk.patch
+Patch1: gnutls-1.4.1-enable-psk.patch
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: libgcrypt >= 1.2.2
 
@@ -119,6 +119,9 @@ fi
 %{_mandir}/man1/*
 
 %changelog
+* Tue Jul 18 2006 Tomas Mraz <tmraz@redhat.com> - 1.4.1-1
+- upgrade to new upstream version, only minor changes
+
 * Wed Jul 12 2006 Jesse Keating <jkeating@redhat.com> - 1.4.0-1.1
 - rebuild
 

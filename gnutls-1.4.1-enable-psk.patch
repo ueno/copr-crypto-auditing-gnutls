@@ -1,0 +1,15 @@
+--- gnutls-1.4.1/configure.enable-psk	2006-07-14 12:01:10.000000000 +0200
++++ gnutls-1.4.1/configure	2006-07-18 17:57:53.000000000 +0200
+@@ -11460,10 +11460,10 @@
+ echo $ECHO_N "checking whether to disable PSK authentication support... $ECHO_C" >&6; }
+ # Check whether --enable-psk-authentication was given.
+ if test "${enable_psk_authentication+set}" = set; then
+-  enableval=$enable_psk_authentication; ac_enable_srp=no
++  enableval=$enable_psk_authentication; ac_enable_psk=no
+ fi
+ 
+-if test x$ac_enable_srp != xno; then
++if test x$ac_enable_psk != xno; then
+  { echo "$as_me:$LINENO: result: no" >&5
+ echo "${ECHO_T}no" >&6; }
+ 
