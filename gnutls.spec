@@ -1,11 +1,11 @@
 Summary: A TLS protocol implementation.
 Name: gnutls
-Version: 1.4.1
-Release: 2
+Version: 1.4.5
+Release: 1
 License: LGPL
 Group: System Environment/Libraries
 BuildRequires: libgcrypt-devel >= 1.2.2, gettext
-BuildRequires: zlib-devel, readline-devel, libtermcap-devel
+BuildRequires: zlib-devel, readline-devel
 #BuildPrereq: libtasn1-devel
 #BuildPrereq: opencdk-devel
 URL: http://www.gnutls.org/
@@ -16,7 +16,6 @@ Source0: %{name}-%{version}-nosrp.tar.bz2
 Source1: libgnutls-config
 Patch0: gnutls-1.4.0-nosrp.patch
 Patch1: gnutls-1.4.1-enable-psk.patch
-Patch3: gnutls-1.4.2-cve-2006-4790.patch
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: libgcrypt >= 1.2.2
 
@@ -56,7 +55,6 @@ manipulation tools.
 %setup -q
 %patch0 -p1 -b .nosrp
 %patch1 -p1 -b .enable-psk
-%patch3 -p1 -b .no-params
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
@@ -122,6 +120,10 @@ fi
 %{_mandir}/man1/*
 
 %changelog
+* Wed Feb  7 2007 Tomas Mraz <tmraz@redhat.com> 1.4.5-1
+- new upstream version
+- drop libtermcap-devel from buildrequires
+
 * Thu Sep 14 2006 Tomas Mraz <tmraz@redhat.com> 1.4.1-2
 - detect forged signatures - CVE-2006-4790 (#206411), patch
   from upstream
