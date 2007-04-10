@@ -1,7 +1,7 @@
-Summary: A TLS protocol implementation.
+Summary: A TLS protocol implementation
 Name: gnutls
 Version: 1.4.5
-Release: 1
+Release: 2%{?dist}
 License: LGPL
 Group: System Environment/Libraries
 BuildRequires: libgcrypt-devel >= 1.2.2, gettext
@@ -16,19 +16,21 @@ Source0: %{name}-%{version}-nosrp.tar.bz2
 Source1: libgnutls-config
 Patch0: gnutls-1.4.0-nosrp.patch
 Patch1: gnutls-1.4.1-enable-psk.patch
-BuildRoot: %{_tmppath}/%{name}-root
+BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
 
 %package devel
-Summary: Development files for the %{name} package.
+Summary: Development files for the %{name} package
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
 Requires: libgcrypt-devel
 Requires: zlib-devel
 Requires: pkgconfig
+Requires(post): /sbin/install-info
+Requires(preun): /sbin/install-info
 
 %package utils
-Summary: Command line tools for TLS protocol.
+Summary: Command line tools for TLS protocol
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
 
@@ -89,20 +91,21 @@ rm -fr $RPM_BUILD_ROOT
 
 %post devel
 if [ -f %{_infodir}/gnutls.info.gz ]; then
-    /sbin/install-info %{_infodir}/gnutls.info.gz %{_infodir}/dir
+    /sbin/install-info %{_infodir}/gnutls.info.gz %{_infodir}/dir || :
 fi
 
 %preun devel
 if [ $1 = 0 -a -f %{_infodir}/gnutls.info.gz ]; then
-   /sbin/install-info --delete %{_infodir}/gnutls.info.gz %{_infodir}/dir
+   /sbin/install-info --delete %{_infodir}/gnutls.info.gz %{_infodir}/dir || :
 fi
 
 %files -f %{name}.lang
-%defattr(-,root,root)
+%defattr(-,root,root,-)
 %{_libdir}/*.so.*
+%doc COPYING COPYING.LIB README AUTHORS
 
 %files devel
-%defattr(-,root,root)
+%defattr(-,root,root,-)
 %{_bindir}/libgnutls*-config
 %{_includedir}/*
 %{_libdir}/*.a
@@ -113,13 +116,18 @@ fi
 %{_infodir}/gnutls*
 
 %files utils
-%defattr(-,root,root)
+%defattr(-,root,root,-)
 %{_bindir}/certtool
 %{_bindir}/psktool
 %{_bindir}/gnutls*
 %{_mandir}/man1/*
 
 %changelog
+* Tue Apr 10 2007 Tomas Mraz <tmraz@redhat.com> 1.4.5-2
+- properly require install-info (patch by Ville Skyttä)
+- standard buildroot and use dist tag
+- add COPYING and README to doc
+
 * Wed Feb  7 2007 Tomas Mraz <tmraz@redhat.com> 1.4.5-1
 - new upstream version
 - drop libtermcap-devel from buildrequires
