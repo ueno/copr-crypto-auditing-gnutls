@@ -16,6 +16,8 @@ Source0: %{name}-%{version}-nosrp.tar.bz2
 Source1: libgnutls-config
 Patch0: gnutls-1.4.0-nosrp.patch
 Patch1: gnutls-1.4.1-enable-psk.patch
+Patch2: gnutls-1.6.3-incompat-pointers.patch
+
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
 
@@ -57,6 +59,7 @@ manipulation tools.
 %setup -q
 %patch0 -p1 -b .nosrp
 %patch1 -p1 -b .enable-psk
+%patch2 -p1 -b .incompat
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i

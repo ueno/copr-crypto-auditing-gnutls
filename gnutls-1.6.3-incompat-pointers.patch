@@ -1,0 +1,194 @@
+--- gnutls-1.6.3/doc/examples/ex-pkcs12.c.incompat	2006-06-16 17:35:46.000000000 +0200
++++ gnutls-1.6.3/doc/examples/ex-pkcs12.c	2007-06-06 22:14:04.000000000 +0200
+@@ -23,7 +23,7 @@
+   int ret, bag_index;
+   gnutls_pkcs12_bag_t bag, key_bag;
+   char pkcs12_struct[10 * 1024];
+-  int pkcs12_struct_size;
++  size_t pkcs12_struct_size;
+   FILE *fd;
+ 
+   /* A good idea might be to use gnutls_x509_privkey_get_key_id()
+--- gnutls-1.6.3/doc/examples/ex-crq.c.incompat	2006-06-16 17:35:46.000000000 +0200
++++ gnutls-1.6.3/doc/examples/ex-crq.c	2007-06-06 22:14:46.000000000 +0200
+@@ -19,7 +19,7 @@
+   gnutls_x509_crq_t crq;
+   gnutls_x509_privkey_t key;
+   unsigned char buffer[10 * 1024];
+-  int buffer_size = sizeof (buffer);
++  size_t buffer_size = sizeof (buffer);
+ 
+   gnutls_global_init ();
+ 
+--- gnutls-1.6.3/lib/gnutls_x509.c.incompat	2007-05-25 14:26:19.000000000 +0200
++++ gnutls-1.6.3/lib/gnutls_x509.c	2007-06-06 21:42:57.000000000 +0200
+@@ -1884,6 +1884,7 @@
+   gnutls_x509_crt_t cert = NULL;
+   gnutls_x509_crl_t crl = NULL;
+   int ret;
++  size_t size;
+ 
+   ret = gnutls_pkcs12_init (&p12);
+   if (ret < 0)
+@@ -1892,7 +1893,8 @@
+       return ret;
+     }
+ 
+-  p12blob.data = read_binary_file (pkcs12file, &p12blob.size);
++  p12blob.data = read_binary_file (pkcs12file, &size);
++  p12blob.size = (unsigned int)size;
+   if (p12blob.data == NULL)
+     {
+       gnutls_assert ();
+--- gnutls-1.6.3/lib/gnutls_psk.c.incompat	2006-03-08 11:44:59.000000000 +0100
++++ gnutls-1.6.3/lib/gnutls_psk.c	2007-06-06 21:51:05.000000000 +0200
+@@ -117,8 +117,9 @@
+     }
+   else
+     {				/* HEX key */
+-      res->key.size = key->size / 2;
+-      res->key.data = gnutls_malloc (res->key.size);
++      size_t size;
++      size = res->key.size = key->size / 2;
++      res->key.data = gnutls_malloc (size);
+       if (res->key.data == NULL)
+ 	{
+ 	  gnutls_assert ();
+@@ -126,7 +127,8 @@
+ 	  goto error;
+ 	}
+ 
+-      ret = gnutls_hex_decode (key, (char *) res->key.data, &res->key.size);
++      ret = gnutls_hex_decode (key, (char *) res->key.data, &size);
++      res->key.size = (unsigned int)size;
+       if (ret < 0)
+ 	{
+ 	  gnutls_assert ();
+--- gnutls-1.6.3/lib/auth_psk_passwd.c.incompat	2006-03-08 11:44:59.000000000 +0100
++++ gnutls-1.6.3/lib/auth_psk_passwd.c	2007-06-06 21:47:10.000000000 +0200
+@@ -48,6 +48,7 @@
+ {
+   char *p;
+   int len, ret;
++  size_t size;
+ 
+   p = strchr (str, ':');
+   if (p == NULL)
+@@ -68,15 +69,16 @@
+   if (p[len - 1] == '\n' || p[len - 1] == ' ')
+     len--;
+ 
+-  psk->size = len / 2;
+-  psk->data = gnutls_malloc (psk->size);
++  size = psk->size = len / 2;
++  psk->data = gnutls_malloc (size);
+   if (psk->data == NULL)
+     {
+       gnutls_assert ();
+       return GNUTLS_E_MEMORY_ERROR;
+     }
+ 
+-  ret = _gnutls_hex2bin ((opaque *) p, len, psk->data, &psk->size);
++  ret = _gnutls_hex2bin ((opaque *) p, len, psk->data, &size);
++  psk->size = (unsigned int)size;
+   if (ret < 0)
+     {
+       gnutls_assert ();
+--- gnutls-1.6.3/libextra/gnutls_openpgp.c.incompat	2006-09-26 10:17:11.000000000 +0200
++++ gnutls-1.6.3/libextra/gnutls_openpgp.c	2007-06-06 22:03:31.000000000 +0200
+@@ -728,6 +728,7 @@
+   struct stat statbuf;
+   int rc = 0;
+   gnutls_datum_t key, cert;
++  size_t size;
+ 
+   if (!res || !keyfile || !certfile)
+     {
+@@ -741,14 +742,16 @@
+       return GNUTLS_E_FILE_ERROR;
+     }
+ 
+-  cert.data = read_binary_file (certfile, &cert.size);
++  cert.data = read_binary_file (certfile, &size);
++  cert.size = (unsigned int)size;
+   if (cert.data == NULL)
+     {
+       gnutls_assert ();
+       return GNUTLS_E_FILE_ERROR;
+     }
+ 
+-  key.data = read_binary_file (keyfile, &key.size);
++  key.data = read_binary_file (keyfile, &size);
++  key.size = (unsigned int)size;
+   if (key.data == NULL)
+     {
+       gnutls_assert ();
+--- gnutls-1.6.3/libextra/openssl_compat.c.incompat	2006-03-08 11:44:59.000000000 +0100
++++ gnutls-1.6.3/libextra/openssl_compat.c	2007-06-06 22:05:55.000000000 +0200
+@@ -537,6 +537,7 @@
+ {
+   gnutls_x509_crt_t xcert;
+   int result;
++  size_t size;
+ 
+   result = gnutls_x509_crt_init (&xcert);
+   if (result < 0)
+@@ -549,10 +550,11 @@
+       return result;
+     }
+ 
++  size = sizeof_buf;
+   if (!issuer)
+-    result = gnutls_x509_crt_get_dn (xcert, buf, &sizeof_buf);
++    result = gnutls_x509_crt_get_dn (xcert, buf, &size);
+   else
+-    result = gnutls_x509_crt_get_issuer_dn (xcert, buf, &sizeof_buf);
++    result = gnutls_x509_crt_get_issuer_dn (xcert, buf, &size);
+ 
+   gnutls_x509_crt_deinit (xcert);
+ 
+--- gnutls-1.6.3/libextra/opencdk/read-packet.c.incompat	2006-10-26 16:17:23.000000000 +0200
++++ gnutls-1.6.3/libextra/opencdk/read-packet.c	2007-06-06 21:55:22.000000000 +0200
+@@ -876,7 +876,7 @@
+ 
+ static void
+ read_new_length( cdk_stream_t inp,
+-                 size_t *r_len, size_t *r_size, size_t *r_partial )
++                 size_t *r_len, size_t *r_size, int *r_partial )
+ {
+     int c, c1;
+   
+--- gnutls-1.6.3/libextra/opencdk/seskey.c.incompat	2006-10-26 16:17:23.000000000 +0200
++++ gnutls-1.6.3/libextra/opencdk/seskey.c	2007-06-06 22:01:57.000000000 +0200
+@@ -95,7 +95,8 @@
+     byte * p, * frame;
+     size_t n = 0;
+     u16 chksum = 0;
+-    int i = 0, nframe = 0;
++    int i = 0;
++    size_t nframe = 0;
+     int rc = 0;
+ 
+     if( !r_esk || !dek )
+--- gnutls-1.6.3/src/tests.c.incompat	2006-09-21 13:27:59.000000000 +0200
++++ gnutls-1.6.3/src/tests.c	2007-06-06 22:10:43.000000000 +0200
+@@ -50,7 +50,7 @@
+ /* keep session info */
+ static char *session_data = NULL;
+ static char session_id[32];
+-static int session_data_size = 0, session_id_size = 0;
++static size_t session_data_size = 0, session_id_size = 0;
+ static int sfree = 0;
+ static int handshake_output = 0;
+ 
+--- gnutls-1.6.3/src/common.c.incompat	2006-07-05 23:32:53.000000000 +0200
++++ gnutls-1.6.3/src/common.c	2007-06-06 22:09:10.000000000 +0200
+@@ -88,7 +88,7 @@
+ {
+   gnutls_x509_crt crt;
+   const gnutls_datum *cert_list;
+-  size_t cert_list_size = 0;
++  int cert_list_size = 0;
+   int ret;
+   char digest[20];
+   char serial[40];
