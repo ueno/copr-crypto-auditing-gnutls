@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 1.4.5
-Release: 2%{?dist}
+Version: 1.6.3
+Release: 1%{?dist}
 License: LGPL
 Group: System Environment/Libraries
 BuildRequires: libgcrypt-devel >= 1.2.2, gettext
@@ -123,6 +123,9 @@ fi
 %{_mandir}/man1/*
 
 %changelog
+* Wed Jun  6 2007 Tomas Mraz <tmraz@redhat.com> 1.6.3-1
+- upgrade to latest upstream (#232445)
+
 * Tue Apr 10 2007 Tomas Mraz <tmraz@redhat.com> 1.4.5-2
 - properly require install-info (patch by Ville Skyttä)
 - standard buildroot and use dist tag
