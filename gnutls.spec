@@ -1,13 +1,12 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 2.0.4
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv2+
 License: GPLv2+ and LGPLv2+
 Group: System Environment/Libraries
 BuildRequires: libgcrypt-devel >= 1.2.2, gettext
-BuildRequires: zlib-devel, readline-devel
-#BuildPrereq: libtasn1-devel
+BuildRequires: zlib-devel, readline-devel, libtasn1-devel
 #BuildPrereq: opencdk-devel
 URL: http://www.gnutls.org/
 #Source0: ftp://ftp.gnutls.org/pub/gnutls/devel/%{name}-%{version}.tar.gz
@@ -63,7 +62,9 @@ for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.
 done
 
 %build
-%configure --with-included-opencdk --with-included-libtasn1 --with-included-libcfg --with-included-lzo --disable-srp-authentication
+%configure --with-included-opencdk --with-libtasn1-prefix=%{_prefix} \
+           --with-included-libcfg --with-included-lzo \
+           --disable-srp-authentication
 make
 
 %install
@@ -123,6 +124,9 @@ fi
 %{_mandir}/man1/*
 
 %changelog
+* Mon Feb  4 2008 Joe Orton <jorton@redhat.com> 2.0.4-2
+- use system libtasn1
+
 * Tue Dec  4 2007 Tomas Mraz <tmraz@redhat.com> 2.0.4-1
 - upgrade to latest upstream
 
