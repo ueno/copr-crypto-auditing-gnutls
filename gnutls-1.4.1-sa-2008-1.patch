@@ -1,0 +1,98 @@
+diff -up gnutls-1.4.1/lib/ext_server_name.c.sa-2008-1 gnutls-1.4.1/lib/ext_server_name.c
+--- gnutls-1.4.1/lib/ext_server_name.c.sa-2008-1	2006-03-08 11:44:59.000000000 +0100
++++ gnutls-1.4.1/lib/ext_server_name.c	2008-05-20 09:52:13.000000000 +0200
+@@ -74,10 +74,27 @@ _gnutls_server_name_recv_params (gnutls_
+ 	  len = _gnutls_read_uint16 (p);
+ 	  p += 2;
+ 
+-	  DECR_LENGTH_RET (data_size, len, 0);
+-	  server_names++;
++	  if (len > 0)
++	    {
++	      DECR_LENGTH_RET (data_size, len, 0);
++	      server_names++;
++	      p += len;
++	    }
++	  else
++	    _gnutls_handshake_log
++	      ("HSK[%x]: Received zero size server name (under attack?)\n",
++	       session);
+ 
+-	  p += len;
++	}
++
++      /* we cannot accept more server names.
++       */
++      if (server_names > MAX_SERVER_NAME_EXTENSIONS)
++	{
++	  _gnutls_handshake_log
++	    ("HSK[%x]: Too many server names received (under attack?)\n",
++	     session);
++	  server_names = MAX_SERVER_NAME_EXTENSIONS;
+ 	}
+ 
+       session->security_parameters.extensions.server_names_size =
+@@ -85,10 +102,6 @@ _gnutls_server_name_recv_params (gnutls_
+       if (server_names == 0)
+ 	return 0;		/* no names found */
+ 
+-      /* we cannot accept more server names.
+-       */
+-      if (server_names > MAX_SERVER_NAME_EXTENSIONS)
+-	server_names = MAX_SERVER_NAME_EXTENSIONS;
+ 
+       p = data + 2;
+       for (i = 0; i < server_names; i++)
+diff -up gnutls-1.4.1/lib/gnutls_handshake.c.sa-2008-1 gnutls-1.4.1/lib/gnutls_handshake.c
+--- gnutls-1.4.1/lib/gnutls_handshake.c.sa-2008-1	2006-04-17 18:32:16.000000000 +0200
++++ gnutls-1.4.1/lib/gnutls_handshake.c	2008-05-20 09:52:13.000000000 +0200
+@@ -929,6 +929,14 @@ _gnutls_recv_handshake_header (gnutls_se
+ 
+       *recv_type = session->internals.handshake_header_buffer.recv_type;
+ 
++      if (*recv_type != type)
++	{
++	  gnutls_assert ();
++	  _gnutls_handshake_log
++	    ("HSK[%x]: Handshake type mismatch (under attack?)\n", session);
++	  return GNUTLS_E_UNEXPECTED_HANDSHAKE_PACKET;
++	}
++
+       return session->internals.handshake_header_buffer.packet_length;
+     }
+ 
+diff -up gnutls-1.4.1/lib/gnutls_cipher.c.sa-2008-1 gnutls-1.4.1/lib/gnutls_cipher.c
+--- gnutls-1.4.1/lib/gnutls_cipher.c.sa-2008-1	2006-03-08 11:44:59.000000000 +0100
++++ gnutls-1.4.1/lib/gnutls_cipher.c	2008-05-20 09:52:48.000000000 +0200
+@@ -445,7 +445,6 @@ _gnutls_ciphertext2compressed (gnutls_se
+       return GNUTLS_E_INTERNAL_ERROR;
+     }
+ 
+-
+   /* actual decryption (inplace)
+    */
+   switch (_gnutls_cipher_is_block
+@@ -496,17 +495,20 @@ _gnutls_ciphertext2compressed (gnutls_se
+ 
+       pad = ciphertext.data[ciphertext.size - 1] + 1;	/* pad */
+ 
+-      length = ciphertext.size - hash_size - pad;
+-
+-      if (pad > ciphertext.size - hash_size)
++      if ((int)pad > (int)ciphertext.size - hash_size)
+ 	{
+ 	  gnutls_assert ();
++	  _gnutls_record_log
++	    ("REC[%x]: Short record length %d > %d - %d (under attack?)\n",
++	     session, pad, ciphertext.size, hash_size);
+ 	  /* We do not fail here. We check below for the
+ 	   * the pad_failed. If zero means success.
+ 	   */
+ 	  pad_failed = GNUTLS_E_DECRYPTION_FAILED;
+ 	}
+ 
++      length = ciphertext.size - hash_size - pad;
++
+       /* Check the pading bytes (TLS 1.x)
+        */
+       if (ver >= GNUTLS_TLS1 && pad_failed == 0)
