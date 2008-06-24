@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 2.0.4
-Release: 3%{?dist}
+Version: 2.4.0
+Release: 1%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv2+
 License: GPLv2+ and LGPLv2+
 Group: System Environment/Libraries
@@ -14,8 +14,7 @@ URL: http://www.gnutls.org/
 # XXX patent tainted SRP code removed.
 Source0: %{name}-%{version}-nosrp.tar.bz2
 Source1: libgnutls-config
-Patch0: gnutls-2.0.4-nosrp.patch
-Patch4: gnutls-1.4.1-sa-2008-1.patch
+Patch1: gnutls-2.4.0-nosrp.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -56,8 +55,7 @@ manipulation tools.
 
 %prep
 %setup -q
-%patch0 -p1 -b .nosrp
-%patch4 -p1 -b .sa-2008-1
+%patch1 -p1 -b .nosrp
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
@@ -126,6 +124,9 @@ fi
 %{_mandir}/man1/*
 
 %changelog
+* Tue Jun 24 2008 Tomas Mraz <tmraz@redhat.com> 2.4.0-1
+- upgrade to latest upstream
+
 * Tue May 20 2008 Tomas Mraz <tmraz@redhat.com> 2.0.4-3
 - fix three security issues in gnutls handshake - GNUTLS-SA-2008-1
   (#447461, #447462, #447463)
