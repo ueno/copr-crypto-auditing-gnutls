@@ -1,13 +1,13 @@
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 2.4.0
+Version: 2.4.1
 Release: 1%{?dist}
-# The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv2+
-License: GPLv2+ and LGPLv2+
+# The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
+License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
 BuildRequires: libgcrypt-devel >= 1.2.2, gettext
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel
-#BuildPrereq: opencdk-devel
+BuildRequires: lzo-devel
 URL: http://www.gnutls.org/
 #Source0: ftp://ftp.gnutls.org/pub/gnutls/devel/%{name}-%{version}.tar.gz
 #Source1: ftp://ftp.gnutls.org/pub/gnutls/devel/%{name}-%{version}.tar.gz.sig
@@ -24,7 +24,6 @@ Summary: Development files for the %{name} package
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
 Requires: libgcrypt-devel
-Requires: zlib-devel
 Requires: pkgconfig
 Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
@@ -62,8 +61,8 @@ for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.
 done
 
 %build
-%configure --with-included-opencdk --with-libtasn1-prefix=%{_prefix} \
-           --with-included-libcfg --with-included-lzo \
+%configure --with-libtasn1-prefix=%{_prefix} \
+           --with-included-libcfg \
            --disable-srp-authentication
 make
 
@@ -124,6 +123,12 @@ fi
 %{_mandir}/man1/*
 
 %changelog
+* Tue Jul  1 2008 Tomas Mraz <tmraz@redhat.com> 2.4.1-1
+- new upstream version
+- correct the license tag
+- explicit --with-included-opencdk not needed
+- use external lzo library, internal not included anymore
+
 * Tue Jun 24 2008 Tomas Mraz <tmraz@redhat.com> 2.4.0-1
 - upgrade to latest upstream
 
