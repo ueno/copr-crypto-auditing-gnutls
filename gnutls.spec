@@ -1,6 +1,6 @@
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 2.4.1
+Version: 2.4.2
 Release: 1%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
@@ -123,6 +123,9 @@ fi
 %{_mandir}/man1/*
 
 %changelog
+* Tue Sep 23 2008 Tomas Mraz <tmraz@redhat.com> 2.4.2-1
+- new upstream version
+
 * Tue Jul  1 2008 Tomas Mraz <tmraz@redhat.com> 2.4.1-1
 - new upstream version
 - correct the license tag
