@@ -1,13 +1,14 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 2.4.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
 BuildRequires: libgcrypt-devel >= 1.2.2, gettext
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel
-BuildRequires: lzo-devel
+BuildRequires: lzo-devel, libtool, automake, autoconf
+BuildRequires: guile-devel
 URL: http://www.gnutls.org/
 #Source0: ftp://ftp.gnutls.org/pub/gnutls/devel/%{name}-%{version}.tar.gz
 #Source1: ftp://ftp.gnutls.org/pub/gnutls/devel/%{name}-%{version}.tar.gz.sig
@@ -33,6 +34,12 @@ Summary: Command line tools for TLS protocol
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
 
+%package guile
+Summary: Guile bindings for the GNUTLS library
+Group: Development/Libraries
+Requires: %{name} = %{version}-%{release}
+Requires: guile
+
 %description
 GnuTLS is a project that aims to develop a library which provides a secure 
 layer, over a reliable transport layer. Currently the GnuTLS library implements
@@ -52,6 +59,12 @@ the proposed standards by the IETF's TLS working group.
 This package contains command line TLS client and server and certificate
 manipulation tools.
 
+%description guile
+GnuTLS is a project that aims to develop a library which provides a secure
+layer, over a reliable transport layer. Currently the GnuTLS library implements
+the proposed standards by the IETF's TLS working group.
+This package contains Guile bindings for the library.
+
 %prep
 %setup -q
 %patch1 -p1 -b .nosrp
@@ -61,6 +74,7 @@ for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.
 done
 
 %build
+autoreconf
 %configure --with-libtasn1-prefix=%{_prefix} \
            --with-included-libcfg \
            --disable-srp-authentication
@@ -77,6 +91,7 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/srptool.1
 rm -f $RPM_BUILD_ROOT%{_mandir}/man3/*srp*
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
+rm -f $RPM_BUILD_ROOT%{_libdir}/libguile*.a
 %find_lang %{name}
 
 %check
@@ -99,17 +114,21 @@ if [ $1 = 0 -a -f %{_infodir}/gnutls.info.gz ]; then
    /sbin/install-info --delete %{_infodir}/gnutls.info.gz %{_infodir}/dir || :
 fi
 
+%post guile -p /sbin/ldconfig
+
+%postun guile -p /sbin/ldconfig
+
 %files -f %{name}.lang
 %defattr(-,root,root,-)
-%{_libdir}/*.so.*
+%{_libdir}/libgnutls*.so.*
 %doc COPYING COPYING.LIB README AUTHORS
 
 %files devel
 %defattr(-,root,root,-)
 %{_bindir}/libgnutls*-config
 %{_includedir}/*
-%{_libdir}/*.a
-%{_libdir}/*.so
+%{_libdir}/libgnutls*.a
+%{_libdir}/libgnutls*.so
 %{_datadir}/aclocal/*
 %{_libdir}/pkgconfig/*.pc
 %{_mandir}/man3/*
@@ -122,7 +141,17 @@ fi
 %{_bindir}/gnutls*
 %{_mandir}/man1/*
 
+%files guile
+%defattr(-,root,root,-)
+%{_libdir}/libguile*.so*
+%{_datadir}/guile/site/gnutls
+%{_datadir}/guile/site/gnutls.scm
+
 %changelog
+* Thu Sep 25 2008 Tomas Mraz <tmraz@redhat.com> 2.4.2-2
+- add guile subpackage (#463735)
+- force new libtool through autoreconf to drop unnecessary rpaths
+
 * Tue Sep 23 2008 Tomas Mraz <tmraz@redhat.com> 2.4.2-1
 - new upstream version
 
