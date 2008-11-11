@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 2.4.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -16,6 +16,7 @@ URL: http://www.gnutls.org/
 Source0: %{name}-%{version}-nosrp.tar.bz2
 Source1: libgnutls-config
 Patch1: gnutls-2.4.0-nosrp.patch
+Patch5: gnutls-1.4.1-cve-2008-4989.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -68,6 +69,7 @@ This package contains Guile bindings for the library.
 %prep
 %setup -q
 %patch1 -p1 -b .nosrp
+%patch5 -p1 -b .chain-verify
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
@@ -148,6 +150,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Tue Nov 11 2008 Tomas Mraz <tmraz@redhat.com> 2.4.2-3
+- fix chain verification issue CVE-2008-4989 (#470079)
+
 * Thu Sep 25 2008 Tomas Mraz <tmraz@redhat.com> 2.4.2-2
 - add guile subpackage (#463735)
 - force new libtool through autoreconf to drop unnecessary rpaths
