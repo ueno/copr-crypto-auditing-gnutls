@@ -1,0 +1,21 @@
+diff -up gnutls-2.6.2/lib/x509/verify.c.chain-verify gnutls-2.6.2/lib/x509/verify.c
+--- gnutls-2.6.2/lib/x509/verify.c.chain-verify	2008-11-12 15:01:46.000000000 +0100
++++ gnutls-2.6.2/lib/x509/verify.c	2008-12-04 14:35:52.000000000 +0100
+@@ -374,6 +374,17 @@ _gnutls_x509_verify_certificate (const g
+   int i = 0, ret;
+   unsigned int status = 0, output;
+ 
++  /* Check if the last certificate in the path is self signed.
++   * In that case ignore it (a certificate is trusted only if it
++   * leads to a trusted party by us, not the server's).
++   */
++  if (clist_size > 1 &&
++      gnutls_x509_crt_check_issuer (certificate_list[clist_size - 1],
++				    certificate_list[clist_size - 1]) > 0)
++    {
++      clist_size--;
++    }
++
+   /* Verify the last certificate in the certificate path
+    * against the trusted CA certificate list.
+    *
