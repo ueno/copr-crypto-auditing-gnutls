@@ -1,6 +1,6 @@
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 2.6.6
+Version: 2.8.0
 Release: 1%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
@@ -15,7 +15,6 @@ URL: http://www.gnutls.org/
 # XXX patent tainted SRP code removed.
 Source0: %{name}-%{version}-nosrp.tar.bz2
 Source1: libgnutls-config
-Patch1: gnutls-2.6.2-nosrp.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -67,7 +66,6 @@ This package contains Guile bindings for the library.
 
 %prep
 %setup -q
-%patch1 -p1 -b .nosrp
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
@@ -79,6 +77,7 @@ autoreconf
            --with-included-libcfg \
            --disable-srp-authentication
 make
+cp lib/COPYING COPYING.LIB
 
 %install
 rm -fr $RPM_BUILD_ROOT
@@ -92,7 +91,7 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man3/*srp*
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 rm -f $RPM_BUILD_ROOT%{_libdir}/libguile*.a
-%find_lang %{name}
+%find_lang libgnutls
 
 %check
 make check
@@ -118,7 +117,7 @@ fi
 
 %postun guile -p /sbin/ldconfig
 
-%files -f %{name}.lang
+%files -f libgnutls.lang
 %defattr(-,root,root,-)
 %{_libdir}/libgnutls*.so.*
 %doc COPYING COPYING.LIB README AUTHORS
@@ -129,7 +128,6 @@ fi
 %{_includedir}/*
 %{_libdir}/libgnutls*.a
 %{_libdir}/libgnutls*.so
-%{_datadir}/aclocal/*
 %{_libdir}/pkgconfig/*.pc
 %{_mandir}/man3/*
 %{_infodir}/gnutls*
@@ -149,6 +147,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Wed Jun  3 2009 Tomas Mraz <tmraz@redhat.com> 2.8.0-1
+- upgrade to a new upstream version
+
 * Mon May  4 2009 Tomas Mraz <tmraz@redhat.com> 2.6.6-1
 - upgrade to a new upstream version - security fixes
 
