@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 2.8.1
-Release: 2%{?dist}
+Version: 2.8.3
+Release: 1%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -10,8 +10,8 @@ BuildRequires: zlib-devel, readline-devel, libtasn1-devel
 BuildRequires: lzo-devel, libtool, automake, autoconf
 BuildRequires: guile-devel
 URL: http://www.gnutls.org/
-#Source0: ftp://ftp.gnutls.org/pub/gnutls/devel/%{name}-%{version}.tar.gz
-#Source1: ftp://ftp.gnutls.org/pub/gnutls/devel/%{name}-%{version}.tar.gz.sig
+#Source0: ftp://ftp.gnutls.org/pub/gnutls/%{name}-%{version}.tar.gz
+#Source1: ftp://ftp.gnutls.org/pub/gnutls/%{name}-%{version}.tar.gz.sig
 # XXX patent tainted SRP code removed.
 Source0: %{name}-%{version}-nosrp.tar.bz2
 Source1: libgnutls-config
@@ -147,6 +147,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Fri Aug 14 2009 Tomas Mraz <tmraz@redhat.com> 2.8.3-1
+- upgrade to a new upstream version
+
 * Fri Jul 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.8.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
