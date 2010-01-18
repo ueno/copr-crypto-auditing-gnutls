@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 2.8.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -75,6 +75,7 @@ done
 autoreconf
 %configure --with-libtasn1-prefix=%{_prefix} \
            --with-included-libcfg \
+           --disable-static \
            --disable-srp-authentication
 make
 cp lib/COPYING COPYING.LIB
@@ -126,7 +127,6 @@ fi
 %defattr(-,root,root,-)
 %{_bindir}/libgnutls*-config
 %{_includedir}/*
-%{_libdir}/libgnutls*.a
 %{_libdir}/libgnutls*.so
 %{_libdir}/pkgconfig/*.pc
 %{_mandir}/man3/*
@@ -147,6 +147,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Mon Jan 18 2010 Tomas Mraz <tmraz@redhat.com> 2.8.5-2
+- do not create static libraries (#556052)
+
 * Mon Nov  2 2009 Tomas Mraz <tmraz@redhat.com> 2.8.5-1
 - upgrade to a new upstream version
 
