@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 2.8.5
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -15,6 +15,7 @@ URL: http://www.gnutls.org/
 # XXX patent tainted SRP code removed.
 Source0: %{name}-%{version}-nosrp.tar.bz2
 Source1: libgnutls-config
+Patch1: gnutls-2.8.5-rpath.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -29,6 +30,7 @@ Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
 
 %package utils
+License: GPLv3+
 Summary: Command line tools for TLS protocol
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
@@ -66,13 +68,13 @@ This package contains Guile bindings for the library.
 
 %prep
 %setup -q
+%patch1 -p1 -b .rpath
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
 done
 
 %build
-autoreconf
 %configure --with-libtasn1-prefix=%{_prefix} \
            --with-included-libcfg \
            --disable-static \
@@ -147,6 +149,11 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Thu Jan 28 2010 Tomas Mraz <tmraz@redhat.com> 2.8.5-3
+- drop superfluous rpath from binaries
+- do not call autoreconf during build
+- specify the license on utils subpackage
+
 * Mon Jan 18 2010 Tomas Mraz <tmraz@redhat.com> 2.8.5-2
 - do not create static libraries (#556052)
 
