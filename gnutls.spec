@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 2.8.5
-Release: 3%{?dist}
+Release: 4%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -16,6 +16,8 @@ URL: http://www.gnutls.org/
 Source0: %{name}-%{version}-nosrp.tar.bz2
 Source1: libgnutls-config
 Patch1: gnutls-2.8.5-rpath.patch
+# upstreamable patch fixing implicit linking against libgcrypt
+Patch2: gnutls-2.8.5-ImplicitDSOLinking_libgcrypt.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -69,12 +71,16 @@ This package contains Guile bindings for the library.
 %prep
 %setup -q
 %patch1 -p1 -b .rpath
+%patch2 -p1 -b .ImplicitDSOLinking_libgcrypt
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
 done
 
 %build
+
+export LDFLAGS="-Wl,--no-add-needed"
+
 %configure --with-libtasn1-prefix=%{_prefix} \
            --with-included-libcfg \
            --disable-static \
@@ -149,6 +155,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Mon Feb 15 2010 Rex Dieter <rdieter@fedoraproject.org> 2.8.5-4
+- FTBFS gnutls-2.8.5-3.fc13: ImplicitDSOLinking (#564624)
+
 * Thu Jan 28 2010 Tomas Mraz <tmraz@redhat.com> 2.8.5-3
 - drop superfluous rpath from binaries
 - do not call autoreconf during build
