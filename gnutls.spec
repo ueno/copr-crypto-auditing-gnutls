@@ -16,6 +16,7 @@ URL: http://www.gnutls.org/
 Source0: %{name}-%{version}-nosrp.tar.bz2
 Source1: libgnutls-config
 Patch1: gnutls-2.8.5-rpath.patch
+Patch2: gnutls-2.8.6-link-libgcrypt.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -69,6 +70,7 @@ This package contains Guile bindings for the library.
 %prep
 %setup -q
 %patch1 -p1 -b .rpath
+%patch2 -p1 -b .link
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
