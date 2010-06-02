@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 2.8.6
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -17,6 +17,7 @@ Source0: %{name}-%{version}-nosrp.tar.bz2
 Source1: libgnutls-config
 Patch1: gnutls-2.8.5-rpath.patch
 Patch2: gnutls-2.8.6-link-libgcrypt.patch
+Patch3: gnutls-2.8.6-safe-renegotiation.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -71,10 +72,13 @@ This package contains Guile bindings for the library.
 %setup -q
 %patch1 -p1 -b .rpath
 %patch2 -p1 -b .link
+%patch3 -p1 -b .reneg
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
 done
+
+chmod a+x tests/safe-renegotiation/testsrn
 
 %build
 
@@ -154,6 +158,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Wed Jun  2 2010 Tomas Mraz <tmraz@redhat.com> 2.8.6-2
+- add support for safe renegotiation CVE-2009-3555 (#533125)
+
 * Wed May 12 2010 Tomas Mraz <tmraz@redhat.com> 2.8.6-1
 - upgrade to a new upstream version
 
