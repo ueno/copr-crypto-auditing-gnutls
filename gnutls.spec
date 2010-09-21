@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 2.10.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -19,6 +19,8 @@ Patch1: gnutls-2.8.5-rpath.patch
 Patch2: gnutls-2.8.6-link-libgcrypt.patch
 # Remove nonexisting references from texinfo file
 Patch3: gnutls-2.10.1-nosrp.patch
+# Backport from upstream git
+Patch4: gnutls-2.10.1-hanshake-errors.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -74,6 +76,7 @@ This package contains Guile bindings for the library.
 %patch1 -p1 -b .rpath
 %patch2 -p1 -b .link
 %patch3 -p1 -b .nosrp
+%patch4 -p1 -b .errors
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
@@ -157,6 +160,10 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Tue Sep 21 2010 Tomas Mraz <tmraz@redhat.com> 2.10.1-2
+- backported patch from upstream git hopefully fixing internal errors
+  (#629858)
+
 * Wed Aug  4 2010 Tomas Mraz <tmraz@redhat.com> 2.10.1-1
 - new upstream version
 
