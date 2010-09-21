@@ -20,7 +20,7 @@ Patch2: gnutls-2.8.6-link-libgcrypt.patch
 # Remove nonexisting references from texinfo file
 Patch3: gnutls-2.10.1-nosrp.patch
 # Backport from upstream git
-Patch4: gnutls-2.10.1-hanshake-errors.patch
+Patch4: gnutls-2.10.1-handshake-errors.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
