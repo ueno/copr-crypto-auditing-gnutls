@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 2.10.1
-Release: 3%{?dist}
+Release: 4%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -162,6 +162,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Wed Sep 29 2010 jkeating - 2.10.1-4
+- Rebuilt for gcc bug 634757
+
 * Thu Sep 23 2010 Tomas Mraz <tmraz@redhat.com> 2.10.1-3
 - more patching for internal errors regression (#629858)
   patch by Vivek Dasmohapatra
