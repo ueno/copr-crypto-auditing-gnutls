@@ -1,6 +1,6 @@
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 2.10.2
+Version: 2.10.3
 Release: 1%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
@@ -15,7 +15,7 @@ URL: http://www.gnutls.org/
 # XXX patent tainted SRP code removed.
 Source0: %{name}-%{version}-nosrp.tar.bz2
 Source1: libgnutls-config
-Patch1: gnutls-2.10.2-rpath.patch
+Patch1: gnutls-2.10.3-rpath.patch
 Patch2: gnutls-2.8.6-link-libgcrypt.patch
 # Remove nonexisting references from texinfo file
 Patch3: gnutls-2.10.1-nosrp.patch
@@ -160,6 +160,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Fri Nov 19 2010 Tomas Mraz <tmraz@redhat.com> 2.10.3-1
+- new upstream version
+
 * Thu Sep 30 2010 Tomas Mraz <tmraz@redhat.com> 2.10.2-1
 - new upstream version
 
