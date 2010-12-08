@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 2.10.3
-Release: 2%{?dist}
+Version: 2.10.4
+Release: 1%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -15,14 +15,12 @@ URL: http://www.gnutls.org/
 # XXX patent tainted SRP code removed.
 Source0: %{name}-%{version}-nosrp.tar.bz2
 Source1: libgnutls-config
-Patch1: gnutls-2.10.3-rpath.patch
+Patch1: gnutls-2.10.4-rpath.patch
 Patch2: gnutls-2.8.6-link-libgcrypt.patch
 # Remove nonexisting references from texinfo file
 Patch3: gnutls-2.10.1-nosrp.patch
 # Backport from upstream git
 Patch4: gnutls-2.10.1-handshake-errors.patch
-# Sent to upstream
-Patch5: gnutls-2.10.3-sprintf.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -79,7 +77,6 @@ This package contains Guile bindings for the library.
 %patch2 -p1 -b .link
 %patch3 -p1 -b .nosrp
 %patch4 -p1 -b .errors
-%patch5 -p1 -b .sprintf
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
@@ -163,6 +160,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Wed Dec  8 2010 Tomas Mraz <tmraz@redhat.com> 2.10.4-1
+- new upstream version
+
 * Tue Dec  2 2010 Tomas Mraz <tmraz@redhat.com> 2.10.3-2
 - fix buffer overflow in gnutls-serv (#659259)
 
