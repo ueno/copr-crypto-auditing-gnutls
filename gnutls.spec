@@ -1,6 +1,6 @@
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 2.10.5
+Version: 2.12.2
 Release: 1%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
@@ -15,12 +15,10 @@ URL: http://www.gnutls.org/
 # XXX patent tainted SRP code removed.
 Source0: %{name}-%{version}-nosrp.tar.bz2
 Source1: libgnutls-config
-Patch1: gnutls-2.10.4-rpath.patch
+Patch1: gnutls-2.12.2-rpath.patch
 Patch2: gnutls-2.8.6-link-libgcrypt.patch
 # Remove nonexisting references from texinfo file
-Patch3: gnutls-2.10.1-nosrp.patch
-# Backport from upstream git
-Patch4: gnutls-2.10.1-handshake-errors.patch
+Patch3: gnutls-2.12.2-nosrp.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -76,7 +74,6 @@ This package contains Guile bindings for the library.
 %patch1 -p1 -b .rpath
 %patch2 -p1 -b .link
 %patch3 -p1 -b .nosrp
-%patch4 -p1 -b .errors
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
@@ -89,13 +86,15 @@ export LDFLAGS="-Wl,--no-add-needed"
 %configure --with-libtasn1-prefix=%{_prefix} \
            --with-included-libcfg \
            --disable-static \
-           --disable-srp-authentication
+           --disable-srp-authentication \
+           --disable-rpath \
+           --with-libgcrypt
 make
 cp lib/COPYING COPYING.LIB
 
 %install
 rm -fr $RPM_BUILD_ROOT
-%makeinstall
+make install DESTDIR=$RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT%{_bindir}/srptool
 rm -f $RPM_BUILD_ROOT%{_bindir}/gnutls-srpcrypt
 cp -f %{SOURCE1} $RPM_BUILD_ROOT%{_bindir}/libgnutls-config
@@ -144,11 +143,13 @@ fi
 %{_libdir}/pkgconfig/*.pc
 %{_mandir}/man3/*
 %{_infodir}/gnutls*
+%{_infodir}/pkcs11-vision*
 
 %files utils
 %defattr(-,root,root,-)
 %{_bindir}/certtool
 %{_bindir}/psktool
+%{_bindir}/p11tool
 %{_bindir}/gnutls*
 %{_mandir}/man1/*
 %doc doc/certtool.cfg
@@ -160,6 +161,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Mon Apr 18 2011 Tomas Mraz <tmraz@redhat.com> 2.12.2-1
+- new upstream version
+
 * Thu Mar  3 2011 Tomas Mraz <tmraz@redhat.com> 2.10.5-1
 - new upstream version
 
