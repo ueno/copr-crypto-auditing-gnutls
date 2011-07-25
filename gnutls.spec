@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 2.12.7
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -21,14 +21,21 @@ Patch2: gnutls-2.8.6-link-libgcrypt.patch
 Patch3: gnutls-2.12.2-nosrp.patch
 # Skip tests that are expected to fail on libgcrypt build
 Patch4: gnutls-2.12.7-dsa-skiptests.patch
+# Patch incorrect calls to libgcrypt (patch by Andreas Metzler)
+Patch5: gnutls-2.12.7-libgcrypt-mpi.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
 
+%package c++
+Summary: The C++ interface to GnuTLS
+Requires: %{name}%{?_isa} = %{version}-%{release}
+
 %package devel
 Summary: Development files for the %{name} package
 Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: %{name}-c++%{?_isa} = %{version}-%{release}
 Requires: libgcrypt-devel
 Requires: pkgconfig
 Requires(post): /sbin/install-info
@@ -38,18 +45,24 @@ Requires(preun): /sbin/install-info
 License: GPLv3+
 Summary: Command line tools for TLS protocol
 Group: Applications/System
-Requires: %{name} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %package guile
 Summary: Guile bindings for the GNUTLS library
 Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{version}-%{release}
 Requires: guile
 
 %description
 GnuTLS is a project that aims to develop a library which provides a secure 
 layer, over a reliable transport layer. Currently the GnuTLS library implements
 the proposed standards by the IETF's TLS working group.
+
+%description c++
+GnuTLS is a project that aims to develop a library which provides a secure
+layer, over a reliable transport layer. Currently the GnuTLS library implements
+the proposed standards by the IETF's TLS working group.
+This package contains the C++ interface for the GnuTLS library.
 
 %description devel
 GnuTLS is a project that aims to develop a library which provides a secure
@@ -77,6 +90,7 @@ This package contains Guile bindings for the library.
 %patch2 -p1 -b .link
 %patch3 -p1 -b .nosrp
 %patch4 -p1 -b .skiptests
+%patch5 -p1 -b .mpi
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
@@ -89,6 +103,7 @@ export LDFLAGS="-Wl,--no-add-needed"
 %configure --with-libtasn1-prefix=%{_prefix} \
            --with-included-libcfg \
            --disable-static \
+           --disable-openssl-compatibility \
            --disable-srp-authentication \
            --disable-rpath \
            --with-libgcrypt
@@ -119,6 +134,10 @@ rm -fr $RPM_BUILD_ROOT
 
 %postun -p /sbin/ldconfig
 
+%post c++ -p /sbin/ldconfig
+
+%postun c++ -p /sbin/ldconfig
+
 %post devel
 if [ -f %{_infodir}/gnutls.info.gz ]; then
     /sbin/install-info %{_infodir}/gnutls.info.gz %{_infodir}/dir || :
@@ -135,8 +154,12 @@ fi
 
 %files -f libgnutls.lang
 %defattr(-,root,root,-)
-%{_libdir}/libgnutls*.so.*
+%{_libdir}/libgnutls.so.*
+%{_libdir}/libgnutls-extra.so.*
 %doc COPYING COPYING.LIB README AUTHORS
+
+%files c++
+%{_libdir}/libgnutlsxx.so.*
 
 %files devel
 %defattr(-,root,root,-)
@@ -164,6 +187,11 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Mon Jul 25 2011 Tomas Mraz <tmraz@redhat.com> 2.12.7-2
+- fix problem when using new libgcrypt
+- split libgnutlsxx to a subpackage (#455146)
+- drop libgnutls-openssl (#460310)
+
 * Tue Jun 21 2011 Tomas Mraz <tmraz@redhat.com> 2.12.7-1
 - new upstream version
 
