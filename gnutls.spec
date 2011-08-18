@@ -1,11 +1,11 @@
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 2.12.7
-Release: 2%{?dist}
+Version: 2.12.8
+Release: 1%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
-BuildRequires: libgcrypt-devel >= 1.2.2, gettext
+BuildRequires: libgcrypt-devel >= 1.2.2, p11-kit-devel, gettext
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel
 BuildRequires: lzo-devel, libtool, automake, autoconf
 BuildRequires: guile-devel
@@ -21,8 +21,6 @@ Patch2: gnutls-2.8.6-link-libgcrypt.patch
 Patch3: gnutls-2.12.2-nosrp.patch
 # Skip tests that are expected to fail on libgcrypt build
 Patch4: gnutls-2.12.7-dsa-skiptests.patch
-# Patch incorrect calls to libgcrypt (patch by Andreas Metzler)
-Patch5: gnutls-2.12.7-libgcrypt-mpi.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -90,7 +88,6 @@ This package contains Guile bindings for the library.
 %patch2 -p1 -b .link
 %patch3 -p1 -b .nosrp
 %patch4 -p1 -b .skiptests
-%patch5 -p1 -b .mpi
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
@@ -187,6 +184,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Tue Aug 16 2011 Tomas Mraz <tmraz@redhat.com> 2.12.8-1
+- new upstream version
+
 * Mon Jul 25 2011 Tomas Mraz <tmraz@redhat.com> 2.12.7-2
 - fix problem when using new libgcrypt
 - split libgnutlsxx to a subpackage (#455146)
