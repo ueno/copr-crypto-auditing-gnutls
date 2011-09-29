@@ -1,8 +1,8 @@
-diff -up gnutls-2.12.2/build-aux/config.rpath gnutls-2.12.2/build-aux/config
-diff -up gnutls-2.12.2/configure.rpath gnutls-2.12.2/configure
---- gnutls-2.12.2/configure.rpath	2011-04-08 18:18:09.000000000 +0200
-+++ gnutls-2.12.2/configure	2011-04-19 10:55:42.000000000 +0200
-@@ -16740,7 +16740,7 @@ shlibpath_var=
+diff -up gnutls-2.12.11/build-aux/config.rpath gnutls-2.12.11/build-aux/config
+diff -up gnutls-2.12.11/configure.rpath gnutls-2.12.11/configure
+--- gnutls-2.12.11/configure.rpath	2011-09-18 20:32:37.000000000 +0200
++++ gnutls-2.12.11/configure	2011-09-27 18:32:17.000000000 +0200
+@@ -16377,7 +16377,7 @@ shlibpath_var=
  shlibpath_overrides_runpath=unknown
  version_type=none
  dynamic_linker="$host_os ld.so"
@@ -11,16 +11,16 @@ diff -up gnutls-2.12.2/configure.rpath gnutls-2.12.2/configure
  need_lib_prefix=unknown
  hardcode_into_libs=no
  
-@@ -17125,7 +17125,7 @@ rm -f core conftest.err conftest.$ac_obj
+@@ -16835,7 +16835,7 @@ fi
    # Append ld.so.conf contents to the search path
    if test -f /etc/ld.so.conf; then
-     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
+     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;s/"//g;/^$/d' | tr '\n' ' '`
 -    sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
 +    sys_lib_dlsearch_path_spec="/lib /usr/lib /lib64 /usr/lib64 $lt_ld_extra"
    fi
  
    # We used to test for /lib/ld.so.1 and disable shared libraries on
-@@ -20209,7 +20209,7 @@ shlibpath_var=
+@@ -20228,7 +20228,7 @@ shlibpath_var=
  shlibpath_overrides_runpath=unknown
  version_type=none
  dynamic_linker="$host_os ld.so"
@@ -29,20 +29,20 @@ diff -up gnutls-2.12.2/configure.rpath gnutls-2.12.2/configure
  need_lib_prefix=unknown
  hardcode_into_libs=no
  
-@@ -20593,7 +20593,7 @@ rm -f core conftest.err conftest.$ac_obj
+@@ -20684,7 +20684,7 @@ fi
    # Append ld.so.conf contents to the search path
    if test -f /etc/ld.so.conf; then
-     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
+     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;s/"//g;/^$/d' | tr '\n' ' '`
 -    sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
 +    sys_lib_dlsearch_path_spec="/lib /usr/lib /lib64 /usr/lib64 $lt_ld_extra"
    fi
  
    # We used to test for /lib/ld.so.1 and disable shared libraries on
-diff -up gnutls-2.12.2/lib/build-aux/config.rpath gnutls-2.12.2/lib/build-aux/config
-diff -up gnutls-2.12.2/lib/configure.rpath gnutls-2.12.2/lib/configure
---- gnutls-2.12.2/lib/configure.rpath	2011-04-08 18:17:13.000000000 +0200
-+++ gnutls-2.12.2/lib/configure	2011-04-19 10:57:03.000000000 +0200
-@@ -10842,7 +10842,7 @@ shlibpath_var=
+diff -up gnutls-2.12.11/lib/build-aux/config.rpath gnutls-2.12.11/lib/build-aux/config
+diff -up gnutls-2.12.11/lib/configure.rpath gnutls-2.12.11/lib/configure
+--- gnutls-2.12.11/lib/configure.rpath	2011-09-18 20:31:32.000000000 +0200
++++ gnutls-2.12.11/lib/configure	2011-09-27 18:33:22.000000000 +0200
+@@ -11989,7 +11989,7 @@ shlibpath_var=
  shlibpath_overrides_runpath=unknown
  version_type=none
  dynamic_linker="$host_os ld.so"
@@ -51,38 +51,39 @@ diff -up gnutls-2.12.2/lib/configure.rpath gnutls-2.12.2/lib/configure
  need_lib_prefix=unknown
  hardcode_into_libs=no
  
-@@ -11227,7 +11227,7 @@ rm -f core conftest.err conftest.$ac_obj
+@@ -12447,7 +12447,7 @@ fi
    # Append ld.so.conf contents to the search path
    if test -f /etc/ld.so.conf; then
-     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
+     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;s/"//g;/^$/d' | tr '\n' ' '`
 -    sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
 +    sys_lib_dlsearch_path_spec="/lib /usr/lib /lib64 /usr/lib64 $lt_ld_extra"
    fi
  
    # We used to test for /lib/ld.so.1 and disable shared libraries on
-@@ -28572,7 +28572,7 @@ shlibpath_var=
+@@ -30102,7 +30102,8 @@ shlibpath_var=
  shlibpath_overrides_runpath=unknown
  version_type=none
  dynamic_linker="$host_os ld.so"
 -sys_lib_dlsearch_path_spec="/lib /usr/lib"
++
 +sys_lib_dlsearch_path_spec="/lib /usr/lib /lib64 /usr/lib64"
  need_lib_prefix=unknown
  hardcode_into_libs=no
  
-@@ -28956,7 +28956,7 @@ rm -f core conftest.err conftest.$ac_obj
+@@ -30558,7 +30559,7 @@ fi
    # Append ld.so.conf contents to the search path
    if test -f /etc/ld.so.conf; then
-     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
+     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;s/"//g;/^$/d' | tr '\n' ' '`
 -    sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
 +    sys_lib_dlsearch_path_spec="/lib /usr/lib /lib64 /usr/lib64 $lt_ld_extra"
    fi
  
    # We used to test for /lib/ld.so.1 and disable shared libraries on
-diff -up gnutls-2.12.2/libextra/build-aux/config.rpath gnutls-2.12.2/libextra/build-aux/config
-diff -up gnutls-2.12.2/libextra/configure.rpath gnutls-2.12.2/libextra/configure
---- gnutls-2.12.2/libextra/configure.rpath	2011-04-08 18:17:42.000000000 +0200
-+++ gnutls-2.12.2/libextra/configure	2011-04-19 10:57:59.000000000 +0200
-@@ -9971,7 +9971,7 @@ shlibpath_var=
+diff -up gnutls-2.12.11/libextra/build-aux/config.rpath gnutls-2.12.11/libextra/build-aux/config
+diff -up gnutls-2.12.11/libextra/configure.rpath gnutls-2.12.11/libextra/configure
+--- gnutls-2.12.11/libextra/configure.rpath	2011-09-18 20:32:07.000000000 +0200
++++ gnutls-2.12.11/libextra/configure	2011-09-27 18:33:55.000000000 +0200
+@@ -10658,7 +10658,7 @@ shlibpath_var=
  shlibpath_overrides_runpath=unknown
  version_type=none
  dynamic_linker="$host_os ld.so"
@@ -91,10 +92,10 @@ diff -up gnutls-2.12.2/libextra/configure.rpath gnutls-2.12.2/libextra/configure
  need_lib_prefix=unknown
  hardcode_into_libs=no
  
-@@ -10356,7 +10356,7 @@ rm -f core conftest.err conftest.$ac_obj
+@@ -11116,7 +11116,7 @@ fi
    # Append ld.so.conf contents to the search path
    if test -f /etc/ld.so.conf; then
-     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
+     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;s/"//g;/^$/d' | tr '\n' ' '`
 -    sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
 +    sys_lib_dlsearch_path_spec="/lib /usr/lib /lib64 /usr/lib64 $lt_ld_extra"
    fi
