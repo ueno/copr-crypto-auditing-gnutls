@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 2.12.14
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -103,6 +103,9 @@ export LDFLAGS="-Wl,--no-add-needed"
            --disable-openssl-compatibility \
            --disable-srp-authentication \
            --disable-rpath \
+%ifarch %{arm}
+           --disable-largefile \
+%endif
            --with-libgcrypt
 make
 cp lib/COPYING COPYING.LIB
@@ -184,6 +187,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Fri Feb 03 2012 Kevin Fenzi <kevin@scrye.com> - 2.12.14-3
+- Disable largefile on arm arch. (#787287)
+
 * Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.12.14-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
