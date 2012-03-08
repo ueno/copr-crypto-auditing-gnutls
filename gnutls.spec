@@ -1,11 +1,11 @@
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 2.12.14
-Release: 3%{?dist}
+Version: 2.12.17
+Release: 1%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
-BuildRequires: libgcrypt-devel >= 1.2.2, p11-kit-devel, gettext
+BuildRequires: libgcrypt-devel >= 1.2.2, p11-kit-devel >= 0.11, gettext
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel
 BuildRequires: lzo-devel, libtool, automake, autoconf
 BuildRequires: guile-devel
@@ -13,7 +13,7 @@ URL: http://www.gnutls.org/
 #Source0: ftp://ftp.gnutls.org/pub/gnutls/%{name}-%{version}.tar.gz
 #Source1: ftp://ftp.gnutls.org/pub/gnutls/%{name}-%{version}.tar.gz.sig
 # XXX patent tainted SRP code removed.
-Source0: %{name}-%{version}-nosrp.tar.bz2
+Source0: %{name}-%{version}-nosrp.tar.xz
 Source1: libgnutls-config
 Patch1: gnutls-2.12.11-rpath.patch
 Patch2: gnutls-2.8.6-link-libgcrypt.patch
@@ -21,6 +21,7 @@ Patch2: gnutls-2.8.6-link-libgcrypt.patch
 Patch3: gnutls-2.12.2-nosrp.patch
 # Skip tests that are expected to fail on libgcrypt build
 Patch4: gnutls-2.12.7-dsa-skiptests.patch
+Patch5: gnutls-2.12.14-leak.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -88,6 +89,7 @@ This package contains Guile bindings for the library.
 %patch2 -p1 -b .link
 %patch3 -p1 -b .nosrp
 %patch4 -p1 -b .skiptests
+%patch5 -p1 -b .leak
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
@@ -107,6 +109,8 @@ export LDFLAGS="-Wl,--no-add-needed"
            --disable-largefile \
 %endif
            --with-libgcrypt
+# Note that the arm hack above is not quite right and the proper thing would
+# be to compile guile with largefile support.
 make
 cp lib/COPYING COPYING.LIB
 
@@ -187,6 +191,10 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Thu Mar  8 2012 Tomas Mraz <tmraz@redhat.com> 2.12.17-1
+- new upstream version
+- fix leaks in key generation (#796302)
+
 * Fri Feb 03 2012 Kevin Fenzi <kevin@scrye.com> - 2.12.14-3
 - Disable largefile on arm arch. (#787287)
 
