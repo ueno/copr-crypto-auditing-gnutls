@@ -1,6 +1,6 @@
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 2.12.18
+Version: 2.12.19
 Release: 1%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
@@ -24,6 +24,8 @@ Patch4: gnutls-2.12.7-dsa-skiptests.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
+# Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
+Provides: bundled(gnulib) = 20120301
 
 %package c++
 Summary: The C++ interface to GnuTLS
@@ -189,6 +191,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Fri May 18 2012 Tomas Mraz <tmraz@redhat.com> 2.12.19-1
+- new upstream version
+
 * Thu Mar 29 2012 Tomas Mraz <tmraz@redhat.com> 2.12.18-1
 - new upstream version
 
