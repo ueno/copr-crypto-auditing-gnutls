@@ -21,6 +21,8 @@ Patch2: gnutls-2.8.6-link-libgcrypt.patch
 Patch3: gnutls-2.12.2-nosrp.patch
 # Skip tests that are expected to fail on libgcrypt build
 Patch4: gnutls-2.12.7-dsa-skiptests.patch
+# Make it build with recent glibc that removed gets
+Patch5: gnutls-2.12.20-build.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -86,10 +88,12 @@ This package contains Guile bindings for the library.
 
 %prep
 %setup -q
+
 %patch1 -p1 -b .rpath
 %patch2 -p1 -b .link
 %patch3 -p1 -b .nosrp
 %patch4 -p1 -b .skiptests
+%patch5 -p1 -b .build
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
