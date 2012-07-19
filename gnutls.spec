@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 2.12.20
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -195,6 +195,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.12.20-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Mon Jun 18 2012 Tomas Mraz <tmraz@redhat.com> 2.12.20-1
 - new upstream version
 
