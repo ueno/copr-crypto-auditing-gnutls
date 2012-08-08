@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 2.12.20
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -23,6 +23,8 @@ Patch3: gnutls-2.12.2-nosrp.patch
 Patch4: gnutls-2.12.7-dsa-skiptests.patch
 # Make it build with recent glibc that removed gets
 Patch5: gnutls-2.12.20-build.patch
+# Fix the gnutls-cli-debug manpage
+Patch6: gnutls-2.12.20-cli-debug-manpage.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -94,6 +96,7 @@ This package contains Guile bindings for the library.
 %patch3 -p1 -b .nosrp
 %patch4 -p1 -b .skiptests
 %patch5 -p1 -b .build
+%patch6 -p1 -b .cli-debug
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
@@ -195,6 +198,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Wed Aug  8 2012 Tomas Mraz <tmraz@redhat.com> 2.12.20-3
+- fix the gnutls-cli-debug manpage - patch by Peter Schiffer
+
 * Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.12.20-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
