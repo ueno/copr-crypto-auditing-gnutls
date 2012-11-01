@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 2.12.20
-Release: 3%{?dist}
+Release: 4%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -25,6 +25,8 @@ Patch4: gnutls-2.12.7-dsa-skiptests.patch
 Patch5: gnutls-2.12.20-build.patch
 # Fix the gnutls-cli-debug manpage
 Patch6: gnutls-2.12.20-cli-debug-manpage.patch
+# Use only FIPS approved ciphers in the FIPS mode
+Patch7: gnutls-2.12.20-fips-algorithms.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -97,6 +99,7 @@ This package contains Guile bindings for the library.
 %patch4 -p1 -b .skiptests
 %patch5 -p1 -b .build
 %patch6 -p1 -b .cli-debug
+%patch7 -p1 -b .fips
 
 for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
     touch lib/$i
@@ -198,6 +201,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Thu Nov  1 2012 Tomas Mraz <tmraz@redhat.com> 2.12.20-4
+- negotiate only FIPS approved algorithms in the FIPS mode (#871826)
+
 * Wed Aug  8 2012 Tomas Mraz <tmraz@redhat.com> 2.12.20-3
 - fix the gnutls-cli-debug manpage - patch by Peter Schiffer
 
