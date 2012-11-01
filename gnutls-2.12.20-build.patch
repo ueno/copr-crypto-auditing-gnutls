@@ -1,6 +1,6 @@
 diff -up gnutls-2.12.20/gl/stdio.in.h.build gnutls-2.12.20/gl/stdio.in.h
 --- gnutls-2.12.20/gl/stdio.in.h.build	2012-03-01 16:47:48.000000000 +0100
-+++ gnutls-2.12.20/gl/stdio.in.h	2012-06-18 16:50:51.307755234 +0200
++++ gnutls-2.12.20/gl/stdio.in.h	2012-11-01 12:51:06.030089218 +0100
 @@ -698,7 +698,7 @@ _GL_WARN_ON_USE (getline, "getline is un
  # endif
  #endif
@@ -10,9 +10,30 @@ diff -up gnutls-2.12.20/gl/stdio.in.h.build gnutls-2.12.20/gl/stdio.in.h
  # if @REPLACE_STDIO_READ_FUNCS@ && @GNULIB_STDIO_H_NONBLOCKING@
  #  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
  #   undef gets
+diff -up gnutls-2.12.20/gl/tests/fcntl.in.h.build gnutls-2.12.20/gl/tests/fcntl.in.h
+--- gnutls-2.12.20/gl/tests/fcntl.in.h.build	2012-03-01 16:47:48.000000000 +0100
++++ gnutls-2.12.20/gl/tests/fcntl.in.h	2012-11-01 12:54:17.998228912 +0100
+@@ -32,7 +32,7 @@
+    extern "C" { ... } block, which leads to errors in C++ mode with the
+    overridden <sys/stat.h> from gnulib.  These errors are known to be gone
+    with g++ version >= 4.3.  */
+-#if !(defined __GLIBC__ || defined __UCLIBC__) || (defined __cplusplus && defined GNULIB_NAMESPACE && !(__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)))
++#if !(defined __UCLIBC__) || (defined __cplusplus && defined GNULIB_NAMESPACE && !(__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)))
+ # include <sys/stat.h>
+ #endif
+ #@INCLUDE_NEXT@ @NEXT_FCNTL_H@
+@@ -49,7 +49,7 @@
+    extern "C" { ... } block, which leads to errors in C++ mode with the
+    overridden <sys/stat.h> from gnulib.  These errors are known to be gone
+    with g++ version >= 4.3.  */
+-#if !(defined __GLIBC__ || defined __UCLIBC__) || (defined __cplusplus && defined GNULIB_NAMESPACE && !(__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)))
++#if !(defined __UCLIBC__) || (defined __cplusplus && defined GNULIB_NAMESPACE && !(__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)))
+ # include <sys/stat.h>
+ #endif
+ /* The include_next requires a split double-inclusion guard.  */
 diff -up gnutls-2.12.20/gl/tests/test-fcntl-h.c.build gnutls-2.12.20/gl/tests/test-fcntl-h.c
---- gnutls-2.12.20/gl/tests/test-fcntl-h.c.build	2012-11-01 12:19:29.127538330 +0100
-+++ gnutls-2.12.20/gl/tests/test-fcntl-h.c	2012-11-01 12:19:36.754703316 +0100
+--- gnutls-2.12.20/gl/tests/test-fcntl-h.c.build	2012-03-01 16:47:49.000000000 +0100
++++ gnutls-2.12.20/gl/tests/test-fcntl-h.c	2012-11-01 12:51:06.030089218 +0100
 @@ -18,6 +18,8 @@
  
  #include <config.h>
@@ -24,7 +45,7 @@ diff -up gnutls-2.12.20/gl/tests/test-fcntl-h.c.build gnutls-2.12.20/gl/tests/te
  /* Check that the various O_* macros are defined.  */
 diff -up gnutls-2.12.20/lib/gl/stdio.in.h.build gnutls-2.12.20/lib/gl/stdio.in.h
 --- gnutls-2.12.20/lib/gl/stdio.in.h.build	2012-03-01 16:53:13.000000000 +0100
-+++ gnutls-2.12.20/lib/gl/stdio.in.h	2012-06-18 16:50:22.846115787 +0200
++++ gnutls-2.12.20/lib/gl/stdio.in.h	2012-11-01 12:51:06.030089218 +0100
 @@ -698,7 +698,7 @@ _GL_WARN_ON_USE (getline, "getline is un
  # endif
  #endif
