@@ -10,18 +10,6 @@ diff -up gnutls-2.12.20/gl/stdio.in.h.build gnutls-2.12.20/gl/stdio.in.h
  # if @REPLACE_STDIO_READ_FUNCS@ && @GNULIB_STDIO_H_NONBLOCKING@
  #  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
  #   undef gets
-diff -up gnutls-2.12.20/gl/tests/test-fcntl-h.c.build gnutls-2.12.20/gl/tests/test-fcntl-h.c
---- gnutls-2.12.20/gl/tests/test-fcntl-h.c.build	2012-11-01 12:19:29.127538330 +0100
-+++ gnutls-2.12.20/gl/tests/test-fcntl-h.c	2012-11-01 12:19:36.754703316 +0100
-@@ -18,6 +18,8 @@
- 
- #include <config.h>
- 
-+#include <sys/types.h>
-+#include <sys/stat.h>
- #include <fcntl.h>
- 
- /* Check that the various O_* macros are defined.  */
 diff -up gnutls-2.12.20/lib/gl/stdio.in.h.build gnutls-2.12.20/lib/gl/stdio.in.h
 --- gnutls-2.12.20/lib/gl/stdio.in.h.build	2012-03-01 16:53:13.000000000 +0100
 +++ gnutls-2.12.20/lib/gl/stdio.in.h	2012-06-18 16:50:22.846115787 +0200
