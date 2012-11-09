@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 2.12.20
-Release: 4%{?dist}
+Version: 2.12.21
+Release: 1%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -201,6 +201,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Fri Nov  9 2012 Tomas Mraz <tmraz@redhat.com> 2.12.21-1
+- new upstream version
+
 * Thu Nov  1 2012 Tomas Mraz <tmraz@redhat.com> 2.12.20-4
 - negotiate only FIPS approved algorithms in the FIPS mode (#871826)
 
