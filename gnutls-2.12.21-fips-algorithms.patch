@@ -1,6 +1,6 @@
-diff -up gnutls-2.12.20/lib/gcrypt/init.c.fips gnutls-2.12.20/lib/gcrypt/init.c
---- gnutls-2.12.20/lib/gcrypt/init.c.fips	2012-01-06 20:06:23.000000000 +0100
-+++ gnutls-2.12.20/lib/gcrypt/init.c	2012-11-01 11:00:34.954835974 +0100
+diff -up gnutls-2.12.21/lib/gcrypt/init.c.fips gnutls-2.12.21/lib/gcrypt/init.c
+--- gnutls-2.12.21/lib/gcrypt/init.c.fips	2012-01-06 20:06:23.000000000 +0100
++++ gnutls-2.12.21/lib/gcrypt/init.c	2012-11-09 19:57:54.651624659 +0100
 @@ -43,6 +43,8 @@ static struct gcry_thread_cbs gct = {
    .recvmsg = NULL,
  };
@@ -19,9 +19,29 @@ diff -up gnutls-2.12.20/lib/gcrypt/init.c.fips gnutls-2.12.20/lib/gcrypt/init.c
        /* for gcrypt in order to be able to allocate memory */
        gcry_control (GCRYCTL_DISABLE_SECMEM, NULL, 0);
  
-diff -up gnutls-2.12.20/lib/gnutls_priority.c.fips gnutls-2.12.20/lib/gnutls_priority.c
---- gnutls-2.12.20/lib/gnutls_priority.c.fips	2012-01-06 20:06:23.000000000 +0100
-+++ gnutls-2.12.20/lib/gnutls_priority.c	2012-11-01 11:02:52.505807199 +0100
+diff -up gnutls-2.12.21/lib/gnutls_algorithms.c.fips gnutls-2.12.21/lib/gnutls_algorithms.c
+--- gnutls-2.12.21/lib/gnutls_algorithms.c.fips	2012-01-06 20:06:23.000000000 +0100
++++ gnutls-2.12.21/lib/gnutls_algorithms.c	2012-11-28 14:19:34.507948036 +0100
+@@ -44,11 +44,11 @@ typedef struct
+ } gnutls_sec_params_entry;
+ 
+ static const gnutls_sec_params_entry sec_params[] = {
+-  {"Weak", GNUTLS_SEC_PARAM_WEAK, 64, 816, 1024, 128, 128},
+-  {"Low", GNUTLS_SEC_PARAM_LOW, 80, 1248, 2048, 160, 160},
+-  {"Normal", GNUTLS_SEC_PARAM_NORMAL, 112, 2432, 3072, 224, 224},
+-  {"High", GNUTLS_SEC_PARAM_HIGH, 128, 3248, 3072, 256, 256},
+-  {"Ultra", GNUTLS_SEC_PARAM_ULTRA, 256, 15424, 3072, 512, 512},
++  {"Weak", GNUTLS_SEC_PARAM_WEAK, 64, 1024, 1024, 128, 128},
++  {"Low", GNUTLS_SEC_PARAM_LOW, 80, 1280, 2048, 160, 160},
++  {"Normal", GNUTLS_SEC_PARAM_NORMAL, 112, 2560, 3072, 224, 224},
++  {"High", GNUTLS_SEC_PARAM_HIGH, 128, 3328, 3072, 256, 256},
++  {"Ultra", GNUTLS_SEC_PARAM_ULTRA, 256, 15616, 3072, 512, 512},
+   {NULL, 0, 0, 0, 0, 0}
+ };
+ 
+diff -up gnutls-2.12.21/lib/gnutls_priority.c.fips gnutls-2.12.21/lib/gnutls_priority.c
+--- gnutls-2.12.21/lib/gnutls_priority.c.fips	2012-11-08 17:11:11.000000000 +0100
++++ gnutls-2.12.21/lib/gnutls_priority.c	2012-11-09 19:57:54.651624659 +0100
 @@ -30,6 +30,7 @@
  #include "gnutls_algorithms.h"
  #include "gnutls_errors.h"

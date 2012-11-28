@@ -26,7 +26,7 @@ Patch5: gnutls-2.12.20-build.patch
 # Fix the gnutls-cli-debug manpage
 Patch6: gnutls-2.12.20-cli-debug-manpage.patch
 # Use only FIPS approved ciphers in the FIPS mode
-Patch7: gnutls-2.12.20-fips-algorithms.patch
+Patch7: gnutls-2.12.21-fips-algorithms.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -201,6 +201,10 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Wed Nov 28 2012 Tomas Mraz <tmraz@redhat.com> 2.12.21-2
+- use RSA bit sizes supported by libgcrypt in FIPS mode for security
+  levels (#879643)
+
 * Fri Nov  9 2012 Tomas Mraz <tmraz@redhat.com> 2.12.21-1
 - new upstream version
 
