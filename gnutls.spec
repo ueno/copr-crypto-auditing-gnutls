@@ -1,7 +1,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 2.12.21
-Release: 2%{?dist}
+Version: 2.12.22
+Release: 1%{?dist}
 # The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -21,8 +21,6 @@ Patch2: gnutls-2.8.6-link-libgcrypt.patch
 Patch3: gnutls-2.12.2-nosrp.patch
 # Skip tests that are expected to fail on libgcrypt build
 Patch4: gnutls-2.12.7-dsa-skiptests.patch
-# Make it build with recent glibc that removed gets
-Patch5: gnutls-2.12.20-build.patch
 # Fix the gnutls-cli-debug manpage
 Patch6: gnutls-2.12.20-cli-debug-manpage.patch
 # Use only FIPS approved ciphers in the FIPS mode
@@ -97,7 +95,6 @@ This package contains Guile bindings for the library.
 %patch2 -p1 -b .link
 %patch3 -p1 -b .nosrp
 %patch4 -p1 -b .skiptests
-%patch5 -p1 -b .build
 %patch6 -p1 -b .cli-debug
 %patch7 -p1 -b .fips
 
@@ -201,6 +198,9 @@ fi
 %{_datadir}/guile/site/gnutls.scm
 
 %changelog
+* Tue Jan  8 2013 Tomas Mraz <tmraz@redhat.com> 2.12.22-1
+- new upstream version
+
 * Wed Nov 28 2012 Tomas Mraz <tmraz@redhat.com> 2.12.21-2
 - use RSA bit sizes supported by libgcrypt in FIPS mode for security
   levels (#879643)
@@ -236,7 +236,7 @@ fi
 * Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.12.14-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
-* Mon Nov  8 2011 Tomas Mraz <tmraz@redhat.com> 2.12.14-1
+* Tue Nov  8 2011 Tomas Mraz <tmraz@redhat.com> 2.12.14-1
 - new upstream version
 
 * Mon Oct 24 2011 Tomas Mraz <tmraz@redhat.com> 2.12.12-1
@@ -259,7 +259,7 @@ fi
 * Tue Jun 21 2011 Tomas Mraz <tmraz@redhat.com> 2.12.7-1
 - new upstream version
 
-* Wed May  9 2011 Tomas Mraz <tmraz@redhat.com> 2.12.4-1
+* Mon May  9 2011 Tomas Mraz <tmraz@redhat.com> 2.12.4-1
 - new upstream version
 
 * Tue Apr 26 2011 Tomas Mraz <tmraz@redhat.com> 2.12.3-1
@@ -277,7 +277,7 @@ fi
 * Wed Dec  8 2010 Tomas Mraz <tmraz@redhat.com> 2.10.4-1
 - new upstream version
 
-* Tue Dec  2 2010 Tomas Mraz <tmraz@redhat.com> 2.10.3-2
+* Thu Dec  2 2010 Tomas Mraz <tmraz@redhat.com> 2.10.3-2
 - fix buffer overflow in gnutls-serv (#659259)
 
 * Fri Nov 19 2010 Tomas Mraz <tmraz@redhat.com> 2.10.3-1
@@ -494,8 +494,8 @@ fi
 * Thu Jan 17 2002 Nalin Dahyabhai <nalin@redhat.com> 0.3.2-1
 - update to 0.3.2
 
-* Wed Jan 10 2002 Nalin Dahyabhai <nalin@redhat.com> 0.3.0-1
+* Thu Jan 10 2002 Nalin Dahyabhai <nalin@redhat.com> 0.3.0-1
 - add a URL
 
-* Wed Dec 20 2001 Nalin Dahyabhai <nalin@redhat.com>
+* Thu Dec 20 2001 Nalin Dahyabhai <nalin@redhat.com>
 - initial package
