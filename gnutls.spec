@@ -1,3 +1,4 @@
+%bcond_with guile
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 2.12.22
@@ -8,7 +9,9 @@ Group: System Environment/Libraries
 BuildRequires: libgcrypt-devel >= 1.2.2, p11-kit-devel >= 0.11, gettext
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 2.14
 BuildRequires: lzo-devel, libtool, automake, autoconf
+%if %{with guile}
 BuildRequires: guile-devel
+%endif
 URL: http://www.gnutls.org/
 #Source0: ftp://ftp.gnutls.org/pub/gnutls/%{name}-%{version}.tar.gz
 #Source1: ftp://ftp.gnutls.org/pub/gnutls/%{name}-%{version}.tar.gz.sig
@@ -51,11 +54,13 @@ Summary: Command line tools for TLS protocol
 Group: Applications/System
 Requires: %{name}%{?_isa} = %{version}-%{release}
 
+%if %{with guile}
 %package guile
 Summary: Guile bindings for the GNUTLS library
 Group: Development/Libraries
 Requires: %{name}%{?_isa} = %{version}-%{release}
 Requires: guile
+%endif
 
 %description
 GnuTLS is a project that aims to develop a library which provides a secure 
@@ -82,11 +87,13 @@ the proposed standards by the IETF's TLS working group.
 This package contains command line TLS client and server and certificate
 manipulation tools.
 
+%if %{with guile}
 %description guile
 GnuTLS is a project that aims to develop a library which provides a secure
 layer, over a reliable transport layer. Currently the GnuTLS library implements
 the proposed standards by the IETF's TLS working group.
 This package contains Guile bindings for the library.
+%endif
 
 %prep
 %setup -q
@@ -112,6 +119,11 @@ export LDFLAGS="-Wl,--no-add-needed"
            --disable-openssl-compatibility \
            --disable-srp-authentication \
            --disable-rpath \
+%if %{with guile}
+           --enable-guile \
+%else
+           --disable-guile \
+%endif
 %ifarch %{arm}
            --disable-largefile \
 %endif
@@ -191,15 +203,19 @@ fi
 %{_mandir}/man1/*
 %doc doc/certtool.cfg
 
+%if %{with guile}
 %files guile
 %defattr(-,root,root,-)
 %{_libdir}/libguile*.so*
 %{_datadir}/guile/site/gnutls
 %{_datadir}/guile/site/gnutls.scm
+%endif
 
 %changelog
 * Tue Feb  5 2013 Tomas Mraz <tmraz@redhat.com> 2.12.22-2
 - rebuilt with new libtasn1
+- make guile bindings optional - breaks i686 build and there is
+  no dependent package
 
 * Tue Jan  8 2013 Tomas Mraz <tmraz@redhat.com> 2.12.22-1
 - new upstream version
