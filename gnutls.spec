@@ -171,9 +171,11 @@ if [ $1 = 0 -a -f %{_infodir}/gnutls.info.gz ]; then
    /sbin/install-info --delete %{_infodir}/gnutls.info.gz %{_infodir}/dir || :
 fi
 
+%if %{with guile}
 %post guile -p /sbin/ldconfig
 
 %postun guile -p /sbin/ldconfig
+%endif
 
 %files -f libgnutls.lang
 %defattr(-,root,root,-)
