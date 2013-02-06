@@ -1,0 +1,609 @@
+diff -up gnutls-3.1.7/lib/algorithms/kx.c.noecc gnutls-3.1.7/lib/algorithms/kx.c
+--- gnutls-3.1.7/lib/algorithms/kx.c.noecc	2013-02-01 20:02:07.000000000 +0100
++++ gnutls-3.1.7/lib/algorithms/kx.c	2013-02-05 21:13:08.700750694 +0100
+@@ -29,9 +29,11 @@
+ extern mod_auth_st rsa_auth_struct;
+ extern mod_auth_st rsa_export_auth_struct;
+ extern mod_auth_st dhe_rsa_auth_struct;
++#ifdef ENABLE_ECC
+ extern mod_auth_st ecdhe_rsa_auth_struct;
+ extern mod_auth_st ecdhe_psk_auth_struct;
+ extern mod_auth_st ecdhe_ecdsa_auth_struct;
++#endif
+ extern mod_auth_st dhe_dss_auth_struct;
+ extern mod_auth_st anon_auth_struct;
+ extern mod_auth_st anon_ecdh_auth_struct;
+@@ -92,14 +94,18 @@ typedef struct gnutls_kx_algo_entry gnut
+ static const gnutls_kx_algo_entry _gnutls_kx_algorithms[] = {
+ #ifdef ENABLE_ANON
+   {"ANON-DH", GNUTLS_KX_ANON_DH, &anon_auth_struct, 1, 0},
++#ifdef ENABLE_ECC
+   {"ANON-ECDH", GNUTLS_KX_ANON_ECDH, &anon_ecdh_auth_struct, 0, 0},
+ #endif
++#endif
+   {"RSA", GNUTLS_KX_RSA, &rsa_auth_struct, 0, 0},
+   {"RSA-EXPORT", GNUTLS_KX_RSA_EXPORT, &rsa_export_auth_struct, 0,
+    1 /* needs RSA params */ },
+   {"DHE-RSA", GNUTLS_KX_DHE_RSA, &dhe_rsa_auth_struct, 1, 0},
++#ifdef ENABLE_ECC
+   {"ECDHE-RSA", GNUTLS_KX_ECDHE_RSA, &ecdhe_rsa_auth_struct, 0, 0},
+   {"ECDHE-ECDSA", GNUTLS_KX_ECDHE_ECDSA, &ecdhe_ecdsa_auth_struct, 0, 0},
++#endif
+   {"DHE-DSS", GNUTLS_KX_DHE_DSS, &dhe_dss_auth_struct, 1, 0},
+ 
+ #ifdef ENABLE_SRP
+@@ -111,8 +117,10 @@ static const gnutls_kx_algo_entry _gnutl
+   {"PSK", GNUTLS_KX_PSK, &psk_auth_struct, 0, 0},
+   {"DHE-PSK", GNUTLS_KX_DHE_PSK, &dhe_psk_auth_struct,
+    1 /* needs DHE params */ , 0},
++#ifdef ENABLE_ECC
+   {"ECDHE-PSK", GNUTLS_KX_ECDHE_PSK, &ecdhe_psk_auth_struct, 0 , 0},
+ #endif
++#endif
+   {0, 0, 0, 0, 0}
+ };
+ 
+diff -up gnutls-3.1.7/lib/algorithms/publickey.c.noecc gnutls-3.1.7/lib/algorithms/publickey.c
+--- gnutls-3.1.7/lib/algorithms/publickey.c.noecc	2013-02-01 20:02:07.000000000 +0100
++++ gnutls-3.1.7/lib/algorithms/publickey.c	2013-02-05 21:13:08.701750716 +0100
+@@ -50,8 +50,10 @@ static const gnutls_pk_map pk_mappings[]
+   {GNUTLS_KX_RSA_EXPORT, GNUTLS_PK_RSA, CIPHER_SIGN},
+   {GNUTLS_KX_DHE_RSA, GNUTLS_PK_RSA, CIPHER_SIGN},
+   {GNUTLS_KX_SRP_RSA, GNUTLS_PK_RSA, CIPHER_SIGN},
++#ifdef ENABLE_ECC
+   {GNUTLS_KX_ECDHE_RSA, GNUTLS_PK_RSA, CIPHER_SIGN},
+   {GNUTLS_KX_ECDHE_ECDSA, GNUTLS_PK_EC, CIPHER_SIGN},
++#endif
+   {GNUTLS_KX_DHE_DSS, GNUTLS_PK_DSA, CIPHER_SIGN},
+   {GNUTLS_KX_SRP_DSS, GNUTLS_PK_DSA, CIPHER_SIGN},
+   {0, 0, 0}
+@@ -97,7 +99,9 @@ static const gnutls_pk_entry pk_algorith
+   {"DSA", PK_DSA_OID, GNUTLS_PK_DSA},
+   {"GOST R 34.10-2001", PK_GOST_R3410_2001_OID, GNUTLS_PK_UNKNOWN},
+   {"GOST R 34.10-94", PK_GOST_R3410_94_OID, GNUTLS_PK_UNKNOWN},
++#ifdef ENABLE_ECC
+   {"EC", "1.2.840.10045.2.1", GNUTLS_PK_EC},
++#endif
+   {0, 0, 0}
+ };
+ 
+diff -up gnutls-3.1.7/lib/algorithms/sign.c.noecc gnutls-3.1.7/lib/algorithms/sign.c
+--- gnutls-3.1.7/lib/algorithms/sign.c.noecc	2013-02-01 20:02:07.000000000 +0100
++++ gnutls-3.1.7/lib/algorithms/sign.c	2013-02-05 21:13:08.701750716 +0100
+@@ -43,6 +43,14 @@ typedef struct gnutls_sign_entry gnutls_
+ #define TLS_SIGN_AID_UNKNOWN {255, 255}
+ static const sign_algorithm_st unknown_tls_aid = TLS_SIGN_AID_UNKNOWN;
+ 
++#ifndef ENABLE_ECC
++#define GNUTLS_SIGN_ECDSA_SHA1 0
++#define GNUTLS_SIGN_ECDSA_SHA224 0
++#define GNUTLS_SIGN_ECDSA_SHA256 0
++#define GNUTLS_SIGN_ECDSA_SHA384 0
++#define GNUTLS_SIGN_ECDSA_SHA512 0
++#endif
++
+ static const gnutls_sign_entry sign_algorithms[] = {
+   {"RSA-SHA1", SIG_RSA_SHA1_OID, GNUTLS_SIGN_RSA_SHA1, GNUTLS_PK_RSA,
+    GNUTLS_DIG_SHA1, {2, 1}},
+diff -up gnutls-3.1.7/lib/auth/anon_ecdh.c.noecc gnutls-3.1.7/lib/auth/anon_ecdh.c
+--- gnutls-3.1.7/lib/auth/anon_ecdh.c.noecc	2013-02-01 20:02:07.000000000 +0100
++++ gnutls-3.1.7/lib/auth/anon_ecdh.c	2013-02-05 21:13:08.701750716 +0100
+@@ -28,6 +28,7 @@
+ #include <gnutls_int.h>
+ 
+ #ifdef ENABLE_ANON
++#ifdef ENABLE_ECC
+ 
+ #include "gnutls_auth.h"
+ #include "gnutls_errors.h"
+@@ -136,4 +137,5 @@ proc_anon_ecdh_server_kx (gnutls_session
+   return 0;
+ }
+ 
++#endif
+ #endif /* ENABLE_ANON */
+diff -up gnutls-3.1.7/lib/auth/cert.c.noecc gnutls-3.1.7/lib/auth/cert.c
+--- gnutls-3.1.7/lib/auth/cert.c.noecc	2013-02-01 20:02:07.000000000 +0100
++++ gnutls-3.1.7/lib/auth/cert.c	2013-02-05 21:13:08.701750716 +0100
+@@ -63,7 +63,11 @@ static gnutls_privkey_t alloc_and_load_p
+                                                    key, int deinit);
+ #endif
+ 
++#ifdef ENABLE_ECC
+ #define MAX_CLIENT_SIGN_ALGOS 3
++#else
++#define MAX_CLIENT_SIGN_ALGOS 2
++#endif
+ #define CERTTYPE_SIZE (MAX_CLIENT_SIGN_ALGOS+1)
+ typedef enum CertificateSigType
+ { RSA_SIGN = 1, DSA_SIGN = 2, ECDSA_SIGN = 64
+@@ -1424,8 +1428,10 @@ _gnutls_check_supported_sign_algo (Certi
+       return GNUTLS_PK_RSA;
+     case DSA_SIGN:
+       return GNUTLS_PK_DSA;
++#ifdef ENABLE_ECC
+     case ECDSA_SIGN:
+       return GNUTLS_PK_EC;
++#endif
+     }
+ 
+   return -1;
+@@ -1712,7 +1718,9 @@ _gnutls_gen_cert_server_cert_req (gnutls
+   tmp_data[0] = CERTTYPE_SIZE - 1;
+   tmp_data[1] = RSA_SIGN;
+   tmp_data[2] = DSA_SIGN;
++#ifdef ENABLE_ECC
+   tmp_data[3] = ECDSA_SIGN;     /* only these for now */
++#endif
+ 
+   ret = _gnutls_buffer_append_data (data, tmp_data, CERTTYPE_SIZE);
+   if (ret < 0)
+diff -up gnutls-3.1.7/lib/auth/dhe.c.noecc gnutls-3.1.7/lib/auth/dhe.c
+--- gnutls-3.1.7/lib/auth/dhe.c.noecc	2013-02-01 20:02:07.000000000 +0100
++++ gnutls-3.1.7/lib/auth/dhe.c	2013-02-05 21:13:08.702750739 +0100
+@@ -43,6 +43,7 @@ static int gen_dhe_server_kx (gnutls_ses
+ static int proc_dhe_server_kx (gnutls_session_t, uint8_t *, size_t);
+ static int proc_dhe_client_kx (gnutls_session_t, uint8_t *, size_t);
+ 
++#ifdef ENABLE_ECC
+ const mod_auth_st ecdhe_ecdsa_auth_struct = {
+   "ECDHE_ECDSA",
+   _gnutls_gen_cert_server_crt,
+@@ -76,6 +77,7 @@ const mod_auth_st ecdhe_rsa_auth_struct
+   _gnutls_proc_cert_client_crt_vrfy,
+   _gnutls_proc_cert_cert_req
+ };
++#endif
+ 
+ const mod_auth_st dhe_rsa_auth_struct = {
+   "DHE_RSA",
+diff -up gnutls-3.1.7/lib/auth/dhe_psk.c.noecc gnutls-3.1.7/lib/auth/dhe_psk.c
+--- gnutls-3.1.7/lib/auth/dhe_psk.c.noecc	2013-02-01 20:02:07.000000000 +0100
++++ gnutls-3.1.7/lib/auth/dhe_psk.c	2013-02-05 21:13:08.702750739 +0100
+@@ -68,6 +68,7 @@ const mod_auth_st dhe_psk_auth_struct =
+   NULL
+ };
+ 
++#ifdef ENABLE_ECC
+ const mod_auth_st ecdhe_psk_auth_struct = {
+   "ECDHE PSK",
+   NULL,
+@@ -84,6 +85,7 @@ const mod_auth_st ecdhe_psk_auth_struct
+   NULL,
+   NULL
+ };
++#endif
+ 
+ static int
+ gen_psk_client_kx (gnutls_session_t session, gnutls_buffer_st* data)
+@@ -184,6 +186,7 @@ gen_psk_server_kx (gnutls_session_t sess
+   return ret;
+ }
+ 
++#ifdef ENABLE_ECC
+ static int
+ gen_ecdhe_psk_server_kx (gnutls_session_t session, gnutls_buffer_st* data)
+ {
+@@ -208,7 +211,7 @@ gen_ecdhe_psk_server_kx (gnutls_session_
+ 
+   return ret;
+ }
+-
++#endif
+ 
+ static int
+ proc_psk_client_kx (gnutls_session_t session, uint8_t * data,
+@@ -289,6 +292,7 @@ proc_psk_client_kx (gnutls_session_t ses
+ 
+ }
+ 
++#ifdef ENABLE_ECC
+ static int
+ proc_ecdhe_psk_client_kx (gnutls_session_t session, uint8_t * data,
+                     size_t _data_size)
+@@ -353,6 +357,7 @@ proc_ecdhe_psk_client_kx (gnutls_session
+   
+   return ret;
+ }
++#endif
+ 
+ int
+ proc_psk_server_kx (gnutls_session_t session, uint8_t * data,
+diff -up gnutls-3.1.7/lib/auth/ecdh_common.c.noecc gnutls-3.1.7/lib/auth/ecdh_common.c
+--- gnutls-3.1.7/lib/auth/ecdh_common.c.noecc	2013-02-01 20:02:07.000000000 +0100
++++ gnutls-3.1.7/lib/auth/ecdh_common.c	2013-02-05 21:13:08.702750739 +0100
+@@ -41,6 +41,8 @@
+ #include <auth/psk.h>
+ #include <gnutls_pk.h>
+ 
++#ifdef ENABLE_ECC
++
+ static int calc_ecdh_key( gnutls_session_t session, gnutls_datum_t * psk_key)
+ {
+ gnutls_pk_params_st pub;
+@@ -243,3 +245,4 @@ int _gnutls_ecdh_common_print_server_kx
+     
+   return data->length;
+ }
++#endif
+diff -up gnutls-3.1.7/lib/auth/ecdh_common.h.noecc gnutls-3.1.7/lib/auth/ecdh_common.h
+--- gnutls-3.1.7/lib/auth/ecdh_common.h.noecc	2013-02-01 20:02:07.000000000 +0100
++++ gnutls-3.1.7/lib/auth/ecdh_common.h	2013-02-05 21:13:08.702750739 +0100
+@@ -25,6 +25,8 @@
+ 
+ #include <gnutls_auth.h>
+ 
++#ifdef ENABLE_ECC
++
+ int
+ _gnutls_gen_ecdh_common_client_kx (gnutls_session_t session, 
+                                    gnutls_buffer_st* data);
+@@ -45,6 +47,14 @@ int _gnutls_ecdh_common_print_server_kx
+ int _gnutls_proc_ecdh_common_server_kx (gnutls_session_t session, uint8_t * data,
+                                       size_t _data_size);
+ 
++#else
++
++#define _gnutls_gen_ecdh_common_client_kx_int(session, data, psk_key) GNUTLS_E_INTERNAL_ERROR
++#define _gnutls_proc_ecdh_common_client_kx(session, data, _data_size, curve, psk_key) GNUTLS_E_INTERNAL_ERROR
++#define _gnutls_ecdh_common_print_server_kx(session, data, curve) GNUTLS_E_INTERNAL_ERROR
++#define _gnutls_proc_ecdh_common_server_kx(session, data, _data_size) GNUTLS_E_INTERNAL_ERROR
++
++#endif
+ 
+ 
+ #endif
+diff -up gnutls-3.1.7/lib/ext/ecc.c.noecc gnutls-3.1.7/lib/ext/ecc.c
+--- gnutls-3.1.7/lib/ext/ecc.c.noecc	2013-02-01 20:02:07.000000000 +0100
++++ gnutls-3.1.7/lib/ext/ecc.c	2013-02-05 21:13:08.702750739 +0100
+@@ -35,6 +35,7 @@
+ /* Maps record size to numbers according to the
+  * extensions draft.
+  */
++#ifdef ENABLE_ECC
+ 
+ static int _gnutls_supported_ecc_recv_params (gnutls_session_t session,
+                                           const uint8_t * data,
+@@ -269,3 +270,5 @@ _gnutls_session_supports_ecc_curve (gnut
+ 
+   return GNUTLS_E_ECC_UNSUPPORTED_CURVE;
+ }
++
++#endif
+diff -up gnutls-3.1.7/lib/gnutls_extensions.c.noecc gnutls-3.1.7/lib/gnutls_extensions.c
+--- gnutls-3.1.7/lib/gnutls_extensions.c.noecc	2013-02-04 02:50:34.000000000 +0100
++++ gnutls-3.1.7/lib/gnutls_extensions.c	2013-02-05 21:13:08.702750739 +0100
+@@ -350,6 +350,7 @@ _gnutls_ext_init (void)
+   if (ret != GNUTLS_E_SUCCESS)
+     return ret;
+ 
++#ifdef ENABLE_ECC
+   ret = _gnutls_ext_register (&ext_mod_supported_ecc);
+   if (ret != GNUTLS_E_SUCCESS)
+     return ret;
+@@ -357,6 +358,7 @@ _gnutls_ext_init (void)
+   ret = _gnutls_ext_register (&ext_mod_supported_ecc_pf);
+   if (ret != GNUTLS_E_SUCCESS)
+     return ret;
++#endif
+ 
+   ret = _gnutls_ext_register (&ext_mod_sig);
+   if (ret != GNUTLS_E_SUCCESS)
+diff -up gnutls-3.1.7/lib/nettle/init.c.noecc gnutls-3.1.7/lib/nettle/init.c
+--- gnutls-3.1.7/lib/nettle/init.c.noecc	2013-02-01 20:02:09.000000000 +0100
++++ gnutls-3.1.7/lib/nettle/init.c	2013-02-05 21:13:08.703750762 +0100
+@@ -32,7 +32,11 @@
+ int
+ gnutls_crypto_init (void)
+ {
++#ifdef ENABLE_ECC
+   return ecc_wmnaf_cache_init();
++#else
++  return 0;
++#endif
+ }
+ 
+ /* Functions that refer to the deinitialization of the nettle library.
+@@ -41,5 +45,7 @@ gnutls_crypto_init (void)
+ void
+ gnutls_crypto_deinit (void)
+ {
++#ifdef ENABLE_ECC
+   ecc_wmnaf_cache_free();
++#endif
+ }
+diff -up gnutls-3.1.7/lib/nettle/Makefile.am.noecc gnutls-3.1.7/lib/nettle/Makefile.am
+--- gnutls-3.1.7/lib/nettle/Makefile.am.noecc	2012-12-03 20:36:50.000000000 +0100
++++ gnutls-3.1.7/lib/nettle/Makefile.am	2013-02-05 21:13:08.703750762 +0100
+@@ -33,9 +33,13 @@ endif
+ 
+ noinst_LTLIBRARIES = libcrypto.la
+ 
++#if ENABLE_ECC
++#ECC_SOURCES = ecc_free.c ecc.h ecc_make_key.c ecc_shared_secret.c \
++#	ecc_map.c ecc_mulmod.c ecc_mulmod_cached.c \
++#	ecc_points.c ecc_projective_dbl_point_3.c ecc_projective_isneutral.c \
++#	ecc_projective_check_point.c ecc_projective_negate_point.c \
++#	ecc_projective_add_point_ng.c ecc_sign_hash.c ecc_verify_hash.c
++#endif
++
+ libcrypto_la_SOURCES = pk.c mpi.c mac.c cipher.c rnd.c init.c egd.c egd.h \
+-	multi.c wmnaf.c ecc_free.c ecc.h ecc_make_key.c ecc_shared_secret.c \
+-	ecc_map.c ecc_mulmod.c ecc_mulmod_cached.c \
+-	ecc_points.c ecc_projective_dbl_point_3.c ecc_projective_isneutral.c \
+-	ecc_projective_check_point.c ecc_projective_negate_point.c \
+-	ecc_projective_add_point_ng.c ecc_sign_hash.c ecc_verify_hash.c gnettle.h 
++	multi.c wmnaf.c $(ECC_SOURCES) gnettle.h 
+diff -up gnutls-3.1.7/lib/nettle/pk.c.noecc gnutls-3.1.7/lib/nettle/pk.c
+--- gnutls-3.1.7/lib/nettle/pk.c.noecc	2013-02-01 20:02:09.000000000 +0100
++++ gnutls-3.1.7/lib/nettle/pk.c	2013-02-05 21:13:08.704750784 +0100
+@@ -137,6 +137,7 @@ static int _wrap_nettle_pk_derive(gnutls
+ 
+   switch (algo)
+     {
++#ifdef ENABLE_ECC
+     case GNUTLS_PK_EC:
+       {
+         ecc_key ecc_pub, ecc_priv;
+@@ -182,6 +183,7 @@ ecc_cleanup:
+         out->size = sz;
+         break;
+       }
++#endif
+     default:
+       gnutls_assert ();
+       ret = GNUTLS_E_INTERNAL_ERROR;
+@@ -326,6 +328,7 @@ _wrap_nettle_pk_sign (gnutls_pk_algorith
+ 
+   switch (algo)
+     {
++#ifdef ENABLE_ECC
+     case GNUTLS_PK_EC: /* we do ECDSA */
+       {
+         ecc_key priv;
+@@ -369,6 +372,7 @@ _wrap_nettle_pk_sign (gnutls_pk_algorith
+           }
+         break;
+       }
++#endif
+     case GNUTLS_PK_DSA:
+       {
+         struct dsa_public_key pub;
+@@ -470,6 +474,7 @@ _wrap_nettle_pk_verify (gnutls_pk_algori
+ 
+   switch (algo)
+     {
++#ifdef ENABLE_ECC
+     case GNUTLS_PK_EC: /* ECDSA */
+       {
+         ecc_key pub;
+@@ -509,6 +514,7 @@ _wrap_nettle_pk_verify (gnutls_pk_algori
+         _ecc_params_clear( &pub);
+         break;
+       }
++#endif
+     case GNUTLS_PK_DSA:
+       {
+         struct dsa_public_key pub;
+@@ -705,6 +711,7 @@ rsa_fail:
+ 
+         break;
+       }
++#ifdef ENABLE_ECC
+     case GNUTLS_PK_EC:
+       {
+         ecc_key key;
+@@ -758,6 +765,7 @@ ecc_fail:
+ 
+         break;
+       }
++#endif
+     default:
+       gnutls_assert ();
+       return GNUTLS_E_INVALID_REQUEST;
+@@ -874,6 +882,7 @@ dsa_cleanup:
+       }
+ 
+       break;
++#ifdef ENABLE_ECC
+     case GNUTLS_PK_EC:
+       {
+         int curve = params->flags;
+@@ -923,6 +932,7 @@ ecc_cleanup:
+         ecc_del_point(R);
+       }  
+       break;
++#endif
+     default:
+       ret = gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
+     }
+diff -up gnutls-3.1.7/tests/cert-tests/dane.noecc gnutls-3.1.7/tests/cert-tests/dane
+--- gnutls-3.1.7/tests/cert-tests/dane.noecc	2013-01-25 20:24:10.000000000 +0100
++++ gnutls-3.1.7/tests/cert-tests/dane	2013-02-06 18:32:53.381803965 +0100
+@@ -22,6 +22,8 @@
+ 
+ set -e
+ 
++exit 77
++
+ srcdir=${srcdir:-.}
+ DANETOOL=${DANETOOL:-../../src/danetool$EXEEXT}
+ 
+diff -up gnutls-3.1.7/tests/dtls/dtls-nb.noecc gnutls-3.1.7/tests/dtls/dtls-nb
+--- gnutls-3.1.7/tests/dtls/dtls-nb.noecc	2012-12-03 20:36:51.000000000 +0100
++++ gnutls-3.1.7/tests/dtls/dtls-nb	2013-02-06 17:30:21.148616598 +0100
+@@ -22,9 +22,7 @@
+ 
+ set -e
+ 
+-if test "${WINDIR}" != "";then
+-  exit 77
+-fi
++exit 77
+ 
+ ./dtls-stress -nb -shello 021 -sfinished 01 -cfinished 012 SKeyExchange CKeyExchange CFinished
+ ./dtls-stress -nb -shello 012 -sfinished 10 -cfinished 210 SHello SKeyExchange SHelloDone
+diff -up gnutls-3.1.7/tests/dtls/dtls.noecc gnutls-3.1.7/tests/dtls/dtls
+--- gnutls-3.1.7/tests/dtls/dtls.noecc	2012-12-03 20:36:51.000000000 +0100
++++ gnutls-3.1.7/tests/dtls/dtls	2013-02-06 17:30:12.732428591 +0100
+@@ -22,9 +22,7 @@
+ 
+ set -e
+ 
+-if test "${WINDIR}" != "";then
+-  exit 77
+-fi
++exit 77
+ 
+ ./dtls-stress -shello 021 -sfinished 01 -cfinished 012 SKeyExchange CKeyExchange CFinished
+ ./dtls-stress -shello 012 -sfinished 10 -cfinished 210 SHello SKeyExchange SHelloDone
+diff -up gnutls-3.1.7/tests/ecdsa/ecdsa.noecc gnutls-3.1.7/tests/ecdsa/ecdsa
+--- gnutls-3.1.7/tests/ecdsa/ecdsa.noecc	2012-12-03 20:36:51.000000000 +0100
++++ gnutls-3.1.7/tests/ecdsa/ecdsa	2013-02-06 17:31:19.991931090 +0100
+@@ -22,6 +22,8 @@
+ 
+ #set -e
+ 
++exit 77
++
+ srcdir=${srcdir:-.}
+ CERTTOOL=${CERTTOOL:-../../src/certtool$EXEEXT}
+ 
+diff -up gnutls-3.1.7/tests/mini-dtls-record.c.noecc gnutls-3.1.7/tests/mini-dtls-record.c
+--- gnutls-3.1.7/tests/mini-dtls-record.c.noecc	2013-01-17 20:07:30.000000000 +0100
++++ gnutls-3.1.7/tests/mini-dtls-record.c	2013-02-06 16:49:30.236481581 +0100
+@@ -27,7 +27,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ 
+-#if defined(_WIN32)
++#if defined(_WIN32) || !defined(ENABLE_ECC)
+ 
+ int
+ main ()
+diff -up gnutls-3.1.7/tests/mini-dtls-rehandshake.c.noecc gnutls-3.1.7/tests/mini-dtls-rehandshake.c
+--- gnutls-3.1.7/tests/mini-dtls-rehandshake.c.noecc	2012-12-03 20:36:51.000000000 +0100
++++ gnutls-3.1.7/tests/mini-dtls-rehandshake.c	2013-02-06 16:50:11.803404151 +0100
+@@ -27,7 +27,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ 
+-#if defined(_WIN32)
++#if defined(_WIN32) || !defined(ENABLE_ECC)
+ 
+ int main()
+ {
+diff -up gnutls-3.1.7/tests/mini-dtls-srtp.c.noecc gnutls-3.1.7/tests/mini-dtls-srtp.c
+--- gnutls-3.1.7/tests/mini-dtls-srtp.c.noecc	2012-12-03 20:36:51.000000000 +0100
++++ gnutls-3.1.7/tests/mini-dtls-srtp.c	2013-02-06 16:51:05.009585051 +0100
+@@ -27,7 +27,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ 
+-#if defined(_WIN32) || !defined(ENABLE_DTLS_SRTP)
++#if defined(_WIN32) || !defined(ENABLE_DTLS_SRTP) || !defined(ENABLE_ECC)
+ 
+ int
+ main (int argc, char** argv)
+diff -up gnutls-3.1.7/tests/mini-handshake-timeout.c.noecc gnutls-3.1.7/tests/mini-handshake-timeout.c
+--- gnutls-3.1.7/tests/mini-handshake-timeout.c.noecc	2012-12-03 20:36:51.000000000 +0100
++++ gnutls-3.1.7/tests/mini-handshake-timeout.c	2013-02-06 16:51:28.466105661 +0100
+@@ -28,7 +28,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ 
+-#if defined(_WIN32)
++#if defined(_WIN32) || !defined(ENABLE_ECC)
+ 
+ int main()
+ {
+@@ -142,7 +142,11 @@ initialize_tls_session (gnutls_session_t
+   /* avoid calling all the priority functions, since the defaults
+    * are adequate.
+    */
+-  gnutls_priority_set_direct (*session, "NORMAL:+ANON-ECDH", NULL);
++#ifdef ENABLE_ECC
++  gnutls_priority_set_direct (session, "NORMAL:+ANON-ECDH", NULL);
++#else
++  gnutls_priority_set_direct (session, "NORMAL:+ANON-DH", NULL);
++#endif
+ }
+ 
+ static void
+diff -up gnutls-3.1.7/tests/mini-loss-time.c.noecc gnutls-3.1.7/tests/mini-loss-time.c
+--- gnutls-3.1.7/tests/mini-loss-time.c.noecc	2012-12-03 20:36:51.000000000 +0100
++++ gnutls-3.1.7/tests/mini-loss-time.c	2013-02-06 16:51:47.254522659 +0100
+@@ -28,7 +28,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ 
+-#if defined(_WIN32)
++#if defined(_WIN32) || !defined(ENABLE_ECC)
+ 
+ int main()
+ {
+diff -up gnutls-3.1.7/tests/mini-record.c.noecc gnutls-3.1.7/tests/mini-record.c
+--- gnutls-3.1.7/tests/mini-record.c.noecc	2013-01-23 20:31:17.000000000 +0100
++++ gnutls-3.1.7/tests/mini-record.c	2013-02-06 16:52:07.965982266 +0100
+@@ -27,7 +27,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ 
+-#if defined(_WIN32)
++#if defined(_WIN32) || !defined(ENABLE_ECC)
+ 
+ int main()
+ {
+diff -up gnutls-3.1.7/tests/mini-xssl.c.noecc gnutls-3.1.7/tests/mini-xssl.c
+--- gnutls-3.1.7/tests/mini-xssl.c.noecc	2013-01-27 18:16:02.000000000 +0100
++++ gnutls-3.1.7/tests/mini-xssl.c	2013-02-06 16:29:32.288396176 +0100
+@@ -27,7 +27,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ 
+-#if defined(_WIN32)
++#if defined(_WIN32) || !defined(ENABLE_ECC)
+ 
+ int main()
+ {
+diff -up gnutls-3.1.7/tests/pkcs12_simple.c.noecc gnutls-3.1.7/tests/pkcs12_simple.c
+--- gnutls-3.1.7/tests/pkcs12_simple.c.noecc	2012-12-06 09:01:28.000000000 +0100
++++ gnutls-3.1.7/tests/pkcs12_simple.c	2013-02-06 17:01:39.813123531 +0100
+@@ -50,6 +50,10 @@ doit (void)
+   gnutls_x509_privkey_t pkey;
+   int ret;
+ 
++#ifndef ENABLE_ECC
++  exit(77);
++#endif
++
+   ret = gnutls_global_init ();
+   if (ret < 0)
+     fail ("gnutls_global_init failed %d\n", ret);
+diff -up gnutls-3.1.7/tests/slow/keygen.c.noecc gnutls-3.1.7/tests/slow/keygen.c
+--- gnutls-3.1.7/tests/slow/keygen.c.noecc	2012-12-03 20:36:52.000000000 +0100
++++ gnutls-3.1.7/tests/slow/keygen.c	2013-02-06 17:23:10.831725585 +0100
+@@ -65,6 +65,11 @@ doit (void)
+                 if (algorithm == GNUTLS_PK_DH)
+                     continue;
+ 
++#ifndef ENABLE_ECC
++                if (algorithm == GNUTLS_PK_EC)
++                    continue;
++#endif
++
+                 ret = gnutls_x509_privkey_init (&pkey);
+                 if (ret < 0)
+                   {
+diff -up gnutls-3.1.7/tests/srp/mini-srp.c.noecc gnutls-3.1.7/tests/srp/mini-srp.c
+--- gnutls-3.1.7/tests/srp/mini-srp.c.noecc	2012-12-03 20:36:52.000000000 +0100
++++ gnutls-3.1.7/tests/srp/mini-srp.c	2013-02-06 17:36:50.419312453 +0100
+@@ -27,7 +27,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ 
+-#if defined(_WIN32)
++#if defined(_WIN32) || !defined(ENABLE_SRP)
+ 
+ int main()
+ {

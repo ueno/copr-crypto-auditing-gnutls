@@ -1,5 +1,0 @@
-#!/bin/sh
-set -x
-
-rm -f lib/auth_srp_sb64.c lib/auth_srp_passwd.c lib/auth_srp_rsa.c
-rm -f lib/gnutls_srp.c lib/auth_srp.c lib/ext_srp.c

@@ -1,33 +1,36 @@
+%bcond_without dane
 %bcond_with guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 2.12.22
-Release: 2%{?dist}
-# The libgnutls library is LGPLv2+, utilities and remaining libraries are GPLv3+
-License: GPLv3+ and LGPLv2+
+Version: 3.1.7
+Release: 1%{?dist}
+# The libgnutls library is LGPLv3+, utilities and remaining libraries are GPLv3+
+License: GPLv3+ and LGPLv3+
 Group: System Environment/Libraries
 BuildRequires: libgcrypt-devel >= 1.2.2, p11-kit-devel >= 0.11, gettext
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 2.14
 BuildRequires: lzo-devel, libtool, automake, autoconf
+BuildRequires: nettle-devel >= 2.5
+%if %{with dane}
+BuildRequires: unbound-devel
+%endif
 %if %{with guile}
 BuildRequires: guile-devel
 %endif
+# temporary compat library for buildroots
+BuildRequires: gnutls
 URL: http://www.gnutls.org/
-#Source0: ftp://ftp.gnutls.org/pub/gnutls/%{name}-%{version}.tar.gz
-#Source1: ftp://ftp.gnutls.org/pub/gnutls/%{name}-%{version}.tar.gz.sig
-# XXX patent tainted SRP code removed.
-Source0: %{name}-%{version}-nosrp.tar.xz
+#Source0: ftp://ftp.gnutls.org/gcrypt/gnutls/%{name}-%{version}.tar.xz
+#Source1: ftp://ftp.gnutls.org/gcrypt/gnutls/%{name}-%{version}.tar.xz.sig
+# XXX patent tainted code removed.
+Source0: %{name}-%{version}-hobbled.tar.xz
 Source1: libgnutls-config
-Patch1: gnutls-2.12.11-rpath.patch
-Patch2: gnutls-2.8.6-link-libgcrypt.patch
-# Remove nonexisting references from texinfo file
-Patch3: gnutls-2.12.2-nosrp.patch
-# Skip tests that are expected to fail on libgcrypt build
-Patch4: gnutls-2.12.7-dsa-skiptests.patch
-# Fix the gnutls-cli-debug manpage
-Patch6: gnutls-2.12.20-cli-debug-manpage.patch
+Source2: hobble-gnutls
+Patch1: gnutls-3.1.7-rpath.patch
 # Use only FIPS approved ciphers in the FIPS mode
 Patch7: gnutls-2.12.21-fips-algorithms.patch
+# Make ECC optional as it is now hobbled
+Patch8: gnutls-3.1.7-noecc.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -43,6 +46,9 @@ Summary: Development files for the %{name} package
 Group: Development/Libraries
 Requires: %{name}%{?_isa} = %{version}-%{release}
 Requires: %{name}-c++%{?_isa} = %{version}-%{release}
+%if %{with dane}
+Requires: %{name}-dane%{?_isa} = %{version}-%{release}
+%endif
 Requires: libgcrypt-devel
 Requires: pkgconfig
 Requires(post): /sbin/install-info
@@ -53,6 +59,15 @@ License: GPLv3+
 Summary: Command line tools for TLS protocol
 Group: Applications/System
 Requires: %{name}%{?_isa} = %{version}-%{release}
+%if %{with dane}
+Requires: %{name}-dane%{?_isa} = %{version}-%{release}
+%endif
+
+%if %{with dane}
+%package dane
+Summary: A DANE protocol implementation for GnuTLS
+Requires: %{name}%{?_isa} = %{version}-%{release}
+%endif
 
 %if %{with guile}
 %package guile
@@ -87,6 +102,15 @@ the proposed standards by the IETF's TLS working group.
 This package contains command line TLS client and server and certificate
 manipulation tools.
 
+%if %{with dane}
+%description dane
+GnuTLS is a project that aims to develop a library which provides a secure
+layer, over a reliable transport layer. Currently the GnuTLS library implements
+the proposed standards by the IETF's TLS working group.
+This package contains library that implements the DANE protocol for verifying
+TLS certificates through DNSSEC.
+%endif
+
 %if %{with guile}
 %description guile
 GnuTLS is a project that aims to develop a library which provides a secure
@@ -99,15 +123,12 @@ This package contains Guile bindings for the library.
 %setup -q
 
 %patch1 -p1 -b .rpath
-%patch2 -p1 -b .link
-%patch3 -p1 -b .nosrp
-%patch4 -p1 -b .skiptests
-%patch6 -p1 -b .cli-debug
-%patch7 -p1 -b .fips
+# This patch is not applicable as we use nettle now but some parts will be
+# later reused.
+#%patch7 -p1 -b .fips
+%patch8 -p1 -b .noecc
 
-for i in auth_srp_rsa.c auth_srp_sb64.c auth_srp_passwd.c auth_srp.c gnutls_srp.c ext_srp.c; do
-    touch lib/$i
-done
+%{SOURCE2} -e
 
 %build
 
@@ -124,6 +145,11 @@ export LDFLAGS="-Wl,--no-add-needed"
 %else
            --disable-guile \
 %endif
+%if %{with dane}
+           --enable-dane \
+%else
+           --disable-dane \
+%endif
 %ifarch %{arm}
            --disable-largefile \
 %endif
@@ -131,7 +157,6 @@ export LDFLAGS="-Wl,--no-add-needed"
 # Note that the arm hack above is not quite right and the proper thing would
 # be to compile guile with largefile support.
 make
-cp lib/COPYING COPYING.LIB
 
 %install
 rm -fr $RPM_BUILD_ROOT
@@ -145,7 +170,18 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man3/*srp*
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 rm -f $RPM_BUILD_ROOT%{_libdir}/libguile*.a
-%find_lang libgnutls
+%if %{without dane}
+rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls-dane.pc
+%endif
+
+# temporary compat library for buildroots
+install %{_libdir}/libgnutls.so.26.*.* $RPM_BUILD_ROOT/%{_libdir}
+pushd $RPM_BUILD_ROOT/%{_libdir}
+ln -s libgnutls.so.26.*.*  $RPM_BUILD_ROOT/%{_libdir}/libgnutls.so.26
+popd
+
+
+%find_lang gnutls
 
 %check
 make check
@@ -171,17 +207,25 @@ if [ $1 = 0 -a -f %{_infodir}/gnutls.info.gz ]; then
    /sbin/install-info --delete %{_infodir}/gnutls.info.gz %{_infodir}/dir || :
 fi
 
+%if %{with dane}
+%post dane -p /sbin/ldconfig
+
+%postun dane -p /sbin/ldconfig
+%endif
+
 %if %{with guile}
 %post guile -p /sbin/ldconfig
 
 %postun guile -p /sbin/ldconfig
 %endif
 
-%files -f libgnutls.lang
+%files -f gnutls.lang
 %defattr(-,root,root,-)
-%{_libdir}/libgnutls.so.*
-%{_libdir}/libgnutls-extra.so.*
-%doc COPYING COPYING.LIB README AUTHORS
+%{_libdir}/libgnutls.so.28*
+%{_libdir}/libgnutls-xssl.so.0*
+%doc COPYING COPYING.LESSER README AUTHORS NEWS THANKS
+# temporary compat library for buildroots
+%{_libdir}/*.so.26*
 
 %files c++
 %{_libdir}/libgnutlsxx.so.*
@@ -199,11 +243,21 @@ fi
 %files utils
 %defattr(-,root,root,-)
 %{_bindir}/certtool
+%{_bindir}/ocsptool
 %{_bindir}/psktool
 %{_bindir}/p11tool
+%if %{with dane}
+%{_bindir}/danetool
+%endif
 %{_bindir}/gnutls*
 %{_mandir}/man1/*
 %doc doc/certtool.cfg
+
+%if %{with dane}
+%files dane
+%defattr(-,root,root,-)
+%{_libdir}/libgnutls-dane.so.*
+%endif
 
 %if %{with guile}
 %files guile
@@ -214,6 +268,10 @@ fi
 %endif
 
 %changelog
+* Wed Feb  6 2013 Tomas Mraz <tmraz@redhat.com> 3.1.7-1
+- new upstream version, requires rebuild of dependencies
+- this release temporarily includes old compatibility .so
+
 * Tue Feb  5 2013 Tomas Mraz <tmraz@redhat.com> 2.12.22-2
 - rebuilt with new libtasn1
 - make guile bindings optional - breaks i686 build and there is
