@@ -8,7 +8,7 @@ Release: 1%{?dist}
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Libraries
 BuildRequires: libgcrypt-devel >= 1.2.2, p11-kit-devel >= 0.11, gettext
-BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 2.14
+BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 3.1
 BuildRequires: lzo-devel, libtool, automake, autoconf
 BuildRequires: nettle-devel >= 2.5
 %if %{with dane}
