@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.1.8
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The libgnutls library is LGPLv3+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Libraries
@@ -17,8 +17,6 @@ BuildRequires: unbound-devel
 %if %{with guile}
 BuildRequires: guile-devel
 %endif
-# temporary compat library for buildroots
-BuildRequires: gnutls
 URL: http://www.gnutls.org/
 #Source0: ftp://ftp.gnutls.org/gcrypt/gnutls/%{name}-%{version}.tar.xz
 #Source1: ftp://ftp.gnutls.org/gcrypt/gnutls/%{name}-%{version}.tar.xz.sig
@@ -174,13 +172,6 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/libguile*.a
 rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls-dane.pc
 %endif
 
-# temporary compat library for buildroots
-install %{_libdir}/libgnutls.so.26.*.* $RPM_BUILD_ROOT/%{_libdir}
-pushd $RPM_BUILD_ROOT/%{_libdir}
-ln -s libgnutls.so.26.*.*  $RPM_BUILD_ROOT/%{_libdir}/libgnutls.so.26
-popd
-
-
 %find_lang gnutls
 
 %check
@@ -224,8 +215,6 @@ fi
 %{_libdir}/libgnutls.so.28*
 %{_libdir}/libgnutls-xssl.so.0*
 %doc COPYING COPYING.LESSER README AUTHORS NEWS THANKS
-# temporary compat library for buildroots
-%{_libdir}/*.so.26*
 
 %files c++
 %{_libdir}/libgnutlsxx.so.*
@@ -268,6 +257,9 @@ fi
 %endif
 
 %changelog
+* Thu Mar  7 2013 Tomas Mraz <tmraz@redhat.com> 3.1.8-3
+- drop the temporary old library
+
 * Tue Feb 26 2013 Tomas Mraz <tmraz@redhat.com> 3.1.8-2
 - don't send ECC algos as supported (#913797)
 
