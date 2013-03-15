@@ -2,8 +2,8 @@
 %bcond_with guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.1.8
-Release: 3%{?dist}
+Version: 3.1.9
+Release: 1%{?dist}
 # The libgnutls library is LGPLv3+, utilities and remaining libraries are GPLv3+
 License: GPLv3+ and LGPLv3+
 Group: System Environment/Libraries
@@ -28,7 +28,7 @@ Patch1: gnutls-3.1.7-rpath.patch
 # Use only FIPS approved ciphers in the FIPS mode
 Patch7: gnutls-2.12.21-fips-algorithms.patch
 # Make ECC optional as it is now hobbled
-Patch8: gnutls-3.1.8-noecc.patch
+Patch8: gnutls-3.1.9-noecc.patch
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
@@ -257,6 +257,9 @@ fi
 %endif
 
 %changelog
+* Fri Mar 15 2013 Tomas Mraz <tmraz@redhat.com> 3.1.9-1
+- new upstream release
+
 * Thu Mar  7 2013 Tomas Mraz <tmraz@redhat.com> 3.1.8-3
 - drop the temporary old library
 
