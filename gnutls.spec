@@ -2,10 +2,10 @@
 %bcond_with guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.1.9
+Version: 3.1.10
 Release: 1%{?dist}
-# The libgnutls library is LGPLv3+, utilities and remaining libraries are GPLv3+
-License: GPLv3+ and LGPLv3+
+# The libraries are LGPLv2.1+, utilities are GPLv3+
+License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
 BuildRequires: libgcrypt-devel >= 1.2.2, p11-kit-devel >= 0.11, gettext
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 3.1
@@ -28,9 +28,8 @@ Patch1: gnutls-3.1.7-rpath.patch
 # Use only FIPS approved ciphers in the FIPS mode
 Patch7: gnutls-2.12.21-fips-algorithms.patch
 # Make ECC optional as it is now hobbled
-Patch8: gnutls-3.1.9-noecc.patch
+Patch8: gnutls-3.1.10-noecc.patch
 
-BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: libgcrypt >= 1.2.2
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20120301
@@ -137,7 +136,8 @@ export LDFLAGS="-Wl,--no-add-needed"
            --disable-static \
            --disable-openssl-compatibility \
            --disable-srp-authentication \
-           --disable-rpath \
+           --disable-heartbeat-support \
+           --disable-ecdhe \
 %if %{with guile}
            --enable-guile \
 %else
@@ -151,13 +151,12 @@ export LDFLAGS="-Wl,--no-add-needed"
 %ifarch %{arm}
            --disable-largefile \
 %endif
-           --with-libgcrypt
+           --disable-rpath
 # Note that the arm hack above is not quite right and the proper thing would
 # be to compile guile with largefile support.
 make
 
 %install
-rm -fr $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT%{_bindir}/srptool
 rm -f $RPM_BUILD_ROOT%{_bindir}/gnutls-srpcrypt
@@ -176,9 +175,6 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls-dane.pc
 
 %check
 make check
-
-%clean
-rm -fr $RPM_BUILD_ROOT
 
 %post -p /sbin/ldconfig
 
@@ -257,6 +253,10 @@ fi
 %endif
 
 %changelog
+* Mon Mar 25 2013 Tomas Mraz <tmraz@redhat.com> 3.1.10-1
+- new upstream release
+- license of the library is back to LGPLv2.1+
+
 * Fri Mar 15 2013 Tomas Mraz <tmraz@redhat.com> 3.1.9-1
 - new upstream release
 
