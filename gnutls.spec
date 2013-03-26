@@ -29,6 +29,8 @@ Patch1: gnutls-3.1.7-rpath.patch
 Patch7: gnutls-2.12.21-fips-algorithms.patch
 # Make ECC optional as it is now hobbled
 Patch8: gnutls-3.1.10-noecc.patch
+# Use random port in some tests to avoid conflicts during simultaneous builds on the same machine
+Patch9: gnutls-3.1.10-tests-rndport.patch
 
 Requires: libgcrypt >= 1.2.2
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
@@ -124,6 +126,7 @@ This package contains Guile bindings for the library.
 # later reused.
 #%patch7 -p1 -b .fips
 %patch8 -p1 -b .noecc
+%patch9 -p1 -b .rndport
 
 %{SOURCE2} -e
 
