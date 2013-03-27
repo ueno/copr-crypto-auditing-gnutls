@@ -7,7 +7,7 @@ Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
-BuildRequires: libgcrypt-devel >= 1.2.2, p11-kit-devel >= 0.11, gettext
+BuildRequires: p11-kit-devel >= 0.11, gettext
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 3.1
 BuildRequires: lzo-devel, libtool, automake, autoconf
 BuildRequires: nettle-devel >= 2.5
