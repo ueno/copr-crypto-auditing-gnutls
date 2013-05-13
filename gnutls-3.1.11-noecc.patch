@@ -1,6 +1,6 @@
-diff -up gnutls-3.1.10/lib/algorithms/kx.c.noecc gnutls-3.1.10/lib/algorithms/kx.c
---- gnutls-3.1.10/lib/algorithms/kx.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/lib/algorithms/kx.c	2013-03-25 13:42:15.555309960 +0100
+diff -up gnutls-3.1.11/lib/algorithms/kx.c.noecc gnutls-3.1.11/lib/algorithms/kx.c
+--- gnutls-3.1.11/lib/algorithms/kx.c.noecc	2013-04-27 10:04:48.000000000 +0200
++++ gnutls-3.1.11/lib/algorithms/kx.c	2013-05-13 11:08:41.411446861 +0200
 @@ -29,9 +29,11 @@
  extern mod_auth_st rsa_auth_struct;
  extern mod_auth_st rsa_export_auth_struct;
@@ -13,9 +13,9 @@ diff -up gnutls-3.1.10/lib/algorithms/kx.c.noecc gnutls-3.1.10/lib/algorithms/kx
  extern mod_auth_st dhe_dss_auth_struct;
  extern mod_auth_st anon_auth_struct;
  extern mod_auth_st anon_ecdh_auth_struct;
-diff -up gnutls-3.1.10/lib/algorithms/publickey.c.noecc gnutls-3.1.10/lib/algorithms/publickey.c
---- gnutls-3.1.10/lib/algorithms/publickey.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/lib/algorithms/publickey.c	2013-03-25 13:42:15.555309960 +0100
+diff -up gnutls-3.1.11/lib/algorithms/publickey.c.noecc gnutls-3.1.11/lib/algorithms/publickey.c
+--- gnutls-3.1.11/lib/algorithms/publickey.c.noecc	2013-04-27 10:04:48.000000000 +0200
++++ gnutls-3.1.11/lib/algorithms/publickey.c	2013-05-13 11:08:41.411446861 +0200
 @@ -50,8 +50,10 @@ static const gnutls_pk_map pk_mappings[]
    {GNUTLS_KX_RSA_EXPORT, GNUTLS_PK_RSA, CIPHER_SIGN},
    {GNUTLS_KX_DHE_RSA, GNUTLS_PK_RSA, CIPHER_SIGN},
@@ -37,9 +37,9 @@ diff -up gnutls-3.1.10/lib/algorithms/publickey.c.noecc gnutls-3.1.10/lib/algori
    {0, 0, 0}
  };
  
-diff -up gnutls-3.1.10/lib/algorithms/sign.c.noecc gnutls-3.1.10/lib/algorithms/sign.c
---- gnutls-3.1.10/lib/algorithms/sign.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/lib/algorithms/sign.c	2013-03-25 13:42:15.556309982 +0100
+diff -up gnutls-3.1.11/lib/algorithms/sign.c.noecc gnutls-3.1.11/lib/algorithms/sign.c
+--- gnutls-3.1.11/lib/algorithms/sign.c.noecc	2013-04-24 10:34:02.000000000 +0200
++++ gnutls-3.1.11/lib/algorithms/sign.c	2013-05-13 11:08:41.412446883 +0200
 @@ -43,6 +43,14 @@ typedef struct gnutls_sign_entry gnutls_
  #define TLS_SIGN_AID_UNKNOWN {255, 255}
  static const sign_algorithm_st unknown_tls_aid = TLS_SIGN_AID_UNKNOWN;
@@ -55,9 +55,9 @@ diff -up gnutls-3.1.10/lib/algorithms/sign.c.noecc gnutls-3.1.10/lib/algorithms/
  static const gnutls_sign_entry sign_algorithms[] = {
    {"RSA-SHA1", SIG_RSA_SHA1_OID, GNUTLS_SIGN_RSA_SHA1, GNUTLS_PK_RSA,
     GNUTLS_DIG_SHA1, {2, 1}},
-diff -up gnutls-3.1.10/lib/auth/cert.c.noecc gnutls-3.1.10/lib/auth/cert.c
---- gnutls-3.1.10/lib/auth/cert.c.noecc	2013-03-21 21:45:47.000000000 +0100
-+++ gnutls-3.1.10/lib/auth/cert.c	2013-03-25 13:42:15.557310003 +0100
+diff -up gnutls-3.1.11/lib/auth/cert.c.noecc gnutls-3.1.11/lib/auth/cert.c
+--- gnutls-3.1.11/lib/auth/cert.c.noecc	2013-04-24 10:34:02.000000000 +0200
++++ gnutls-3.1.11/lib/auth/cert.c	2013-05-13 11:08:41.412446883 +0200
 @@ -63,7 +63,11 @@ static gnutls_privkey_t alloc_and_load_p
                                                     key, int deinit);
  #endif
@@ -91,9 +91,9 @@ diff -up gnutls-3.1.10/lib/auth/cert.c.noecc gnutls-3.1.10/lib/auth/cert.c
  
    ret = _gnutls_buffer_append_data (data, tmp_data, CERTTYPE_SIZE);
    if (ret < 0)
-diff -up gnutls-3.1.10/lib/auth/dhe_psk.c.noecc gnutls-3.1.10/lib/auth/dhe_psk.c
---- gnutls-3.1.10/lib/auth/dhe_psk.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/lib/auth/dhe_psk.c	2013-03-25 14:01:30.470454582 +0100
+diff -up gnutls-3.1.11/lib/auth/dhe_psk.c.noecc gnutls-3.1.11/lib/auth/dhe_psk.c
+--- gnutls-3.1.11/lib/auth/dhe_psk.c.noecc	2013-04-24 10:34:02.000000000 +0200
++++ gnutls-3.1.11/lib/auth/dhe_psk.c	2013-05-13 11:08:41.413446905 +0200
 @@ -92,6 +92,7 @@ const mod_auth_st ecdhe_psk_auth_struct
  };
  #endif
@@ -158,9 +158,9 @@ diff -up gnutls-3.1.10/lib/auth/dhe_psk.c.noecc gnutls-3.1.10/lib/auth/dhe_psk.c
 +#endif
  
  #endif /* ENABLE_PSK */
-diff -up gnutls-3.1.10/lib/ext/ecc.c.noecc gnutls-3.1.10/lib/ext/ecc.c
---- gnutls-3.1.10/lib/ext/ecc.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/lib/ext/ecc.c	2013-03-25 13:42:20.746422026 +0100
+diff -up gnutls-3.1.11/lib/ext/ecc.c.noecc gnutls-3.1.11/lib/ext/ecc.c
+--- gnutls-3.1.11/lib/ext/ecc.c.noecc	2013-04-24 10:34:02.000000000 +0200
++++ gnutls-3.1.11/lib/ext/ecc.c	2013-05-13 11:08:41.413446905 +0200
 @@ -35,6 +35,7 @@
  /* Maps record size to numbers according to the
   * extensions draft.
@@ -175,9 +175,9 @@ diff -up gnutls-3.1.10/lib/ext/ecc.c.noecc gnutls-3.1.10/lib/ext/ecc.c
  }
 +
 +#endif
-diff -up gnutls-3.1.10/lib/gnutls_extensions.c.noecc gnutls-3.1.10/lib/gnutls_extensions.c
---- gnutls-3.1.10/lib/gnutls_extensions.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/lib/gnutls_extensions.c	2013-03-25 13:42:20.747422053 +0100
+diff -up gnutls-3.1.11/lib/gnutls_extensions.c.noecc gnutls-3.1.11/lib/gnutls_extensions.c
+--- gnutls-3.1.11/lib/gnutls_extensions.c.noecc	2013-05-05 12:39:09.000000000 +0200
++++ gnutls-3.1.11/lib/gnutls_extensions.c	2013-05-13 11:08:41.413446905 +0200
 @@ -350,6 +350,7 @@ _gnutls_ext_init (void)
    if (ret != GNUTLS_E_SUCCESS)
      return ret;
@@ -194,9 +194,9 @@ diff -up gnutls-3.1.10/lib/gnutls_extensions.c.noecc gnutls-3.1.10/lib/gnutls_ex
  
    ret = _gnutls_ext_register (&ext_mod_sig);
    if (ret != GNUTLS_E_SUCCESS)
-diff -up gnutls-3.1.10/lib/gnutls_priority.c.noecc gnutls-3.1.10/lib/gnutls_priority.c
---- gnutls-3.1.10/lib/gnutls_priority.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/lib/gnutls_priority.c	2013-03-25 13:42:20.747422053 +0100
+diff -up gnutls-3.1.11/lib/gnutls_priority.c.noecc gnutls-3.1.11/lib/gnutls_priority.c
+--- gnutls-3.1.11/lib/gnutls_priority.c.noecc	2013-04-27 10:04:48.000000000 +0200
++++ gnutls-3.1.11/lib/gnutls_priority.c	2013-05-13 11:08:41.414446927 +0200
 @@ -245,35 +245,45 @@ gnutls_certificate_type_set_priority (gn
  }
  
@@ -243,7 +243,7 @@ diff -up gnutls-3.1.10/lib/gnutls_priority.c.noecc gnutls-3.1.10/lib/gnutls_prio
    0
  };
  
-@@ -455,51 +465,75 @@ static const int comp_priority[] = {
+@@ -460,51 +470,75 @@ static const int comp_priority[] = {
  static const int sign_priority_default[] = {
    GNUTLS_SIGN_RSA_SHA256,
    GNUTLS_SIGN_DSA_SHA256,
@@ -319,9 +319,9 @@ diff -up gnutls-3.1.10/lib/gnutls_priority.c.noecc gnutls-3.1.10/lib/gnutls_prio
    0
  };
  
-diff -up gnutls-3.1.10/lib/nettle/init.c.noecc gnutls-3.1.10/lib/nettle/init.c
---- gnutls-3.1.10/lib/nettle/init.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/lib/nettle/init.c	2013-03-25 13:42:20.748422080 +0100
+diff -up gnutls-3.1.11/lib/nettle/init.c.noecc gnutls-3.1.11/lib/nettle/init.c
+--- gnutls-3.1.11/lib/nettle/init.c.noecc	2013-04-27 10:04:48.000000000 +0200
++++ gnutls-3.1.11/lib/nettle/init.c	2013-05-13 11:08:41.414446927 +0200
 @@ -32,7 +32,11 @@
  int
  gnutls_crypto_init (void)
@@ -342,9 +342,9 @@ diff -up gnutls-3.1.10/lib/nettle/init.c.noecc gnutls-3.1.10/lib/nettle/init.c
    ecc_wmnaf_cache_free();
 +#endif
  }
-diff -up gnutls-3.1.10/lib/nettle/Makefile.am.noecc gnutls-3.1.10/lib/nettle/Makefile.am
---- gnutls-3.1.10/lib/nettle/Makefile.am.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/lib/nettle/Makefile.am	2013-03-25 13:42:20.748422080 +0100
+diff -up gnutls-3.1.11/lib/nettle/Makefile.am.noecc gnutls-3.1.11/lib/nettle/Makefile.am
+--- gnutls-3.1.11/lib/nettle/Makefile.am.noecc	2013-04-27 10:04:48.000000000 +0200
++++ gnutls-3.1.11/lib/nettle/Makefile.am	2013-05-13 11:08:41.415446949 +0200
 @@ -33,9 +33,13 @@ endif
  
  noinst_LTLIBRARIES = libcrypto.la
@@ -364,9 +364,9 @@ diff -up gnutls-3.1.10/lib/nettle/Makefile.am.noecc gnutls-3.1.10/lib/nettle/Mak
 -	ecc_projective_check_point.c ecc_projective_negate_point.c \
 -	ecc_projective_add_point_ng.c ecc_sign_hash.c ecc_verify_hash.c gnettle.h 
 +	multi.c wmnaf.c $(ECC_SOURCES) gnettle.h 
-diff -up gnutls-3.1.10/lib/nettle/pk.c.noecc gnutls-3.1.10/lib/nettle/pk.c
---- gnutls-3.1.10/lib/nettle/pk.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/lib/nettle/pk.c	2013-03-25 13:42:20.749422119 +0100
+diff -up gnutls-3.1.11/lib/nettle/pk.c.noecc gnutls-3.1.11/lib/nettle/pk.c
+--- gnutls-3.1.11/lib/nettle/pk.c.noecc	2013-04-27 10:04:48.000000000 +0200
++++ gnutls-3.1.11/lib/nettle/pk.c	2013-05-13 11:08:41.415446949 +0200
 @@ -137,6 +137,7 @@ static int _wrap_nettle_pk_derive(gnutls
  
    switch (algo)
@@ -447,9 +447,9 @@ diff -up gnutls-3.1.10/lib/nettle/pk.c.noecc gnutls-3.1.10/lib/nettle/pk.c
      default:
        ret = gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
      }
-diff -up gnutls-3.1.10/tests/cert-tests/dane.noecc gnutls-3.1.10/tests/cert-tests/dane
---- gnutls-3.1.10/tests/cert-tests/dane.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/tests/cert-tests/dane	2013-03-25 13:42:20.749422119 +0100
+diff -up gnutls-3.1.11/tests/cert-tests/dane.noecc gnutls-3.1.11/tests/cert-tests/dane
+--- gnutls-3.1.11/tests/cert-tests/dane.noecc	2013-04-24 10:34:02.000000000 +0200
++++ gnutls-3.1.11/tests/cert-tests/dane	2013-05-13 11:08:41.416446971 +0200
 @@ -22,6 +22,8 @@
  
  set -e
@@ -459,9 +459,9 @@ diff -up gnutls-3.1.10/tests/cert-tests/dane.noecc gnutls-3.1.10/tests/cert-test
  srcdir=${srcdir:-.}
  DANETOOL=${DANETOOL:-../../src/danetool$EXEEXT}
  
-diff -up gnutls-3.1.10/tests/dtls/dtls-nb.noecc gnutls-3.1.10/tests/dtls/dtls-nb
---- gnutls-3.1.10/tests/dtls/dtls-nb.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/tests/dtls/dtls-nb	2013-03-25 13:42:20.749422119 +0100
+diff -up gnutls-3.1.11/tests/dtls/dtls-nb.noecc gnutls-3.1.11/tests/dtls/dtls-nb
+--- gnutls-3.1.11/tests/dtls/dtls-nb.noecc	2013-04-24 10:34:02.000000000 +0200
++++ gnutls-3.1.11/tests/dtls/dtls-nb	2013-05-13 11:08:41.416446971 +0200
 @@ -22,9 +22,7 @@
  
  set -e
@@ -473,9 +473,9 @@ diff -up gnutls-3.1.10/tests/dtls/dtls-nb.noecc gnutls-3.1.10/tests/dtls/dtls-nb
  
  ./dtls-stress -nb -shello 021 -sfinished 01 -cfinished 012 SKeyExchange CKeyExchange CFinished
  ./dtls-stress -nb -shello 012 -sfinished 10 -cfinished 210 SHello SKeyExchange SHelloDone
-diff -up gnutls-3.1.10/tests/dtls/dtls.noecc gnutls-3.1.10/tests/dtls/dtls
---- gnutls-3.1.10/tests/dtls/dtls.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/tests/dtls/dtls	2013-03-25 13:42:20.749422119 +0100
+diff -up gnutls-3.1.11/tests/dtls/dtls.noecc gnutls-3.1.11/tests/dtls/dtls
+--- gnutls-3.1.11/tests/dtls/dtls.noecc	2013-04-24 10:34:02.000000000 +0200
++++ gnutls-3.1.11/tests/dtls/dtls	2013-05-13 11:08:41.416446971 +0200
 @@ -22,9 +22,7 @@
  
  set -e
@@ -487,9 +487,9 @@ diff -up gnutls-3.1.10/tests/dtls/dtls.noecc gnutls-3.1.10/tests/dtls/dtls
  
  ./dtls-stress -shello 021 -sfinished 01 -cfinished 012 SKeyExchange CKeyExchange CFinished
  ./dtls-stress -shello 012 -sfinished 10 -cfinished 210 SHello SKeyExchange SHelloDone
-diff -up gnutls-3.1.10/tests/ecdsa/ecdsa.noecc gnutls-3.1.10/tests/ecdsa/ecdsa
---- gnutls-3.1.10/tests/ecdsa/ecdsa.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/tests/ecdsa/ecdsa	2013-03-25 13:42:20.750422152 +0100
+diff -up gnutls-3.1.11/tests/ecdsa/ecdsa.noecc gnutls-3.1.11/tests/ecdsa/ecdsa
+--- gnutls-3.1.11/tests/ecdsa/ecdsa.noecc	2013-04-24 10:34:02.000000000 +0200
++++ gnutls-3.1.11/tests/ecdsa/ecdsa	2013-05-13 11:08:41.416446971 +0200
 @@ -22,6 +22,8 @@
  
  #set -e
@@ -499,9 +499,21 @@ diff -up gnutls-3.1.10/tests/ecdsa/ecdsa.noecc gnutls-3.1.10/tests/ecdsa/ecdsa
  srcdir=${srcdir:-.}
  CERTTOOL=${CERTTOOL:-../../src/certtool$EXEEXT}
  
-diff -up gnutls-3.1.10/tests/mini-dtls-record.c.noecc gnutls-3.1.10/tests/mini-dtls-record.c
---- gnutls-3.1.10/tests/mini-dtls-record.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/tests/mini-dtls-record.c	2013-03-25 13:42:20.750422152 +0100
+diff -up gnutls-3.1.11/tests/mini-dtls-heartbeat.c.noecc gnutls-3.1.11/tests/mini-dtls-heartbeat.c
+--- gnutls-3.1.11/tests/mini-dtls-heartbeat.c.noecc	2013-05-10 10:10:27.000000000 +0200
++++ gnutls-3.1.11/tests/mini-dtls-heartbeat.c	2013-05-13 11:16:23.185518179 +0200
+@@ -27,7 +27,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ 
+-#if defined(_WIN32) || !defined(ENABLE_HEARTBEAT)
++#if defined(_WIN32) || !defined(ENABLE_HEARTBEAT) || !defined(ENABLE_ECC)
+ 
+ int
+ main ()
+diff -up gnutls-3.1.11/tests/mini-dtls-record.c.noecc gnutls-3.1.11/tests/mini-dtls-record.c
+--- gnutls-3.1.11/tests/mini-dtls-record.c.noecc	2013-05-10 10:10:27.000000000 +0200
++++ gnutls-3.1.11/tests/mini-dtls-record.c	2013-05-13 11:08:41.416446971 +0200
 @@ -27,7 +27,7 @@
  #include <stdio.h>
  #include <stdlib.h>
@@ -511,9 +523,9 @@ diff -up gnutls-3.1.10/tests/mini-dtls-record.c.noecc gnutls-3.1.10/tests/mini-d
  
  int
  main ()
-diff -up gnutls-3.1.10/tests/mini-dtls-rehandshake.c.noecc gnutls-3.1.10/tests/mini-dtls-rehandshake.c
---- gnutls-3.1.10/tests/mini-dtls-rehandshake.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/tests/mini-dtls-rehandshake.c	2013-03-25 13:42:20.750422152 +0100
+diff -up gnutls-3.1.11/tests/mini-dtls-rehandshake.c.noecc gnutls-3.1.11/tests/mini-dtls-rehandshake.c
+--- gnutls-3.1.11/tests/mini-dtls-rehandshake.c.noecc	2013-05-10 10:10:27.000000000 +0200
++++ gnutls-3.1.11/tests/mini-dtls-rehandshake.c	2013-05-13 11:08:41.416446971 +0200
 @@ -27,7 +27,7 @@
  #include <stdio.h>
  #include <stdlib.h>
@@ -523,9 +535,9 @@ diff -up gnutls-3.1.10/tests/mini-dtls-rehandshake.c.noecc gnutls-3.1.10/tests/m
  
  int main()
  {
-diff -up gnutls-3.1.10/tests/mini-dtls-srtp.c.noecc gnutls-3.1.10/tests/mini-dtls-srtp.c
---- gnutls-3.1.10/tests/mini-dtls-srtp.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/tests/mini-dtls-srtp.c	2013-03-25 13:42:20.751422175 +0100
+diff -up gnutls-3.1.11/tests/mini-dtls-srtp.c.noecc gnutls-3.1.11/tests/mini-dtls-srtp.c
+--- gnutls-3.1.11/tests/mini-dtls-srtp.c.noecc	2013-05-10 10:10:27.000000000 +0200
++++ gnutls-3.1.11/tests/mini-dtls-srtp.c	2013-05-13 11:08:41.417446993 +0200
 @@ -27,7 +27,7 @@
  #include <stdio.h>
  #include <stdlib.h>
@@ -535,9 +547,9 @@ diff -up gnutls-3.1.10/tests/mini-dtls-srtp.c.noecc gnutls-3.1.10/tests/mini-dtl
  
  int
  main (int argc, char** argv)
-diff -up gnutls-3.1.10/tests/mini-handshake-timeout.c.noecc gnutls-3.1.10/tests/mini-handshake-timeout.c
---- gnutls-3.1.10/tests/mini-handshake-timeout.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/tests/mini-handshake-timeout.c	2013-03-25 13:42:20.751422175 +0100
+diff -up gnutls-3.1.11/tests/mini-handshake-timeout.c.noecc gnutls-3.1.11/tests/mini-handshake-timeout.c
+--- gnutls-3.1.11/tests/mini-handshake-timeout.c.noecc	2013-05-10 10:10:27.000000000 +0200
++++ gnutls-3.1.11/tests/mini-handshake-timeout.c	2013-05-13 11:08:41.417446993 +0200
 @@ -28,7 +28,7 @@
  #include <stdlib.h>
  #include <string.h>
@@ -560,9 +572,9 @@ diff -up gnutls-3.1.10/tests/mini-handshake-timeout.c.noecc gnutls-3.1.10/tests/
  }
  
  static void
-diff -up gnutls-3.1.10/tests/mini-loss-time.c.noecc gnutls-3.1.10/tests/mini-loss-time.c
---- gnutls-3.1.10/tests/mini-loss-time.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/tests/mini-loss-time.c	2013-03-25 13:42:20.751422175 +0100
+diff -up gnutls-3.1.11/tests/mini-loss-time.c.noecc gnutls-3.1.11/tests/mini-loss-time.c
+--- gnutls-3.1.11/tests/mini-loss-time.c.noecc	2013-05-10 10:10:27.000000000 +0200
++++ gnutls-3.1.11/tests/mini-loss-time.c	2013-05-13 11:08:41.417446993 +0200
 @@ -28,7 +28,7 @@
  #include <stdlib.h>
  #include <string.h>
@@ -572,9 +584,9 @@ diff -up gnutls-3.1.10/tests/mini-loss-time.c.noecc gnutls-3.1.10/tests/mini-los
  
  int main()
  {
-diff -up gnutls-3.1.10/tests/mini-record.c.noecc gnutls-3.1.10/tests/mini-record.c
---- gnutls-3.1.10/tests/mini-record.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/tests/mini-record.c	2013-03-25 13:42:20.751422175 +0100
+diff -up gnutls-3.1.11/tests/mini-record.c.noecc gnutls-3.1.11/tests/mini-record.c
+--- gnutls-3.1.11/tests/mini-record.c.noecc	2013-05-10 10:10:27.000000000 +0200
++++ gnutls-3.1.11/tests/mini-record.c	2013-05-13 11:08:41.417446993 +0200
 @@ -27,7 +27,7 @@
  #include <stdio.h>
  #include <stdlib.h>
@@ -584,9 +596,9 @@ diff -up gnutls-3.1.10/tests/mini-record.c.noecc gnutls-3.1.10/tests/mini-record
  
  int main()
  {
-diff -up gnutls-3.1.10/tests/mini-xssl.c.noecc gnutls-3.1.10/tests/mini-xssl.c
---- gnutls-3.1.10/tests/mini-xssl.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/tests/mini-xssl.c	2013-03-25 13:42:20.752422192 +0100
+diff -up gnutls-3.1.11/tests/mini-record-range.c.noecc gnutls-3.1.11/tests/mini-record-range.c
+--- gnutls-3.1.11/tests/mini-record-range.c.noecc	2013-05-10 10:10:27.000000000 +0200
++++ gnutls-3.1.11/tests/mini-record-range.c	2013-05-13 11:17:05.526439771 +0200
 @@ -27,7 +27,7 @@
  #include <stdio.h>
  #include <stdlib.h>
@@ -596,9 +608,21 @@ diff -up gnutls-3.1.10/tests/mini-xssl.c.noecc gnutls-3.1.10/tests/mini-xssl.c
  
  int main()
  {
-diff -up gnutls-3.1.10/tests/pkcs12_simple.c.noecc gnutls-3.1.10/tests/pkcs12_simple.c
---- gnutls-3.1.10/tests/pkcs12_simple.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/tests/pkcs12_simple.c	2013-03-25 13:42:20.752422192 +0100
+diff -up gnutls-3.1.11/tests/mini-xssl.c.noecc gnutls-3.1.11/tests/mini-xssl.c
+--- gnutls-3.1.11/tests/mini-xssl.c.noecc	2013-05-10 10:10:27.000000000 +0200
++++ gnutls-3.1.11/tests/mini-xssl.c	2013-05-13 11:08:41.417446993 +0200
+@@ -27,7 +27,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ 
+-#if defined(_WIN32)
++#if defined(_WIN32) || !defined(ENABLE_ECC)
+ 
+ int main()
+ {
+diff -up gnutls-3.1.11/tests/pkcs12_simple.c.noecc gnutls-3.1.11/tests/pkcs12_simple.c
+--- gnutls-3.1.11/tests/pkcs12_simple.c.noecc	2013-05-10 10:10:27.000000000 +0200
++++ gnutls-3.1.11/tests/pkcs12_simple.c	2013-05-13 11:08:41.417446993 +0200
 @@ -50,6 +50,10 @@ doit (void)
    gnutls_x509_privkey_t pkey;
    int ret;
@@ -607,12 +631,12 @@ diff -up gnutls-3.1.10/tests/pkcs12_simple.c.noecc gnutls-3.1.10/tests/pkcs12_si
 +  exit(77);
 +#endif
 +
-   ret = gnutls_global_init ();
+   ret = global_init ();
    if (ret < 0)
-     fail ("gnutls_global_init failed %d\n", ret);
-diff -up gnutls-3.1.10/tests/slow/keygen.c.noecc gnutls-3.1.10/tests/slow/keygen.c
---- gnutls-3.1.10/tests/slow/keygen.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/tests/slow/keygen.c	2013-03-25 13:42:20.752422192 +0100
+     fail ("global_init failed %d\n", ret);
+diff -up gnutls-3.1.11/tests/slow/keygen.c.noecc gnutls-3.1.11/tests/slow/keygen.c
+--- gnutls-3.1.11/tests/slow/keygen.c.noecc	2013-05-10 10:10:27.000000000 +0200
++++ gnutls-3.1.11/tests/slow/keygen.c	2013-05-13 11:08:41.417446993 +0200
 @@ -65,6 +65,11 @@ doit (void)
                  if (algorithm == GNUTLS_PK_DH)
                      continue;
@@ -625,9 +649,9 @@ diff -up gnutls-3.1.10/tests/slow/keygen.c.noecc gnutls-3.1.10/tests/slow/keygen
                  ret = gnutls_x509_privkey_init (&pkey);
                  if (ret < 0)
                    {
-diff -up gnutls-3.1.10/tests/srp/mini-srp.c.noecc gnutls-3.1.10/tests/srp/mini-srp.c
---- gnutls-3.1.10/tests/srp/mini-srp.c.noecc	2013-03-21 21:42:28.000000000 +0100
-+++ gnutls-3.1.10/tests/srp/mini-srp.c	2013-03-25 13:42:20.753422209 +0100
+diff -up gnutls-3.1.11/tests/srp/mini-srp.c.noecc gnutls-3.1.11/tests/srp/mini-srp.c
+--- gnutls-3.1.11/tests/srp/mini-srp.c.noecc	2013-05-10 10:10:27.000000000 +0200
++++ gnutls-3.1.11/tests/srp/mini-srp.c	2013-05-13 11:08:41.418447015 +0200
 @@ -27,7 +27,7 @@
  #include <stdio.h>
  #include <stdlib.h>

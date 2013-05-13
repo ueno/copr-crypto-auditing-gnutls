@@ -2,10 +2,11 @@
 %bcond_with guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.1.10
+Version: 3.1.11
 Release: 1%{?dist}
-# The libraries are LGPLv2.1+, utilities are GPLv3+
-License: GPLv3+ and LGPLv2+
+# The libraries are LGPLv2.1+, utilities are GPLv3+, however
+# the bundled gnulib is LGPLv3+
+License: GPLv3+ and LGPLv2+ and LGPLv3+
 Group: System Environment/Libraries
 BuildRequires: p11-kit-devel >= 0.11, gettext
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 3.1
@@ -28,13 +29,13 @@ Patch1: gnutls-3.1.7-rpath.patch
 # Use only FIPS approved ciphers in the FIPS mode
 Patch7: gnutls-2.12.21-fips-algorithms.patch
 # Make ECC optional as it is now hobbled
-Patch8: gnutls-3.1.10-noecc.patch
+Patch8: gnutls-3.1.11-noecc.patch
 # Use random port in some tests to avoid conflicts during simultaneous builds on the same machine
 Patch9: gnutls-3.1.10-tests-rndport.patch
 
 Requires: libgcrypt >= 1.2.2
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
-Provides: bundled(gnulib) = 20120301
+Provides: bundled(gnulib) = 20130424
 
 %package c++
 Summary: The C++ interface to GnuTLS
@@ -139,10 +140,12 @@ export LDFLAGS="-Wl,--no-add-needed"
            --disable-static \
            --disable-openssl-compatibility \
            --disable-srp-authentication \
-           --disable-heartbeat-support \
            --disable-ecdhe \
 %if %{with guile}
            --enable-guile \
+%ifarch %{arm}
+           --disable-largefile \
+%endif
 %else
            --disable-guile \
 %endif
@@ -150,9 +153,6 @@ export LDFLAGS="-Wl,--no-add-needed"
            --enable-dane \
 %else
            --disable-dane \
-%endif
-%ifarch %{arm}
-           --disable-largefile \
 %endif
            --disable-rpath
 # Note that the arm hack above is not quite right and the proper thing would
@@ -256,6 +256,9 @@ fi
 %endif
 
 %changelog
+* Mon May 13 2013 Tomáš Mráz <tmraz@redhat.com> 3.1.11-1
+- new upstream release
+
 * Mon Mar 25 2013 Tomas Mraz <tmraz@redhat.com> 3.1.10-1
 - new upstream release
 - license of the library is back to LGPLv2.1+
