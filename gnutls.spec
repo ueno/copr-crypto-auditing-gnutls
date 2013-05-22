@@ -33,7 +33,6 @@ Patch8: gnutls-3.1.11-noecc.patch
 # Use random port in some tests to avoid conflicts during simultaneous builds on the same machine
 Patch9: gnutls-3.1.10-tests-rndport.patch
 
-Requires: libgcrypt >= 1.2.2
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
 
@@ -49,7 +48,6 @@ Requires: %{name}-c++%{?_isa} = %{version}-%{release}
 %if %{with dane}
 Requires: %{name}-dane%{?_isa} = %{version}-%{release}
 %endif
-Requires: libgcrypt-devel
 Requires: pkgconfig
 Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
