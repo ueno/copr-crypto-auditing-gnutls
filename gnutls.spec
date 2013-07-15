@@ -2,7 +2,7 @@
 %bcond_with guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.1.11
+Version: 3.1.13
 Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+, however
 # the bundled gnulib is LGPLv3+
@@ -10,7 +10,7 @@ License: GPLv3+ and LGPLv2+ and LGPLv3+
 Group: System Environment/Libraries
 BuildRequires: p11-kit-devel >= 0.11, gettext
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 3.1
-BuildRequires: lzo-devel, libtool, automake, autoconf
+BuildRequires: lzo-devel, libtool, automake, autoconf, texinfo
 BuildRequires: nettle-devel >= 2.5
 %if %{with dane}
 BuildRequires: unbound-devel
@@ -130,6 +130,7 @@ This package contains Guile bindings for the library.
 %{SOURCE2} -e
 
 %build
+autoreconf -f
 
 export LDFLAGS="-Wl,--no-add-needed"
 
@@ -254,6 +255,9 @@ fi
 %endif
 
 %changelog
+* Mon Jul 15 2013 Tomáš Mráz <tmraz@redhat.com> 3.1.13-1
+- new upstream release
+
 * Mon May 13 2013 Tomáš Mráz <tmraz@redhat.com> 3.1.11-1
 - new upstream release
 
