@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.1.13
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+, however
 # the bundled gnulib is LGPLv3+
 License: GPLv3+ and LGPLv2+ and LGPLv3+
@@ -255,6 +255,9 @@ fi
 %endif
 
 %changelog
+* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.1.13-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+
 * Mon Jul 15 2013 Tomáš Mráz <tmraz@redhat.com> 3.1.13-1
 - new upstream release
 
