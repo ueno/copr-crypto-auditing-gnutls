@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.1.13
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+, however
 # the bundled gnulib is LGPLv3+
 License: GPLv3+ and LGPLv2+ and LGPLv3+
@@ -22,16 +22,17 @@ URL: http://www.gnutls.org/
 #Source0: ftp://ftp.gnutls.org/gcrypt/gnutls/%{name}-%{version}.tar.xz
 #Source1: ftp://ftp.gnutls.org/gcrypt/gnutls/%{name}-%{version}.tar.xz.sig
 # XXX patent tainted code removed.
-Source0: %{name}-%{version}-hobbled.tar.xz
+Source0: %{name}-%{version}-hobbled-el.tar.xz
 Source1: libgnutls-config
 Source2: hobble-gnutls
+Source3: ecc.c
 Patch1: gnutls-3.1.7-rpath.patch
 # Use only FIPS approved ciphers in the FIPS mode
 Patch7: gnutls-2.12.21-fips-algorithms.patch
-# Make ECC optional as it is now hobbled
-Patch8: gnutls-3.1.11-noecc.patch
+Patch8: gnutls-3.1.11-nosrp.patch
 # Use random port in some tests to avoid conflicts during simultaneous builds on the same machine
 Patch9: gnutls-3.1.10-tests-rndport.patch
+Patch10: gnutls-3.1.11-suiteb.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -124,13 +125,15 @@ This package contains Guile bindings for the library.
 # This patch is not applicable as we use nettle now but some parts will be
 # later reused.
 #%patch7 -p1 -b .fips
-%patch8 -p1 -b .noecc
+%patch8 -p1 -b .nosrp
 %patch9 -p1 -b .rndport
+%patch10 -p1 -b .suiteb
 
 %{SOURCE2} -e
 
+cp -f %{SOURCE3} lib/algorithms
+
 %build
-autoreconf -f
 
 export LDFLAGS="-Wl,--no-add-needed"
 
@@ -139,7 +142,6 @@ export LDFLAGS="-Wl,--no-add-needed"
            --disable-static \
            --disable-openssl-compatibility \
            --disable-srp-authentication \
-           --disable-ecdhe \
 %if %{with guile}
            --enable-guile \
 %ifarch %{arm}
@@ -255,6 +257,9 @@ fi
 %endif
 
 %changelog
+* Wed Oct 16 2013 Tomáš Mráz <tmraz@redhat.com> 3.1.13-3
+- enable ECC NIST Suite B curves
+
 * Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.1.13-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 

@@ -14,10 +14,6 @@ for f in auth_srp_sb64.c auth_srp_passwd.c auth_srp_rsa.c \
 done
 
 # ECC
-for f in ecc_free.c ecc_make_key.c ecc_shared_secret.c \
-    ecc_map.c ecc_mulmod.c ecc_mulmod_cached.c \
-    ecc_points.c ecc_projective_dbl_point_3.c ecc_projective_isneutral.c \
-    ecc_projective_check_point.c ecc_projective_negate_point.c \
-    ecc_projective_add_point_ng.c ecc_sign_hash.c ecc_verify_hash.c ; do
-    eval "$CMD lib/nettle/$f"
+for f in ecc.c ; do
+    eval "$CMD lib/algorithms/$f"
 done
