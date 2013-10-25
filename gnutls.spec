@@ -2,8 +2,8 @@
 %bcond_with guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.1.13
-Release: 3%{?dist}
+Version: 3.1.15
+Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+, however
 # the bundled gnulib is LGPLv3+
 License: GPLv3+ and LGPLv2+ and LGPLv3+
@@ -22,7 +22,7 @@ URL: http://www.gnutls.org/
 #Source0: ftp://ftp.gnutls.org/gcrypt/gnutls/%{name}-%{version}.tar.xz
 #Source1: ftp://ftp.gnutls.org/gcrypt/gnutls/%{name}-%{version}.tar.xz.sig
 # XXX patent tainted code removed.
-Source0: %{name}-%{version}-hobbled-el.tar.xz
+Source0: %{name}-%{version}-hobbled.tar.xz
 Source1: libgnutls-config
 Source2: hobble-gnutls
 Source3: ecc.c
@@ -257,6 +257,10 @@ fi
 %endif
 
 %changelog
+* Fri Oct 25 2013 Tomáš Mráz <tmraz@redhat.com> 3.1.15-1
+- new upstream release
+- fixes CVE-2013-4466 buffer overflow in handling DANE entries
+
 * Wed Oct 16 2013 Tomáš Mráz <tmraz@redhat.com> 3.1.13-3
 - enable ECC NIST Suite B curves
 
