@@ -2,7 +2,7 @@
 %bcond_with guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.1.15
+Version: 3.1.16
 Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+, however
 # the bundled gnulib is LGPLv3+
@@ -257,6 +257,10 @@ fi
 %endif
 
 %changelog
+* Mon Nov  4 2013 Tomáš Mráz <tmraz@redhat.com> 3.1.16-1
+- new upstream release
+- fixes CVE-2013-4466 off-by-one in dane_query_tlsa()
+
 * Fri Oct 25 2013 Tomáš Mráz <tmraz@redhat.com> 3.1.15-1
 - new upstream release
 - fixes CVE-2013-4466 buffer overflow in handling DANE entries
