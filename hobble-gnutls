@@ -8,12 +8,8 @@ else
 fi
 
 # SRP
-for f in auth_srp_sb64.c auth_srp_passwd.c auth_srp_rsa.c \
-    gnutls_srp.c auth_srp.c ext_srp.c ; do
+for f in auth/srp_sb64.c auth/srp_passwd.c auth/srp_rsa.c \
+    gnutls_srp.c auth/srp.c ext/srp.c ; do
     eval "$CMD lib/$f"
 done
 
-# ECC
-for f in ecc.c ; do
-    eval "$CMD lib/algorithms/$f"
-done

@@ -2,16 +2,17 @@
 %bcond_with guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.1.16
+Version: 3.2.7
 Release: 1%{?dist}
-# The libraries are LGPLv2.1+, utilities are GPLv3+, however
-# the bundled gnulib is LGPLv3+
-License: GPLv3+ and LGPLv2+ and LGPLv3+
+# The libraries are LGPLv2.1+, utilities are GPLv3+
+License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
 BuildRequires: p11-kit-devel >= 0.11, gettext
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 3.1
-BuildRequires: lzo-devel, libtool, automake, autoconf, texinfo
-BuildRequires: nettle-devel >= 2.5
+BuildRequires: libtool, automake, autoconf, texinfo
+BuildRequires: autogen-libopts-devel >= 5.18 autogen
+BuildRequires: nettle-devel >= 2.7.1
+BuildRequires: trousers-devel >= 0.3.11.2
 %if %{with dane}
 BuildRequires: unbound-devel
 %endif
@@ -25,14 +26,12 @@ URL: http://www.gnutls.org/
 Source0: %{name}-%{version}-hobbled.tar.xz
 Source1: libgnutls-config
 Source2: hobble-gnutls
-Source3: ecc.c
-Patch1: gnutls-3.1.7-rpath.patch
+Patch1: gnutls-3.2.7-rpath.patch
 # Use only FIPS approved ciphers in the FIPS mode
 Patch7: gnutls-2.12.21-fips-algorithms.patch
 Patch8: gnutls-3.1.11-nosrp.patch
 # Use random port in some tests to avoid conflicts during simultaneous builds on the same machine
-Patch9: gnutls-3.1.10-tests-rndport.patch
-Patch10: gnutls-3.1.11-suiteb.patch
+Patch9: gnutls-3.2.7-suiteb.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -126,12 +125,11 @@ This package contains Guile bindings for the library.
 # later reused.
 #%patch7 -p1 -b .fips
 %patch8 -p1 -b .nosrp
-%patch9 -p1 -b .rndport
-%patch10 -p1 -b .suiteb
+%patch9 -p1 -b .suiteb
+sed 's/gnutls_srp.c//g' -i lib/Makefile.in
+sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
 
 %{SOURCE2} -e
-
-cp -f %{SOURCE3} lib/algorithms
 
 %build
 
@@ -158,7 +156,7 @@ export LDFLAGS="-Wl,--no-add-needed"
            --disable-rpath
 # Note that the arm hack above is not quite right and the proper thing would
 # be to compile guile with largefile support.
-make
+make %{?_smp_mflags}
 
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
@@ -178,7 +176,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls-dane.pc
 %find_lang gnutls
 
 %check
-make check
+make check %{?_smp_mflags}
 
 %post -p /sbin/ldconfig
 
@@ -232,6 +230,7 @@ fi
 %files utils
 %defattr(-,root,root,-)
 %{_bindir}/certtool
+%{_bindir}/tpmtool
 %{_bindir}/ocsptool
 %{_bindir}/psktool
 %{_bindir}/p11tool
@@ -257,6 +256,12 @@ fi
 %endif
 
 %changelog
+* Mon Nov 25 2013 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.2.7-1
+- new upstream release
+- added dependency to autogen-libopts-devel to use the system's
+  libopts library
+- added dependency to trousers-devel to enable TPM support
+
 * Mon Nov  4 2013 Tomáš Mráz <tmraz@redhat.com> 3.1.16-1
 - new upstream release
 - fixes CVE-2013-4466 off-by-one in dane_query_tlsa()
