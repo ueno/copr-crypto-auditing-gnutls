@@ -76,44 +76,55 @@ Requires: guile
 %endif
 
 %description
-GnuTLS is a project that aims to develop a library which provides a secure 
-layer, over a reliable transport layer. Currently the GnuTLS library implements
-the proposed standards by the IETF's TLS working group.
+GnuTLS is a secure communications library implementing the SSL, TLS and DTLS 
+protocols and technologies around them. It provides a simple C language 
+application programming interface (API) to access the secure communications 
+protocols as well as APIs to parse and write X.509, PKCS #12, OpenPGP and 
+other required structures. 
 
 %description c++
-GnuTLS is a project that aims to develop a library which provides a secure
-layer, over a reliable transport layer. Currently the GnuTLS library implements
-the proposed standards by the IETF's TLS working group.
-This package contains the C++ interface for the GnuTLS library.
+GnuTLS is a secure communications library implementing the SSL, TLS and DTLS 
+protocols and technologies around them. It provides a simple C language 
+application programming interface (API) to access the secure communications 
+protocols as well as APIs to parse and write X.509, PKCS #12, OpenPGP and 
+other required structures. 
 
 %description devel
-GnuTLS is a project that aims to develop a library which provides a secure
-layer, over a reliable transport layer. Currently the GnuTLS library implements
-the proposed standards by the IETF's TLS working group.
+GnuTLS is a secure communications library implementing the SSL, TLS and DTLS 
+protocols and technologies around them. It provides a simple C language 
+application programming interface (API) to access the secure communications 
+protocols as well as APIs to parse and write X.509, PKCS #12, OpenPGP and 
+other required structures. 
 This package contains files needed for developing applications with
 the GnuTLS library.
 
 %description utils
-GnuTLS is a project that aims to develop a library which provides a secure
-layer, over a reliable transport layer. Currently the GnuTLS library implements
-the proposed standards by the IETF's TLS working group.
+GnuTLS is a secure communications library implementing the SSL, TLS and DTLS 
+protocols and technologies around them. It provides a simple C language 
+application programming interface (API) to access the secure communications 
+protocols as well as APIs to parse and write X.509, PKCS #12, OpenPGP and 
+other required structures. 
 This package contains command line TLS client and server and certificate
 manipulation tools.
 
 %if %{with dane}
 %description dane
-GnuTLS is a project that aims to develop a library which provides a secure
-layer, over a reliable transport layer. Currently the GnuTLS library implements
-the proposed standards by the IETF's TLS working group.
+GnuTLS is a secure communications library implementing the SSL, TLS and DTLS 
+protocols and technologies around them. It provides a simple C language 
+application programming interface (API) to access the secure communications 
+protocols as well as APIs to parse and write X.509, PKCS #12, OpenPGP and 
+other required structures. 
 This package contains library that implements the DANE protocol for verifying
 TLS certificates through DNSSEC.
 %endif
 
 %if %{with guile}
 %description guile
-GnuTLS is a project that aims to develop a library which provides a secure
-layer, over a reliable transport layer. Currently the GnuTLS library implements
-the proposed standards by the IETF's TLS working group.
+GnuTLS is a secure communications library implementing the SSL, TLS and DTLS 
+protocols and technologies around them. It provides a simple C language 
+application programming interface (API) to access the secure communications 
+protocols as well as APIs to parse and write X.509, PKCS #12, OpenPGP and 
+other required structures. 
 This package contains Guile bindings for the library.
 %endif
 
