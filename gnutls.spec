@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.2.7
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -14,7 +14,7 @@ BuildRequires: autogen-libopts-devel >= 5.18 autogen
 BuildRequires: nettle-devel >= 2.7.1
 BuildRequires: trousers-devel >= 0.3.11.2
 %if %{with dane}
-BuildRequires: unbound-devel
+BuildRequires: unbound-devel unbound-libs
 %endif
 %if %{with guile}
 BuildRequires: guile-devel
@@ -30,7 +30,6 @@ Patch1: gnutls-3.2.7-rpath.patch
 # Use only FIPS approved ciphers in the FIPS mode
 Patch7: gnutls-2.12.21-fips-algorithms.patch
 Patch8: gnutls-3.1.11-nosrp.patch
-# Use random port in some tests to avoid conflicts during simultaneous builds on the same machine
 Patch9: gnutls-3.2.7-suiteb.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
@@ -160,6 +159,7 @@ export LDFLAGS="-Wl,--no-add-needed"
            --disable-guile \
 %endif
 %if %{with dane}
+	   --with-unbound-root-key-file=/var/lib/unbound/root.key \
            --enable-dane \
 %else
            --disable-dane \
@@ -266,6 +266,9 @@ fi
 %endif
 
 %changelog
+* Tue Nov 27 2013 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.2.7-2
+- Use the following root key for unbound /var/lib/unbound/root.key (#1012494)
+
 * Mon Nov 25 2013 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.2.7-1
 - new upstream release
 - added dependency to autogen-libopts-devel to use the system's
