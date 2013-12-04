@@ -27,6 +27,7 @@ Source0: %{name}-%{version}-hobbled.tar.xz
 Source1: libgnutls-config
 Source2: hobble-gnutls
 Patch1: gnutls-3.2.7-rpath.patch
+Patch2: gnutls-3.2.7-asm.patch
 # Use only FIPS approved ciphers in the FIPS mode
 Patch7: gnutls-2.12.21-fips-algorithms.patch
 Patch8: gnutls-3.1.11-nosrp.patch
@@ -131,6 +132,7 @@ This package contains Guile bindings for the library.
 %setup -q
 
 %patch1 -p1 -b .rpath
+%patch2 -p1 -b .asm
 # This patch is not applicable as we use nettle now but some parts will be
 # later reused.
 #%patch7 -p1 -b .fips
@@ -266,8 +268,9 @@ fi
 %endif
 
 %changelog
-* Tue Nov 27 2013 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.2.7-2
-- Use the following root key for unbound /var/lib/unbound/root.key (#1012494)
+* Wed Dec  4 2013 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.2.7-2
+- Use the correct root key for unbound /var/lib/unbound/root.key (#1012494)
+- Pull asm fixes from upstream (#973210)
 
 * Mon Nov 25 2013 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.2.7-1
 - new upstream release
