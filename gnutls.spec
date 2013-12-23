@@ -265,6 +265,9 @@ fi
 %endif
 
 %changelog
+* Mon Dec 23 2013 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.2.8-1
+- new upstream release
+
 * Wed Dec  4 2013 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.2.7-2
 - Use the correct root key for unbound /var/lib/unbound/root.key (#1012494)
 - Pull asm fixes from upstream (#973210)
