@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.2.8
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -13,6 +13,7 @@ BuildRequires: libtool, automake, autoconf, texinfo
 BuildRequires: autogen-libopts-devel >= 5.18 autogen
 BuildRequires: nettle-devel >= 2.7.1
 BuildRequires: trousers-devel >= 0.3.11.2
+BuildRequires: libidn-devel
 %if %{with dane}
 BuildRequires: unbound-devel unbound-libs
 %endif
@@ -243,6 +244,7 @@ fi
 %{_bindir}/ocsptool
 %{_bindir}/psktool
 %{_bindir}/p11tool
+%{_bindir}/crywrap
 %if %{with dane}
 %{_bindir}/danetool
 %endif
@@ -265,6 +267,9 @@ fi
 %endif
 
 %changelog
+* Tue Jan 14 2014 Tomáš Mráz <tmraz@redhat.com> 3.2.8-2
+- build the crywrap tool
+
 * Mon Dec 23 2013 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.2.8-1
 - new upstream release
 
