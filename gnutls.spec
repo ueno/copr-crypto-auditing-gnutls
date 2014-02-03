@@ -2,8 +2,8 @@
 %bcond_with guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.2.8
-Release: 2%{?dist}
+Version: 3.2.10
+Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -29,6 +29,8 @@ Source1: libgnutls-config
 Source2: hobble-gnutls
 Patch1: gnutls-3.2.7-rpath.patch
 # Use only FIPS approved ciphers in the FIPS mode
+Patch2: gnutls-3.2.10-init-keyword.patch
+Patch3: gnutls-3.2.10-supported-ecc.patch
 Patch7: gnutls-2.12.21-fips-algorithms.patch
 Patch8: gnutls-3.1.11-nosrp.patch
 
@@ -131,6 +133,8 @@ This package contains Guile bindings for the library.
 %setup -q
 
 %patch1 -p1 -b .rpath
+%patch2 -p1 -b .ikeyword
+%patch3 -p1 -b .secc
 # This patch is not applicable as we use nettle now but some parts will be
 # later reused.
 #%patch7 -p1 -b .fips
@@ -267,6 +271,9 @@ fi
 %endif
 
 %changelog
+* Mon Feb 03 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.2.10-1
+- new upstream release
+
 * Tue Jan 14 2014 Tomáš Mráz <tmraz@redhat.com> 3.2.8-2
 - build the crywrap tool
 
