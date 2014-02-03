@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.2.10
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -154,6 +154,7 @@ export LDFLAGS="-Wl,--no-add-needed"
            --disable-openssl-compatibility \
            --disable-srp-authentication \
 	   --disable-non-suiteb-curves \
+	   --with-default-trust-store-pkcs11="pkcs11:model=p11-kit-trust;manufacturer=PKCS%2311%20Kit" \
 %if %{with guile}
            --enable-guile \
 %ifarch %{arm}
@@ -271,6 +272,9 @@ fi
 %endif
 
 %changelog
+* Mon Feb 03 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.2.10-2
+- use p11-kit trust store for certificate verification
+
 * Mon Feb 03 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.2.10-1
 - new upstream release
 
