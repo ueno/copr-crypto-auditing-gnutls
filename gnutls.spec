@@ -268,6 +268,9 @@ fi
 %endif
 
 %changelog
+* Tue Apr 08 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.2.13-1
+- new upstream release
+
 * Wed Mar 05 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.2.12.1-1
 - new upstream release
 
