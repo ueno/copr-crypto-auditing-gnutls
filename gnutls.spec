@@ -2,7 +2,7 @@
 %bcond_with guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.2.13
+Version: 3.3.0
 Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
@@ -150,6 +150,7 @@ export LDFLAGS="-Wl,--no-add-needed"
            --disable-openssl-compatibility \
            --disable-srp-authentication \
 	   --disable-non-suiteb-curves \
+	   --with-system-priority-file=/etc/crypto-profiles/apps/gnutls.config \
 	   --with-default-trust-store-pkcs11="pkcs11:model=p11-kit-trust;manufacturer=PKCS%2311%20Kit" \
 %if %{with guile}
            --enable-guile \
@@ -222,7 +223,6 @@ fi
 %files -f gnutls.lang
 %defattr(-,root,root,-)
 %{_libdir}/libgnutls.so.28*
-%{_libdir}/libgnutls-xssl.so.0*
 %doc COPYING COPYING.LESSER README AUTHORS NEWS THANKS
 
 %files c++
@@ -268,6 +268,9 @@ fi
 %endif
 
 %changelog
+* Mon Apr 14 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.0-1
+- new upstream release
+
 * Tue Apr 08 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.2.13-1
 - new upstream release
 
