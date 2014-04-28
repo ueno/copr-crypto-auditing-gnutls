@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.3.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -32,6 +32,7 @@ Patch1: gnutls-3.2.7-rpath.patch
 Patch7: gnutls-2.12.21-fips-algorithms.patch
 Patch8: gnutls-3.1.11-nosrp.patch
 Patch9: gnutls-othername.patch
+Patch10: gnutls-global-deinit.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -137,6 +138,7 @@ This package contains Guile bindings for the library.
 #%patch7 -p1 -b .fips
 %patch8 -p1 -b .nosrp
 %patch9 -p1 -b .othername
+%patch10 -p1 -b .global-deinit
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
 
@@ -270,6 +272,10 @@ fi
 %endif
 
 %changelog
+* Mon Apr 28 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.1-2
+- gnutls_global_deinit() will not do anything if the previous 
+  initialization has failed (#1091053)
+
 * Mon Apr 28 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.1-1
 - new upstream release
 
