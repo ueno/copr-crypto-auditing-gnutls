@@ -2,7 +2,7 @@
 %bcond_with guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.3.0
+Version: 3.3.1
 Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
@@ -31,6 +31,7 @@ Patch1: gnutls-3.2.7-rpath.patch
 # Use only FIPS approved ciphers in the FIPS mode
 Patch7: gnutls-2.12.21-fips-algorithms.patch
 Patch8: gnutls-3.1.11-nosrp.patch
+Patch9: gnutls-othername.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -135,6 +136,7 @@ This package contains Guile bindings for the library.
 # later reused.
 #%patch7 -p1 -b .fips
 %patch8 -p1 -b .nosrp
+%patch9 -p1 -b .othername
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
 
@@ -266,6 +268,10 @@ fi
 %{_datadir}/guile/site/gnutls
 %{_datadir}/guile/site/gnutls.scm
 %endif
+
+%changelog
+* Mon Apr 28 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.1-1
+- new upstream release
 
 %changelog
 * Mon Apr 14 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.0-1
