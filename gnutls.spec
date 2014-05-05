@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.3.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -33,6 +33,7 @@ Patch7: gnutls-2.12.21-fips-algorithms.patch
 Patch8: gnutls-3.1.11-nosrp.patch
 Patch9: gnutls-othername.patch
 Patch10: gnutls-global-deinit.patch
+Patch11: 0001-Added-the-very-weak-certificate-verification-profile.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -139,6 +140,7 @@ This package contains Guile bindings for the library.
 %patch8 -p1 -b .nosrp
 %patch9 -p1 -b .othername
 %patch10 -p1 -b .global-deinit
+%patch11 -p1 -b .very-weak
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
 
@@ -154,7 +156,7 @@ export LDFLAGS="-Wl,--no-add-needed"
            --disable-openssl-compatibility \
            --disable-srp-authentication \
 	   --disable-non-suiteb-curves \
-	   --with-system-priority-file=/etc/crypto-profiles/apps/gnutls.config \
+	   --with-system-priority-file=/etc/crypto-profiles/back-ends/gnutls.config \
 	   --with-default-trust-store-pkcs11="pkcs11:model=p11-kit-trust;manufacturer=PKCS%2311%20Kit" \
 %if %{with guile}
            --enable-guile \
@@ -272,6 +274,10 @@ fi
 %endif
 
 %changelog
+* Mon May 05 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.1-3
+- Replaced /etc/crypto-profiles/apps with /etc/crypto-profiles/back-ends.
+- Added support for "very weak" profile.
+
 * Mon Apr 28 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.1-2
 - gnutls_global_deinit() will not do anything if the previous 
   initialization has failed (#1091053)

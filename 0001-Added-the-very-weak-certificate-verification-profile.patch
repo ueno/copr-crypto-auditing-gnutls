@@ -1,0 +1,80 @@
+From 9f498c4e077ceabafe44f186005ca52ead6930bd Mon Sep 17 00:00:00 2001
+From: Nikos Mavrogiannopoulos <nmav@redhat.com>
+Date: Mon, 5 May 2014 11:58:25 +0200
+Subject: [PATCH] Added the 'very weak' certificate verification profile.
+
+This profile corresponds to a 64-bit security level (e.g., RSA
+parameters of 768 bits).
+---
+ doc/cha-gtls-app.texi      | 6 ++++++
+ lib/gnutls_priority.c      | 6 ++++++
+ lib/includes/gnutls/x509.h | 3 +++
+ lib/priority_options.gperf | 1 +
+ lib/x509/verify.c          | 1 +
+ 6 files changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/lib/gnutls_priority.c b/lib/gnutls_priority.c
+index 877ee90..769eed1 100644
+--- a/lib/gnutls_priority.c
++++ b/lib/gnutls_priority.c
+@@ -790,6 +790,12 @@ static void disable_wildcards(gnutls_priority_t c)
+ {
+ 	c->additional_verify_flags |= GNUTLS_VERIFY_DO_NOT_ALLOW_WILDCARDS;
+ }
++static void enable_profile_very_weak(gnutls_priority_t c)
++{
++	c->additional_verify_flags &= 0x00ffffff;
++	c->additional_verify_flags |= GNUTLS_PROFILE_TO_VFLAGS(GNUTLS_PROFILE_VERY_WEAK);
++	c->level = GNUTLS_SEC_PARAM_VERY_WEAK;
++}
+ static void enable_profile_low(gnutls_priority_t c)
+ {
+ 	c->additional_verify_flags &= 0x00ffffff;
+diff --git a/lib/includes/gnutls/x509.h b/lib/includes/gnutls/x509.h
+index b4b24b9..cad804e 100644
+--- a/lib/includes/gnutls/x509.h
++++ b/lib/includes/gnutls/x509.h
+@@ -816,6 +816,8 @@ typedef enum gnutls_certificate_verify_flags {
+ 
+ /**
+  * gnutls_certificate_verification_profiles_t:
++ * @GNUTLS_PROFILE_VERY_WEAK: A verification profile that
++ *  corresponds to @GNUTLS_SEC_PARAM_VERY_WEAK (64 bits)
+  * @GNUTLS_PROFILE_LOW: A verification profile that
+  *  corresponds to @GNUTLS_SEC_PARAM_LOW (80 bits)
+  * @GNUTLS_PROFILE_LEGACY: A verification profile that
+@@ -834,6 +836,7 @@ typedef enum gnutls_certificate_verify_flags {
+  * Enumeration of different certificate verification profiles.
+  */
+ typedef enum gnutls_certificate_verification_profiles_t {
++	GNUTLS_PROFILE_VERY_WEAK = 1,
+ 	GNUTLS_PROFILE_LOW = 2,
+ 	GNUTLS_PROFILE_LEGACY = 4,
+ 	GNUTLS_PROFILE_MEDIUM = 5,
+diff --git a/lib/priority_options.gperf b/lib/priority_options.gperf
+index fd081c5..79f3f7d 100644
+--- a/lib/priority_options.gperf
++++ b/lib/priority_options.gperf
+@@ -21,6 +21,7 @@ PARTIAL_RENEGOTIATION, enable_partial_safe_renegotiation
+ DISABLE_SAFE_RENEGOTIATION, disable_safe_renegotiation
+ DISABLE_WILDCARDS, disable_wildcards
+ SERVER_PRECEDENCE, enable_server_precedence
++PROFILE_VERY_WEAK, enable_profile_very_weak
+ PROFILE_LOW, enable_profile_low
+ PROFILE_LEGACY, enable_profile_legacy
+ PROFILE_MEDIUM, enable_profile_medium
+diff --git a/lib/x509/verify.c b/lib/x509/verify.c
+index d9b7fb7..037cd8e 100644
+--- a/lib/x509/verify.c
++++ b/lib/x509/verify.c
+@@ -433,6 +433,7 @@ int hash;
+ 		return gnutls_assert_val(0);
+ 
+ 	switch (profile) {
++		CASE_SEC_PARAM(GNUTLS_PROFILE_VERY_WEAK, GNUTLS_SEC_PARAM_VERY_WEAK);
+ 		CASE_SEC_PARAM(GNUTLS_PROFILE_LOW, GNUTLS_SEC_PARAM_LOW);
+ 		CASE_SEC_PARAM(GNUTLS_PROFILE_LEGACY, GNUTLS_SEC_PARAM_LEGACY);
+ 		CASE_SEC_PARAM(GNUTLS_PROFILE_MEDIUM, GNUTLS_SEC_PARAM_MEDIUM);
+-- 
+1.9.0
+
