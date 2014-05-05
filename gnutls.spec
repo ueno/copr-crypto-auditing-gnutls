@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.3.1
-Release: 3%{?dist}
+Release: 4%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -157,7 +157,7 @@ export LDFLAGS="-Wl,--no-add-needed"
            --disable-openssl-compatibility \
            --disable-srp-authentication \
 	   --disable-non-suiteb-curves \
-	   --with-system-priority-file=/etc/crypto-profiles/back-ends/gnutls.config \
+	   --with-system-priority-file=%{_sysconfdir}/crypto-policies/back-ends/gnutls.config \
 	   --with-default-trust-store-pkcs11="pkcs11:model=p11-kit-trust;manufacturer=PKCS%2311%20Kit" \
 %if %{with guile}
            --enable-guile \
@@ -275,8 +275,8 @@ fi
 %endif
 
 %changelog
-* Mon May 05 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.1-3
-- Replaced /etc/crypto-profiles/apps with /etc/crypto-profiles/back-ends.
+* Mon May 05 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.1-4
+- Replaced /etc/crypto-profiles/apps with /etc/crypto-policies/back-ends.
 - Added support for "very weak" profile.
 
 * Mon Apr 28 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.1-2
