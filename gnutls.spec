@@ -14,6 +14,7 @@ BuildRequires: autogen-libopts-devel >= 5.18 autogen
 BuildRequires: nettle-devel >= 2.7.1
 BuildRequires: trousers-devel >= 0.3.11.2
 BuildRequires: libidn-devel
+BuildRequires: gperf
 %if %{with dane}
 BuildRequires: unbound-devel unbound-libs
 %endif
