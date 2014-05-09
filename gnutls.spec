@@ -2,8 +2,8 @@
 %bcond_with guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.3.1
-Release: 4%{?dist}
+Version: 3.3.2
+Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -30,11 +30,9 @@ Source1: libgnutls-config
 Source2: hobble-gnutls
 Patch1: gnutls-3.2.7-rpath.patch
 # Use only FIPS approved ciphers in the FIPS mode
-Patch7: gnutls-2.12.21-fips-algorithms.patch
-Patch8: gnutls-3.1.11-nosrp.patch
-Patch9: gnutls-othername.patch
-Patch10: gnutls-global-deinit.patch
-Patch11: 0001-Added-the-very-weak-certificate-verification-profile.patch
+Patch2: gnutls-2.12.21-fips-algorithms.patch
+Patch3: gnutls-3.1.11-nosrp.patch
+Patch4: gnutls-3.3.1-default-policy.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -137,11 +135,9 @@ This package contains Guile bindings for the library.
 %patch1 -p1 -b .rpath
 # This patch is not applicable as we use nettle now but some parts will be
 # later reused.
-#%patch7 -p1 -b .fips
-%patch8 -p1 -b .nosrp
-%patch9 -p1 -b .othername
-%patch10 -p1 -b .global-deinit
-%patch11 -p1 -b .very-weak
+#%patch2 -p1 -b .fips
+%patch3 -p1 -b .nosrp
+%patch4 -p1 -b .default-policy
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
 
@@ -275,6 +271,9 @@ fi
 %endif
 
 %changelog
+* Fri May 09 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.2-1
+- new upstream release
+
 * Mon May 05 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.1-4
 - Replaced /etc/crypto-profiles/apps with /etc/crypto-policies/back-ends.
 - Added support for "very weak" profile.

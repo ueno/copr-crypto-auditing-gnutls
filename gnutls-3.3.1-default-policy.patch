@@ -1,0 +1,31 @@
+diff --git a/lib/gnutls_priority.c b/lib/gnutls_priority.c
+index 769eed1..3a94b20 100644
+--- a/lib/gnutls_priority.c
++++ b/lib/gnutls_priority.c
+@@ -1107,6 +1107,7 @@ gnutls_priority_init(gnutls_priority_t * priority_cache,
+ 	int algo;
+ 	rmadd_func *fn;
+ 	bulk_rmadd_func *bulk_fn;
++	unsigned dset = 0;
+ 
+ 	*priority_cache =
+ 	    gnutls_calloc(1, sizeof(struct gnutls_priority_st));
+@@ -1126,10 +1127,16 @@ gnutls_priority_init(gnutls_priority_t * priority_cache,
+ 
+ 	(*priority_cache)->max_empty_records = DEFAULT_MAX_EMPTY_RECORDS;
+ 
+-	if (priorities == NULL)
+-		priorities = "NORMAL";
++	if (priorities == NULL) {
++		priorities = "@SYSTEM";
++		dset = 1;
++	}
+ 
+ 	darg = resolve_priorities(priorities);
++	if (darg == NULL && dset == 1) {
++		priorities = "NORMAL";
++		darg = resolve_priorities(priorities);
++	}
+ 	if (darg == NULL) {
+ 		gnutls_assert();
+ 		goto error;
