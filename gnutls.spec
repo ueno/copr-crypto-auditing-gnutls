@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.3.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -15,6 +15,8 @@ BuildRequires: nettle-devel >= 2.7.1
 BuildRequires: trousers-devel >= 0.3.11.2
 BuildRequires: libidn-devel
 BuildRequires: gperf
+Requires: crypto-policies
+
 %if %{with dane}
 BuildRequires: unbound-devel unbound-libs
 %endif
@@ -271,6 +273,9 @@ fi
 %endif
 
 %changelog
+* Wed May 21 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.2-2
+- Require crypto-policies
+
 * Fri May 09 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.2-1
 - new upstream release
 
