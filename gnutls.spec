@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.3.4
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -16,6 +16,7 @@ BuildRequires: trousers-devel >= 0.3.11.2
 BuildRequires: libidn-devel
 BuildRequires: gperf
 Requires: crypto-policies
+Requires: p11-kit-trust
 
 %if %{with dane}
 BuildRequires: unbound-devel unbound-libs
@@ -273,6 +274,9 @@ fi
 %endif
 
 %changelog
+* Tue Jun 17 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.4-3
+- explicitly depend on p11-kit-trust
+
 * Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.3.4-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
