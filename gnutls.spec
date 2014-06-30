@@ -306,7 +306,6 @@ fi
 * Mon Apr 28 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.1-1
 - new upstream release
 
-%changelog
 * Mon Apr 14 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.0-1
 - new upstream release
 
