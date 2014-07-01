@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.3.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -147,6 +147,10 @@ sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
 %{SOURCE2} -e
 
 %build
+# add workaround for rhbz#1102324
+%ifarch s390
+%global optflags %optflags -O1
+%endif
 
 export LDFLAGS="-Wl,--no-add-needed"
 
@@ -274,6 +278,9 @@ fi
 %endif
 
 %changelog
+* Tue Jul 01 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.5-2
+- Added work-around for s390 builds with gcc 4.9 (#1102324)
+
 * Mon Jun 30 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.5-1
 - new upstream release
 
