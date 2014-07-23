@@ -32,8 +32,7 @@ Source0: %{name}-%{version}-hobbled.tar.xz
 Source1: libgnutls-config
 Source2: hobble-gnutls
 Patch1: gnutls-3.2.7-rpath.patch
-# Use only FIPS approved ciphers in the FIPS mode
-Patch2: gnutls-2.12.21-fips-algorithms.patch
+Patch2: gnutls-3.3.6-dane-test.patch
 Patch3: gnutls-3.1.11-nosrp.patch
 Patch4: gnutls-3.3.6-default-policy.patch
 
@@ -136,9 +135,7 @@ This package contains Guile bindings for the library.
 %setup -q
 
 %patch1 -p1 -b .rpath
-# This patch is not applicable as we use nettle now but some parts will be
-# later reused.
-#%patch2 -p1 -b .fips
+%patch2 -p1 -b .dane-test
 %patch3 -p1 -b .nosrp
 %patch4 -p1 -b .default-policy
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
