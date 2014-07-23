@@ -2,8 +2,8 @@
 %bcond_with guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.3.5
-Release: 2%{?dist}
+Version: 3.3.6
+Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -35,7 +35,7 @@ Patch1: gnutls-3.2.7-rpath.patch
 # Use only FIPS approved ciphers in the FIPS mode
 Patch2: gnutls-2.12.21-fips-algorithms.patch
 Patch3: gnutls-3.1.11-nosrp.patch
-Patch4: gnutls-3.3.1-default-policy.patch
+Patch4: gnutls-3.3.6-default-policy.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -278,6 +278,9 @@ fi
 %endif
 
 %changelog
+* Mon Jul 23 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.6-1
+- new upstream release
+
 * Tue Jul 01 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.5-2
 - Added work-around for s390 builds with gcc 4.9 (#1102324)
 
