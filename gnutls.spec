@@ -144,10 +144,6 @@ sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
 %{SOURCE2} -e
 
 %build
-# add workaround for rhbz#1102324
-%ifarch s390
-%global optflags %optflags -O1
-%endif
 
 export LDFLAGS="-Wl,--no-add-needed"
 
