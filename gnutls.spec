@@ -138,6 +138,8 @@ This package contains Guile bindings for the library.
 %patch4 -p1 -b .default-policy
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
+rm -f lib/minitasn1/*.c lib/minitasn1/*.h
+rm -f src/libopts/*.c src/libopts/*.h src/libopts/compat/*.c src/libopts/compat/*.h 
 
 %{SOURCE2} -e
 
