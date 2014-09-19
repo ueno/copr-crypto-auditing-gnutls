@@ -142,6 +142,7 @@ sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
 rm -f lib/minitasn1/*.c lib/minitasn1/*.h
 rm -f src/libopts/*.c src/libopts/*.h src/libopts/compat/*.c src/libopts/compat/*.h 
+sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spec="/lib /usr/lib %{_libdir}|g' configure
 
 %{SOURCE2} -e
 
