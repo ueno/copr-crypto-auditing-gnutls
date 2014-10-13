@@ -2,8 +2,8 @@
 %bcond_with guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.3.8
-Release: 2%{?dist}
+Version: 3.3.9
+Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -32,7 +32,6 @@ Source0: %{name}-%{version}-hobbled.tar.xz
 Source1: libgnutls-config
 Source2: hobble-gnutls
 Patch1: gnutls-3.2.7-rpath.patch
-Patch2: gnutls-3.3.8-mem-issue.patch
 Patch3: gnutls-3.1.11-nosrp.patch
 Patch4: gnutls-3.3.6-default-policy.patch
 
@@ -135,7 +134,6 @@ This package contains Guile bindings for the library.
 %setup -q
 
 %patch1 -p1 -b .rpath
-%patch2 -p1 -b .mem-issue
 %patch3 -p1 -b .nosrp
 %patch4 -p1 -b .default-policy
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
@@ -274,6 +272,9 @@ fi
 %endif
 
 %changelog
+* Mon Oct 13 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.9-1
+- new upstream release
+
 * Fri Sep 19 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.8-2
 - strip rpath from library
 
