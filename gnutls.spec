@@ -2,8 +2,8 @@
 %bcond_with guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.3.9
-Release: 2%{?dist}
+Version: 3.3.10
+Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -34,7 +34,6 @@ Source2: hobble-gnutls
 Patch1: gnutls-3.2.7-rpath.patch
 Patch3: gnutls-3.1.11-nosrp.patch
 Patch4: gnutls-3.3.6-default-policy.patch
-Patch5: gnutls-3.3.9-get-issuer.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -137,7 +136,6 @@ This package contains Guile bindings for the library.
 %patch1 -p1 -b .rpath
 %patch3 -p1 -b .nosrp
 %patch4 -p1 -b .default-policy
-%patch5 -p1 -b .get-issuer
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
 rm -f lib/minitasn1/*.c lib/minitasn1/*.h
@@ -274,6 +272,9 @@ fi
 %endif
 
 %changelog
+* Mon Nov 10 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.10-1
+- new upstream release
+
 * Thu Oct 23 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.9-2
 - applied fix for issue in get-issuer (#1155901)
 
