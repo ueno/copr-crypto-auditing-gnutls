@@ -1,9 +1,9 @@
 %bcond_without dane
-%bcond_with guile
+%bcond_without guile
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.3.11
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -184,7 +184,8 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/srptool.1
 rm -f $RPM_BUILD_ROOT%{_mandir}/man3/*srp*
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
-rm -f $RPM_BUILD_ROOT%{_libdir}/libguile*.a
+rm -f $RPM_BUILD_ROOT%{_libdir}/guile/2.0/guile-gnutls*.a
+rm -f $RPM_BUILD_ROOT%{_libdir}/guile/2.0/guile-gnutls*.la
 %if %{without dane}
 rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls-dane.pc
 %endif
@@ -266,12 +267,15 @@ fi
 %if %{with guile}
 %files guile
 %defattr(-,root,root,-)
-%{_libdir}/libguile*.so*
+%{_libdir}/guile/2.0/guile-gnutls*.so*
 %{_datadir}/guile/site/gnutls
 %{_datadir}/guile/site/gnutls.scm
 %endif
 
 %changelog
+* Mon Jan  5 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.11-2
+- enabled guile bindings (#1177847)
+
 * Thu Dec 11 2014 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.11-1
 - new upstream release
 
