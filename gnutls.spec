@@ -158,9 +158,6 @@ export LDFLAGS="-Wl,--no-add-needed"
 	   --with-default-trust-store-pkcs11="pkcs11:model=p11-kit-trust;manufacturer=PKCS%2311%20Kit" \
 %if %{with guile}
            --enable-guile \
-%ifarch %{arm}
-           --disable-largefile \
-%endif
 %else
            --disable-guile \
 %endif
@@ -171,8 +168,6 @@ export LDFLAGS="-Wl,--no-add-needed"
            --disable-dane \
 %endif
            --disable-rpath
-# Note that the arm hack above is not quite right and the proper thing would
-# be to compile guile with largefile support.
 make %{?_smp_mflags}
 
 %install
