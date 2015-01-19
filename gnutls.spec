@@ -2,8 +2,8 @@
 %bcond_without guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.3.11
-Release: 2%{?dist}
+Version: 3.3.12
+Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -268,6 +268,9 @@ fi
 %endif
 
 %changelog
+* Mon Jan 19 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.12-1
+- new upstream release
+
 * Mon Jan  5 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.11-2
 - enabled guile bindings (#1177847)
 
