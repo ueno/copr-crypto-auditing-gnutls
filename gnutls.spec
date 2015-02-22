@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.3.12
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -168,7 +168,7 @@ export LDFLAGS="-Wl,--no-add-needed"
            --disable-dane \
 %endif
            --disable-rpath
-make %{?_smp_mflags}
+make %{?_smp_mflags} V=1
 
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
@@ -223,7 +223,8 @@ fi
 %files -f gnutls.lang
 %defattr(-,root,root,-)
 %{_libdir}/libgnutls.so.28*
-%doc COPYING COPYING.LESSER README AUTHORS NEWS THANKS
+%doc README AUTHORS NEWS THANKS
+%license COPYING COPYING.LESSER
 
 %files c++
 %{_libdir}/libgnutlsxx.so.*
@@ -268,6 +269,10 @@ fi
 %endif
 
 %changelog
+* Sat Feb 21 2015 Till Maas <opensource@till.name> - 3.3.12-3
+- Make build verbose
+- Use %%license
+
 * Sat Feb 21 2015 Till Maas <opensource@till.name> - 3.3.12-2
 - Rebuilt for Fedora 23 Change
   https://fedoraproject.org/wiki/Changes/Harden_all_packages_with_position-independent_code
