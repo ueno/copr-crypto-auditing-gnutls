@@ -1,11 +1,9 @@
-%undefine _hardened_build
-
 %bcond_without dane
 %bcond_without guile
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.3.13
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -271,6 +269,9 @@ fi
 %endif
 
 %changelog
+* Fri Mar  6 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.13-3
+- Build with hardened flags
+
 * Fri Feb 27 2015 Till Maas <opensource@till.name> - 3.3.13-2
 - Do not build with hardened flags
 
