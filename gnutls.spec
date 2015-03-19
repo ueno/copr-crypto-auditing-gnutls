@@ -146,8 +146,6 @@ sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spe
 
 %build
 
-export LDFLAGS="-Wl,--no-add-needed"
-
 %configure --with-libtasn1-prefix=%{_prefix} \
            --with-included-libcfg \
            --disable-static \
@@ -271,6 +269,7 @@ fi
 %changelog
 * Fri Mar  6 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.13-3
 - Build with hardened flags
+- Removed -Wl,--no-add-needed linker flag
 
 * Fri Feb 27 2015 Till Maas <opensource@till.name> - 3.3.13-2
 - Do not build with hardened flags
