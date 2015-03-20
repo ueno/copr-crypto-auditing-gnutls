@@ -146,6 +146,10 @@ sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spe
 
 %build
 
+# this overrides the -znow from hardened builds.
+CFLAGS="$RPM_OPT_FLAGS -Wl,-z,lazy"
+export CFLAGS
+
 %configure --with-libtasn1-prefix=%{_prefix} \
            --with-included-libcfg \
            --disable-static \
