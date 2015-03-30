@@ -2,13 +2,13 @@
 %bcond_without guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.3.13
-Release: 3%{?dist}
+Version: 3.3.14
+Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
 BuildRequires: p11-kit-devel >= 0.21.3, gettext
-BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 3.1
+BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 4.3
 BuildRequires: libtool, automake, autoconf, texinfo
 BuildRequires: autogen-libopts-devel >= 5.18 autogen
 BuildRequires: nettle-devel >= 2.7.1
@@ -17,6 +17,7 @@ BuildRequires: libidn-devel
 BuildRequires: gperf
 Requires: crypto-policies
 Requires: p11-kit-trust
+Requires: libtasn1 >= 4.3
 
 %if %{with dane}
 BuildRequires: unbound-devel unbound-libs
@@ -271,6 +272,9 @@ fi
 %endif
 
 %changelog
+* Mon Mar 30 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.14-1
+- new upstream release
+
 * Fri Mar  6 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.13-3
 - Build with hardened flags
 - Removed -Wl,--no-add-needed linker flag
