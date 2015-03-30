@@ -274,6 +274,7 @@ fi
 %changelog
 * Mon Mar 30 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.14-1
 - new upstream release
+- improved BER decoding of PKCS #12 structures (#1131461)
 
 * Fri Mar  6 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.13-3
 - Build with hardened flags
