@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.3.14
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -274,6 +274,9 @@ fi
 %endif
 
 %changelog
+* Sat May 02 2015 Kalev Lember <kalevlember@gmail.com> - 3.3.14-2
+- Rebuilt for GCC 5 C++11 ABI change
+
 * Mon Mar 30 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.3.14-1
 - new upstream release
 - improved BER decoding of PKCS #12 structures (#1131461)
