@@ -225,7 +225,7 @@ fi
 
 %files -f gnutls.lang
 %defattr(-,root,root,-)
-%{_libdir}/libgnutls.so.28*
+%{_libdir}/libgnutls.so.30*
 %doc README AUTHORS NEWS THANKS
 %license COPYING COPYING.LESSER
 
