@@ -7,7 +7,7 @@ Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
-BuildRequires: p11-kit-devel >= 0.21.3, gettext
+BuildRequires: p11-kit-devel >= 0.21.3, gettext-devel
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 4.3
 BuildRequires: libtool, automake, autoconf, texinfo
 BuildRequires: autogen-libopts-devel >= 5.18 autogen
@@ -34,7 +34,7 @@ Source1: libgnutls-config
 Source2: hobble-gnutls
 Patch1: gnutls-3.2.7-rpath.patch
 Patch3: gnutls-3.1.11-nosrp.patch
-Patch4: gnutls-3.3.6-default-policy.patch
+Patch4: gnutls-3.4.1-default-policy.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
