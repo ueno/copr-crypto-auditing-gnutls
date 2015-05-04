@@ -2,8 +2,8 @@
 %bcond_without guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.3.14
-Release: 2%{?dist}
+Version: 3.4.1
+Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -11,7 +11,7 @@ BuildRequires: p11-kit-devel >= 0.21.3, gettext
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 4.3
 BuildRequires: libtool, automake, autoconf, texinfo
 BuildRequires: autogen-libopts-devel >= 5.18 autogen
-BuildRequires: nettle-devel >= 2.7.1
+BuildRequires: nettle-devel >= 3.1.1
 BuildRequires: trousers-devel >= 0.3.11.2
 BuildRequires: libidn-devel
 BuildRequires: gperf
@@ -35,7 +35,6 @@ Source2: hobble-gnutls
 Patch1: gnutls-3.2.7-rpath.patch
 Patch3: gnutls-3.1.11-nosrp.patch
 Patch4: gnutls-3.3.6-default-policy.patch
-Patch5: gnutls-3.3.14-sigpipe.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -138,7 +137,6 @@ This package contains Guile bindings for the library.
 %patch1 -p1 -b .rpath
 %patch3 -p1 -b .nosrp
 %patch4 -p1 -b .default-policy
-%patch5 -p1 -b .sigpipe
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
 rm -f lib/minitasn1/*.c lib/minitasn1/*.h
@@ -274,6 +272,9 @@ fi
 %endif
 
 %changelog
+* Mon May  4 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.1-1
+- new upstream release
+
 * Sat May 02 2015 Kalev Lember <kalevlember@gmail.com> - 3.3.14-2
 - Rebuilt for GCC 5 C++11 ABI change
 
