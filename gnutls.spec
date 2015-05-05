@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.4.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -35,6 +35,7 @@ Source2: hobble-gnutls
 Patch1: gnutls-3.2.7-rpath.patch
 Patch3: gnutls-3.1.11-nosrp.patch
 Patch4: gnutls-3.4.1-default-policy.patch
+Patch5: gnutls-3.4.1-supplemental-api.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -137,6 +138,7 @@ This package contains Guile bindings for the library.
 %patch1 -p1 -b .rpath
 %patch3 -p1 -b .nosrp
 %patch4 -p1 -b .default-policy
+%patch5 -p1 -b .supplemental-api
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
 rm -f lib/minitasn1/*.c lib/minitasn1/*.h
@@ -272,6 +274,9 @@ fi
 %endif
 
 %changelog
+* Tue May  5 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.1-2
+- Provide missing GNUTLS_SUPPLEMENTAL_USER_MAPPING_DATA definition
+
 * Mon May  4 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.1-1
 - new upstream release
 
