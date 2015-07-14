@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.4.3
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -18,6 +18,7 @@ BuildRequires: gperf
 Requires: crypto-policies
 Requires: p11-kit-trust
 Requires: libtasn1 >= 4.3
+Recommends: trousers >= 0.3.11.2
 
 %if %{with dane}
 BuildRequires: unbound-devel unbound-libs
@@ -36,6 +37,7 @@ Patch1: gnutls-3.2.7-rpath.patch
 Patch3: gnutls-3.1.11-nosrp.patch
 Patch4: gnutls-3.4.1-default-policy.patch
 Patch5: gnutls-3.4.2-no-now-guile.patch
+Patch6: gnutls-3.4.3-no-trousers.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -139,17 +141,22 @@ This package contains Guile bindings for the library.
 %patch3 -p1 -b .nosrp
 %patch4 -p1 -b .default-policy
 %patch5 -p1 -b .guile
+%patch6 -p1 -b .no-trousers
 
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
+sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spec="/lib /usr/lib %{_libdir}|g' configure
 rm -f lib/minitasn1/*.c lib/minitasn1/*.h
 rm -f src/libopts/*.c src/libopts/*.h src/libopts/compat/*.c src/libopts/compat/*.h 
-sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spec="/lib /usr/lib %{_libdir}|g' configure
+
+#remove these in 3.4.4
+sed 's|TROUSERS_LIB|"%{_libdir}/libtspi.so.1"|g' -i lib/tpm.c
+sed 's|$(TSS_LIBS)||g' -i lib/Makefile.in
+touch doc/*.texi doc/*.info doc/*.html doc/stamp_functions doc/stamp_enums doc/manpages/stamp_mans
 
 %{SOURCE2} -e
 
 %build
-
 %configure --with-libtasn1-prefix=%{_prefix} \
            --with-included-libcfg \
            --disable-static \
@@ -158,6 +165,7 @@ sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spe
 	   --disable-non-suiteb-curves \
 	   --with-system-priority-file=%{_sysconfdir}/crypto-policies/back-ends/gnutls.config \
 	   --with-default-trust-store-pkcs11="pkcs11:model=p11-kit-trust;manufacturer=PKCS%2311%20Kit" \
+	   --with-trousers-lib=%{_libdir}/libtspi.so.1 \
 %if %{with guile}
            --enable-guile \
 %else
@@ -271,6 +279,10 @@ fi
 %endif
 
 %changelog
+* Mon Jul 13 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.3-2
+- Don't link against trousers but rather dlopen() it when available.
+  That avoids a dependency on openssl by the main library.
+
 * Mon Jul 13 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.3-1
 - new upstream release
 
