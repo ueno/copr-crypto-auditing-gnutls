@@ -2,8 +2,8 @@
 %bcond_without guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.4.3
-Release: 2%{?dist}
+Version: 3.4.4
+Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -37,7 +37,6 @@ Patch1: gnutls-3.2.7-rpath.patch
 Patch3: gnutls-3.1.11-nosrp.patch
 Patch4: gnutls-3.4.1-default-policy.patch
 Patch5: gnutls-3.4.2-no-now-guile.patch
-Patch6: gnutls-3.4.3-no-trousers.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -141,7 +140,6 @@ This package contains Guile bindings for the library.
 %patch3 -p1 -b .nosrp
 %patch4 -p1 -b .default-policy
 %patch5 -p1 -b .guile
-%patch6 -p1 -b .no-trousers
 
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
@@ -279,6 +277,11 @@ fi
 %endif
 
 %changelog
+* Wed Aug 10 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.4-1
+- new upstream release
+- no longer requires trousers patch
+- fixes issue in gnutls_x509_privkey_import (#1250020)
+
 * Mon Jul 13 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.3-2
 - Don't link against trousers but rather dlopen() it when available.
   That avoids a dependency on openssl by the main library.
