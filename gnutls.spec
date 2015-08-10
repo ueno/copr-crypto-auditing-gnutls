@@ -277,7 +277,7 @@ fi
 %endif
 
 %changelog
-* Wed Aug 10 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.4-1
+* Mon Aug 10 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.4-1
 - new upstream release
 - no longer requires trousers patch
 - fixes issue in gnutls_x509_privkey_import (#1250020)
