@@ -2,7 +2,7 @@
 %bcond_without guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.4.4
+Version: 3.4.5
 Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
@@ -277,6 +277,10 @@ fi
 %endif
 
 %changelog
+* Mon Sep 14 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.5-1
+- New upstream release (#1252192)
+- Eliminates hard limits on CRL parsing of certtool.
+
 * Mon Aug 10 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.4-1
 - new upstream release
 - no longer requires trousers patch
