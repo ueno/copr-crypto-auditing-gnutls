@@ -147,11 +147,6 @@ sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spe
 rm -f lib/minitasn1/*.c lib/minitasn1/*.h
 rm -f src/libopts/*.c src/libopts/*.h src/libopts/compat/*.c src/libopts/compat/*.h 
 
-#remove these in 3.4.4
-sed 's|TROUSERS_LIB|"%{_libdir}/libtspi.so.1"|g' -i lib/tpm.c
-sed 's|$(TSS_LIBS)||g' -i lib/Makefile.in
-touch doc/*.texi doc/*.info doc/*.html doc/stamp_functions doc/stamp_enums doc/manpages/stamp_mans
-
 %{SOURCE2} -e
 
 %build
