@@ -2,8 +2,8 @@
 %bcond_without guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.4.5
-Release: 2%{?dist}
+Version: 3.4.6
+Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -37,10 +37,6 @@ Patch1: gnutls-3.2.7-rpath.patch
 Patch3: gnutls-3.1.11-nosrp.patch
 Patch4: gnutls-3.4.1-default-policy.patch
 Patch5: gnutls-3.4.2-no-now-guile.patch
-# RHBZ #1273102
-# https://gitlab.com/gnutls/gnutls/issues/45
-# https://gitlab.com/gnutls/gnutls/commit/1b93f45fbd144cdf7095102bf6927c97019cf2e7
-Patch6: 0001-ext-master-secret-extension-is-marked-as-mandatory.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -144,7 +140,6 @@ This package contains Guile bindings for the library.
 %patch3 -p1 -b .nosrp
 %patch4 -p1 -b .default-policy
 %patch5 -p1 -b .guile
-%patch6 -p1 -b .master-secret
 
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
@@ -282,6 +277,10 @@ fi
 %endif
 
 %changelog
+* Wed Oct 21 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.6-1
+- New upstream release (#1273672)
+- Enhances p11tool to write CKA_ISSUER and CKA_SERIAL_NUMBER (#1272178)
+
 * Tue Oct 20 2015 Adam Williamson <awilliam@redhat.com> - 3.4.5-2
 - fix interaction with Chrome 45+ (master secret extension) (#1273102)
 
