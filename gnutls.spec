@@ -2,7 +2,7 @@
 %bcond_without guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.4.6
+Version: 3.4.7
 Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
@@ -272,6 +272,12 @@ fi
 %endif
 
 %changelog
+* Mon Nov 23 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.7-1
+- New upstream release (#1284300)
+- Documentation updates (#1282864)
+- Adds interface to set unique IDs in certificates (#1281343)
+- Allow arbitrary key sizes with ARCFOUR (#1284401)
+
 * Wed Oct 21 2015 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.6-1
 - New upstream release (#1273672)
 - Enhances p11tool to write CKA_ISSUER and CKA_SERIAL_NUMBER (#1272178)
