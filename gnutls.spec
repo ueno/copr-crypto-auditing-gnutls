@@ -2,7 +2,7 @@
 %bcond_without guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.4.8
+Version: 3.4.9
 Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
@@ -272,6 +272,9 @@ fi
 %endif
 
 %changelog
+* Mon Feb  6 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.9-1
+- Fix broken key usage flags introduced in 3.4.8 (#1303355)
+
 * Mon Jan 11 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.8-1
 - New upstream release (#1297079)
 
