@@ -272,7 +272,7 @@ fi
 %endif
 
 %changelog
-* Mon Feb  6 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.9-1
+* Wed Feb  6 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.9-1
 - Fix broken key usage flags introduced in 3.4.8 (#1303355)
 
 * Mon Jan 11 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.8-1
