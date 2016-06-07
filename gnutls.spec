@@ -151,7 +151,6 @@ rm -f src/libopts/*.c src/libopts/*.h src/libopts/compat/*.c src/libopts/compat/
 
 %build
 %configure --with-libtasn1-prefix=%{_prefix} \
-           --with-included-libcfg \
            --disable-static \
            --disable-openssl-compatibility \
            --disable-srp-authentication \
