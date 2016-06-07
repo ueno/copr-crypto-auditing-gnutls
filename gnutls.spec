@@ -14,7 +14,7 @@ BuildRequires: autogen-libopts-devel >= 5.18 autogen
 BuildRequires: nettle-devel >= 3.1.1
 BuildRequires: trousers-devel >= 0.3.11.2
 BuildRequires: libidn-devel
-BuildRequires: gperf
+BuildRequires: gperf, net-tools
 Requires: crypto-policies
 Requires: p11-kit-trust
 Requires: libtasn1 >= 4.3
