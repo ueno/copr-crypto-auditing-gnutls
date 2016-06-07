@@ -275,7 +275,7 @@ fi
 %changelog
 * Tue Jun  7 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.13-1
 - New upstream release (#1343258)
-- Addresses issue with setuid programs introduced in 3.4.12.
+- Addresses issue with setuid programs introduced in 3.4.12 (#1343342)
 
 * Fri May 20 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.12-1
 - New upstream release
