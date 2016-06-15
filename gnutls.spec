@@ -2,7 +2,7 @@
 %bcond_without guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.4.13
+Version: 3.5.1
 Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
@@ -14,7 +14,7 @@ BuildRequires: autogen-libopts-devel >= 5.18 autogen
 BuildRequires: nettle-devel >= 3.1.1
 BuildRequires: trousers-devel >= 0.3.11.2
 BuildRequires: libidn-devel
-BuildRequires: gperf, net-tools
+BuildRequires: gperf, net-tools, datefudge
 Requires: crypto-policies
 Requires: p11-kit-trust
 Requires: libtasn1 >= 4.3
@@ -35,8 +35,9 @@ Source1: libgnutls-config
 Source2: hobble-gnutls
 Patch1: gnutls-3.2.7-rpath.patch
 Patch3: gnutls-3.1.11-nosrp.patch
-Patch4: gnutls-3.4.1-default-policy.patch
+Patch4: gnutls-3.5.1-default-policy.patch
 Patch5: gnutls-3.4.2-no-now-guile.patch
+Patch6: gnutls-3.5.1-srp-tests.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -140,6 +141,7 @@ This package contains Guile bindings for the library.
 %patch3 -p1 -b .nosrp
 %patch4 -p1 -b .default-policy
 %patch5 -p1 -b .guile
+%patch6 -p1 -b .srp-tests
 
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
@@ -175,7 +177,6 @@ make %{?_smp_mflags} V=1
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT%{_bindir}/srptool
-rm -f $RPM_BUILD_ROOT%{_bindir}/gnutls-srpcrypt
 cp -f %{SOURCE1} $RPM_BUILD_ROOT%{_bindir}/libgnutls-config
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/srptool.1
 rm -f $RPM_BUILD_ROOT%{_mandir}/man3/*srp*
@@ -226,8 +227,8 @@ fi
 %files -f gnutls.lang
 %defattr(-,root,root,-)
 %{_libdir}/libgnutls.so.30*
-%doc README AUTHORS NEWS THANKS
-%license COPYING COPYING.LESSER
+%doc README.md AUTHORS NEWS THANKS
+%license LICENSE doc/COPYING doc/COPYING.LESSER
 
 %files c++
 %{_libdir}/libgnutlsxx.so.*
@@ -249,7 +250,6 @@ fi
 %{_bindir}/ocsptool
 %{_bindir}/psktool
 %{_bindir}/p11tool
-%{_bindir}/crywrap
 %if %{with dane}
 %{_bindir}/danetool
 %endif
@@ -267,11 +267,16 @@ fi
 %files guile
 %defattr(-,root,root,-)
 %{_libdir}/guile/2.0/guile-gnutls*.so*
-%{_datadir}/guile/site/gnutls
-%{_datadir}/guile/site/gnutls.scm
+%{_libdir}/guile/2.0/site-ccache/gnutls.go
+%{_libdir}/guile/2.0/site-ccache/gnutls/extra.go
+%{_datadir}/guile/site/2.0/gnutls.scm
+%{_datadir}/guile/site/2.0/gnutls/extra.scm
 %endif
 
 %changelog
+* Wed Jun 15 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.5.1-1
+- New upstream release
+
 * Tue Jun  7 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.4.13-1
 - New upstream release (#1343258)
 - Addresses issue with setuid programs introduced in 3.4.12 (#1343342)
