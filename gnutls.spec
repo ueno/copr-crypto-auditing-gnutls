@@ -2,7 +2,7 @@
 %bcond_without guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.5.1
+Version: 3.5.2
 Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
@@ -37,7 +37,6 @@ Patch1: gnutls-3.2.7-rpath.patch
 Patch3: gnutls-3.1.11-nosrp.patch
 Patch4: gnutls-3.5.1-default-policy.patch
 Patch5: gnutls-3.4.2-no-now-guile.patch
-Patch6: gnutls-3.5.1-srp-tests.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -141,7 +140,6 @@ This package contains Guile bindings for the library.
 %patch3 -p1 -b .nosrp
 %patch4 -p1 -b .default-policy
 %patch5 -p1 -b .guile
-%patch6 -p1 -b .srp-tests
 
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
@@ -274,6 +272,9 @@ fi
 %endif
 
 %changelog
+* Wed Jul  6 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.5.2-1
+- New upstream release
+
 * Wed Jun 15 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.5.1-1
 - New upstream release
 
