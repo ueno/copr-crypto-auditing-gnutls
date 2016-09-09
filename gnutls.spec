@@ -154,20 +154,20 @@ rm -f src/libopts/*.c src/libopts/*.h src/libopts/compat/*.c src/libopts/compat/
            --disable-static \
            --disable-openssl-compatibility \
            --disable-srp-authentication \
-	   --disable-non-suiteb-curves \
-	   --with-system-priority-file=%{_sysconfdir}/crypto-policies/back-ends/gnutls.config \
-	   --with-default-trust-store-pkcs11="pkcs11:model=p11-kit-trust;manufacturer=PKCS%2311%20Kit" \
-	   --with-trousers-lib=%{_libdir}/libtspi.so.1 \
+           --disable-non-suiteb-curves \
+           --with-system-priority-file=%{_sysconfdir}/crypto-policies/back-ends/gnutls.config \
+           --with-default-trust-store-pkcs11="pkcs11:model=p11-kit-trust;manufacturer=PKCS%2311%20Kit" \
+           --with-trousers-lib=%{_libdir}/libtspi.so.1 \
 %if %{with guile}
            --enable-guile \
 %else
            --disable-guile \
 %endif
 %ifarch %{ix86}
-	   --disable-hardware-acceleration \
+           --disable-hardware-acceleration \
 %endif
 %if %{with dane}
-	   --with-unbound-root-key-file=/var/lib/unbound/root.key \
+           --with-unbound-root-key-file=/var/lib/unbound/root.key \
            --enable-dane \
 %else
            --disable-dane \
