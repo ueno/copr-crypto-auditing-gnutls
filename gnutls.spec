@@ -235,7 +235,6 @@ fi
 
 %files devel
 %defattr(-,root,root,-)
-%{_bindir}/libgnutls*-config
 %{_includedir}/*
 %{_libdir}/libgnutls*.so
 %{_libdir}/pkgconfig/*.pc
