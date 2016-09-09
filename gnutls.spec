@@ -31,7 +31,6 @@ URL: http://www.gnutls.org/
 #Source1: ftp://ftp.gnutls.org/gcrypt/gnutls/%{name}-%{version}.tar.xz.sig
 # XXX patent tainted code removed.
 Source0: %{name}-%{version}-hobbled.tar.xz
-Source1: libgnutls-config
 Source2: hobble-gnutls
 Patch1: gnutls-3.2.7-rpath.patch
 Patch2: gnutls-3.5.1-default-policy.patch
@@ -179,7 +178,6 @@ make %{?_smp_mflags} V=1
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT%{_bindir}/srptool
-cp -f %{SOURCE1} $RPM_BUILD_ROOT%{_bindir}/libgnutls-config
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/srptool.1
 rm -f $RPM_BUILD_ROOT%{_mandir}/man3/*srp*
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
