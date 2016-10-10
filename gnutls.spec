@@ -2,7 +2,7 @@
 %bcond_without guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.5.4
+Version: 3.5.5
 Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
@@ -146,9 +146,6 @@ rm -f src/libopts/*.c src/libopts/*.h src/libopts/compat/*.c src/libopts/compat/
 
 %{SOURCE2} -e
 
-# In x86 the produced library seems to contain non-relocatable code.
-# We work around it by disabling hardware acceleration, until a proper
-# fix is available.
 %build
 %configure --with-libtasn1-prefix=%{_prefix} \
            --disable-static \
@@ -162,9 +159,6 @@ rm -f src/libopts/*.c src/libopts/*.h src/libopts/compat/*.c src/libopts/compat/
            --enable-guile \
 %else
            --disable-guile \
-%endif
-%ifarch %{ix86}
-           --disable-hardware-acceleration \
 %endif
 %if %{with dane}
            --with-unbound-root-key-file=/var/lib/unbound/root.key \
@@ -273,6 +267,9 @@ fi
 %endif
 
 %changelog
+* Mon Oct 10 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.5.5-1
+- New upstream release
+
 * Thu Sep  8 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.5.4-1
 - New upstream release
 
