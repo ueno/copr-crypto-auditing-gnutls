@@ -2,8 +2,8 @@
 %bcond_without guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.5.5
-Release: 2%{?dist}
+Version: 3.5.6
+Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -35,7 +35,6 @@ Source2: hobble-gnutls
 Patch1: gnutls-3.2.7-rpath.patch
 Patch2: gnutls-3.5.1-default-policy.patch
 Patch3: gnutls-3.4.2-no-now-guile.patch
-Patch4: 0001-priorities-Do-read-crypto-policy-files-with-mtime-of.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -138,7 +137,6 @@ This package contains Guile bindings for the library.
 %patch1 -p1 -b .rpath
 %patch2 -p1 -b .default-policy
 %patch3 -p1 -b .guile
-%patch4 -p1
 
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
@@ -269,6 +267,9 @@ fi
 %endif
 
 %changelog
+* Fri Nov  4 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.5.6-1
+- New upstream release
+
 * Tue Oct 11 2016 walters@redhat.com - 3.5.5-2
 - Apply patch to fix compatibility with ostree (#1383708)
 
