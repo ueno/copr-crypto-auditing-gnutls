@@ -2,7 +2,7 @@
 %bcond_without guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.5.6
+Version: 3.5.7
 Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
@@ -14,6 +14,7 @@ BuildRequires: autogen-libopts-devel >= 5.18 autogen
 BuildRequires: nettle-devel >= 3.1.1
 BuildRequires: trousers-devel >= 0.3.11.2
 BuildRequires: libidn-devel
+BuildRequires: libunistring-devel
 BuildRequires: gperf, net-tools, datefudge, softhsm
 Requires: crypto-policies
 Requires: p11-kit-trust
@@ -267,6 +268,9 @@ fi
 %endif
 
 %changelog
+* Thu Dec  8 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.5.7-1
+- New upstream release
+
 * Fri Nov  4 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.5.6-1
 - New upstream release
 
