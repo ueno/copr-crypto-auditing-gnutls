@@ -271,7 +271,7 @@ fi
 %endif
 
 %changelog
-* Tue Dec 13 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.5.7-2
+* Tue Dec 13 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.5.7-3
 - Fix PKCS#8 file loading (#1404084)
 
 * Thu Dec  8 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.5.7-1
