@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.5.7
-Release: 2
+Release: 3
 #%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
@@ -140,7 +140,7 @@ This package contains Guile bindings for the library.
 %patch1 -p1 -b .rpath
 %patch2 -p1 -b .default-policy
 %patch3 -p1 -b .guile
-#%patch4 -p1 -b .pkcs8-load
+%patch4 -p1 -b .pkcs8-load
 
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
