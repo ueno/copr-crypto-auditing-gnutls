@@ -2,8 +2,8 @@
 %bcond_without guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.5.7
-Release: 3%{?dist}
+Version: 3.5.8
+Release: 1%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -34,9 +34,7 @@ URL: http://www.gnutls.org/
 Source0: %{name}-%{version}-hobbled.tar.xz
 Source2: hobble-gnutls
 Patch1: gnutls-3.2.7-rpath.patch
-Patch2: gnutls-3.5.1-default-policy.patch
-Patch3: gnutls-3.4.2-no-now-guile.patch
-Patch4: gnutls-3.5.7-load-pkcs8-keys.patch
+Patch2: gnutls-3.4.2-no-now-guile.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -137,9 +135,7 @@ This package contains Guile bindings for the library.
 %setup -q
 
 %patch1 -p1 -b .rpath
-%patch2 -p1 -b .default-policy
-%patch3 -p1 -b .guile
-%patch4 -p1 -b .pkcs8-load
+%patch2 -p1 -b .guile
 
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
@@ -148,6 +144,7 @@ rm -f lib/minitasn1/*.c lib/minitasn1/*.h
 rm -f src/libopts/*.c src/libopts/*.h src/libopts/compat/*.c src/libopts/compat/*.h 
 
 %{SOURCE2} -e
+echo "SYSTEM=NORMAL" >> tests/system.prio
 
 %build
 %configure --with-libtasn1-prefix=%{_prefix} \
@@ -169,7 +166,8 @@ rm -f src/libopts/*.c src/libopts/*.h src/libopts/compat/*.c src/libopts/compat/
 %else
            --disable-dane \
 %endif
-           --disable-rpath
+           --disable-rpath \
+           --with-default-priority-string="@SYSTEM"
 make %{?_smp_mflags} V=1
 
 %install
@@ -270,6 +268,9 @@ fi
 %endif
 
 %changelog
+* Mon Jan  9 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.5.8-1
+- New upstream release
+
 * Tue Dec 13 2016 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.5.7-3
 - Fix PKCS#8 file loading (#1404084)
 
