@@ -3,7 +3,7 @@
 Summary: A TLS protocol implementation
 Name: gnutls
 Version: 3.5.8
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -35,6 +35,7 @@ Source0: %{name}-%{version}-hobbled.tar.xz
 Source2: hobble-gnutls
 Patch1: gnutls-3.2.7-rpath.patch
 Patch2: gnutls-3.4.2-no-now-guile.patch
+Patch3: gnutls-3.5.8-init.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -136,6 +137,7 @@ This package contains Guile bindings for the library.
 
 %patch1 -p1 -b .rpath
 %patch2 -p1 -b .guile
+%patch3 -p1 -b .init
 
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
@@ -268,6 +270,9 @@ fi
 %endif
 
 %changelog
+* Sat Feb  4 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.5.8-2
+- Added patch fix initialization issue in gnutls_pkcs11_obj_list_import_url4
+
 * Mon Jan  9 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> 3.5.8-1
 - New upstream release
 
