@@ -1,9 +1,12 @@
+# This spec file has been automatically updated
+Version:	3.5.9
+Release: 1%{?dist}
+Patch1:	gnutls-3.2.7-rpath.patch
+Patch2:	gnutls-3.4.2-no-now-guile.patch
 %bcond_without dane
 %bcond_without guile
 Summary: A TLS protocol implementation
 Name: gnutls
-Version: 3.5.8
-Release: 3%{?dist}
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
 Group: System Environment/Libraries
@@ -13,7 +16,7 @@ BuildRequires: libtool, automake, autoconf, texinfo
 BuildRequires: autogen-libopts-devel >= 5.18 autogen
 BuildRequires: nettle-devel >= 3.1.1
 BuildRequires: trousers-devel >= 0.3.11.2
-BuildRequires: libidn-devel
+BuildRequires: libidn2-devel
 BuildRequires: libunistring-devel
 BuildRequires: gperf, net-tools, datefudge, softhsm
 Requires: crypto-policies
@@ -32,10 +35,6 @@ URL: http://www.gnutls.org/
 #Source1: ftp://ftp.gnutls.org/gcrypt/gnutls/%{name}-%{version}.tar.xz.sig
 # XXX patent tainted code removed.
 Source0: %{name}-%{version}-hobbled.tar.xz
-Source2: hobble-gnutls
-Patch1: gnutls-3.2.7-rpath.patch
-Patch2: gnutls-3.4.2-no-now-guile.patch
-Patch3: gnutls-3.5.8-init.patch
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -134,10 +133,8 @@ This package contains Guile bindings for the library.
 
 %prep
 %setup -q
-
-%patch1 -p1 -b .rpath
-%patch2 -p1 -b .guile
-%patch3 -p1 -b .init
+%patch1 -p1
+%patch2 -p1
 
 sed 's/gnutls_srp.c//g' -i lib/Makefile.in
 sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
@@ -145,7 +142,6 @@ sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spe
 rm -f lib/minitasn1/*.c lib/minitasn1/*.h
 rm -f src/libopts/*.c src/libopts/*.h src/libopts/compat/*.c src/libopts/compat/*.h 
 
-%{SOURCE2} -e
 echo "SYSTEM=NORMAL" >> tests/system.prio
 
 %build
@@ -170,6 +166,7 @@ echo "SYSTEM=NORMAL" >> tests/system.prio
 %endif
            --disable-rpath \
            --with-default-priority-string="@SYSTEM"
+
 make %{?_smp_mflags} V=1
 
 %install
@@ -270,6 +267,9 @@ fi
 %endif
 
 %changelog
+* Tue Feb 14 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.5.9-1
+- Update to upstream 3.5.9 release
+
 * Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 3.5.8-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
