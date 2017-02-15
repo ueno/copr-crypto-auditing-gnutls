@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.5.9
-Release: 1%{?dist}
+Release: 2%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.4.2-no-now-guile.patch
 %bcond_without dane
@@ -182,6 +182,9 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/gnutls/libpkcs11mock1.*
 %if %{without dane}
 rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls-dane.pc
 %endif
+# Temporary work around for #1422256
+sed -i 's/libidn2,//g' $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls.pc
+sed -i 's/-lunistring/-lunistring -lidn2/' $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls.pc
 
 %find_lang gnutls
 
@@ -267,6 +270,9 @@ fi
 %endif
 
 %changelog
+* Wed Feb 15 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.5.9-2
+- Work around missing pkg-config file (#1422256)
+
 * Tue Feb 14 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.5.9-1
 - Update to upstream 3.5.9 release
 
