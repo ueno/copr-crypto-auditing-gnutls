@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
-Version:	3.5.9
-Release: 2%{?dist}
+Version:	3.5.10
+Release: 1%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.4.2-no-now-guile.patch
 %bcond_without dane
@@ -153,6 +153,7 @@ echo "SYSTEM=NORMAL" >> tests/system.prio
            --with-system-priority-file=%{_sysconfdir}/crypto-policies/back-ends/gnutls.config \
            --with-default-trust-store-pkcs11="pkcs11:model=p11-kit-trust;manufacturer=PKCS%2311%20Kit" \
            --with-trousers-lib=%{_libdir}/libtspi.so.1 \
+           --htmldir=%{_docdir}/manual \
 %if %{with guile}
            --enable-guile \
 %else
@@ -171,6 +172,7 @@ make %{?_smp_mflags} V=1
 
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
+make -C doc install-html DESTDIR=$RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT%{_bindir}/srptool
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/srptool.1
 rm -f $RPM_BUILD_ROOT%{_mandir}/man3/*srp*
@@ -182,9 +184,6 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/gnutls/libpkcs11mock1.*
 %if %{without dane}
 rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls-dane.pc
 %endif
-# Temporary work around for #1422256
-sed -i 's/libidn2,//g' $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls.pc
-sed -i 's/-lunistring/-lunistring -lidn2/' $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls.pc
 
 %find_lang gnutls
 
@@ -238,6 +237,7 @@ fi
 %{_mandir}/man3/*
 %{_infodir}/gnutls*
 %{_infodir}/pkcs11-vision*
+%{_docdir}/manual/*
 
 %files utils
 %defattr(-,root,root,-)
@@ -270,6 +270,9 @@ fi
 %endif
 
 %changelog
+* Mon Mar 06 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.5.10-1
+- Update to upstream 3.5.10 release
+
 * Wed Feb 15 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.5.9-2
 - Work around missing pkg-config file (#1422256)
 
