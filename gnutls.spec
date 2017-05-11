@@ -1,5 +1,5 @@
 # This spec file has been automatically updated
-Version:	3.5.11
+Version:	3.5.12
 Release: 1%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.4.2-no-now-guile.patch
@@ -22,7 +22,7 @@ BuildRequires: gperf, net-tools, datefudge, softhsm
 # for a sanity check on cert loading
 BuildRequires: p11-kit-trust, ca-certificates
 Requires: crypto-policies
-Requires: p11-kit-trust
+Requires: p11-kit-trust%{?_isa}
 Requires: libtasn1 >= 4.3
 Recommends: trousers >= 0.3.11.2
 
@@ -33,10 +33,9 @@ BuildRequires: unbound-devel unbound-libs
 BuildRequires: guile-devel
 %endif
 URL: http://www.gnutls.org/
-#Source0: ftp://ftp.gnutls.org/gcrypt/gnutls/%{name}-%{version}.tar.xz
-#Source1: ftp://ftp.gnutls.org/gcrypt/gnutls/%{name}-%{version}.tar.xz.sig
-# XXX patent tainted code removed.
-Source0: %{name}-%{version}-hobbled.tar.xz
+Source0: ftp://ftp.gnutls.org/gcrypt/gnutls/%{name}-%{version}.tar.xz
+Source1: ftp://ftp.gnutls.org/gcrypt/gnutls/%{name}-%{version}.tar.xz.sig
+Source2: gpgkey-1F42418905D8206AA754CCDC29EE58B996865171.gpg
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -134,13 +133,12 @@ This package contains Guile bindings for the library.
 %endif
 
 %prep
+gpgv2 --keyring %{SOURCE2} %{SOURCE1} %{SOURCE0}
+
 %setup -q
 %patch1 -p1
 %patch2 -p1
 
-sed 's/gnutls_srp.c//g' -i lib/Makefile.in
-sed 's/gnutls_srp.lo//g' -i lib/Makefile.in
-sed 's/global_init/gnutls_global_init/g' -i tests/trust-store.c
 sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spec="/lib /usr/lib %{_libdir}|g' configure
 rm -f lib/minitasn1/*.c lib/minitasn1/*.h
 rm -f src/libopts/*.c src/libopts/*.h src/libopts/compat/*.c src/libopts/compat/*.h 
@@ -151,7 +149,6 @@ echo "SYSTEM=NORMAL" >> tests/system.prio
 %configure --with-libtasn1-prefix=%{_prefix} \
            --disable-static \
            --disable-openssl-compatibility \
-           --disable-srp-authentication \
            --disable-non-suiteb-curves \
            --with-system-priority-file=%{_sysconfdir}/crypto-policies/back-ends/gnutls.config \
            --with-default-trust-store-pkcs11="pkcs11:" \
@@ -176,9 +173,6 @@ make %{?_smp_mflags} V=1
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
 make -C doc install-html DESTDIR=$RPM_BUILD_ROOT
-rm -f $RPM_BUILD_ROOT%{_bindir}/srptool
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/srptool.1
-rm -f $RPM_BUILD_ROOT%{_mandir}/man3/*srp*
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 rm -f $RPM_BUILD_ROOT%{_libdir}/guile/2.0/guile-gnutls*.a
@@ -249,6 +243,7 @@ fi
 %{_bindir}/ocsptool
 %{_bindir}/psktool
 %{_bindir}/p11tool
+%{_bindir}/srptool
 %if %{with dane}
 %{_bindir}/danetool
 %endif
@@ -273,6 +268,9 @@ fi
 %endif
 
 %changelog
+* Thu May 11 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.5.12-1
+- Update to upstream 3.5.12 release
+
 * Fri Apr 07 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.5.11-1
 - Update to upstream 3.5.11 release
 
