@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.5.12
-Release: 1%{?dist}
+Release: 2%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.4.2-no-now-guile.patch
 %bcond_without dane
@@ -22,7 +22,7 @@ BuildRequires: gperf, net-tools, datefudge, softhsm
 # for a sanity check on cert loading
 BuildRequires: p11-kit-trust, ca-certificates
 Requires: crypto-policies
-Requires: p11-kit-trust%{?_isa}
+Requires: p11-kit-trust
 Requires: libtasn1 >= 4.3
 Recommends: trousers >= 0.3.11.2
 
@@ -268,6 +268,9 @@ fi
 %endif
 
 %changelog
+* Thu May 11 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.5.12-2
+- Fix issue with p11-kit-trust arch dependency
+
 * Thu May 11 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.5.12-1
 - Update to upstream 3.5.12 release
 
