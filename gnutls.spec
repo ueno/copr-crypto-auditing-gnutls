@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
-Version:	3.5.12
-Release: 2%{?dist}
+Version:	3.5.13
+Release: 1%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.4.2-no-now-guile.patch
 %bcond_without dane
@@ -268,6 +268,9 @@ fi
 %endif
 
 %changelog
+* Wed Jun 07 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.5.13-1
+- Update to upstream 3.5.13 release
+
 * Thu May 11 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.5.12-2
 - Fix issue with p11-kit-trust arch dependency
 
