@@ -1,5 +1,5 @@
 # This spec file has been automatically updated
-Version:	3.5.13
+Version:	3.5.14
 Release: 1%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.4.2-no-now-guile.patch
@@ -268,6 +268,9 @@ fi
 %endif
 
 %changelog
+* Tue Jul 04 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.5.14-1
+- Update to upstream 3.5.14 release
+
 * Wed Jun 07 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.5.13-1
 - Update to upstream 3.5.13 release
 
