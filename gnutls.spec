@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.5.14
-Release: 1%{?dist}
+Release: 2%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.4.2-no-now-guile.patch
 %bcond_without dane
@@ -268,6 +268,9 @@ fi
 %endif
 
 %changelog
+* Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 3.5.14-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
 * Tue Jul 04 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.5.14-1
 - Update to upstream 3.5.14 release
 
