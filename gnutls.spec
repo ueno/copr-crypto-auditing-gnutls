@@ -1,8 +1,9 @@
 # This spec file has been automatically updated
 Version:	3.6.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.4.2-no-now-guile.patch
+Patch3: gnutls-3.6.1-pkcs11-loading.patch
 %bcond_without dane
 %bcond_without guile
 Summary: A TLS protocol implementation
@@ -268,6 +269,10 @@ fi
 %endif
 
 %changelog
+* Mon Nov  6 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.1-2
+- Prevent the loading of all PKCS#11 modules on certificate verification
+  but only restrict to p11-kit trust module (#1507402)
+
 * Sat Oct 21 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.1-1
 - Update to upstream 3.6.1 release
 

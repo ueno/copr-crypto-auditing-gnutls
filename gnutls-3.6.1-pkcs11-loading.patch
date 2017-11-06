@@ -1,0 +1,284 @@
+diff --git a/lib/includes/gnutls/pkcs11.h b/lib/includes/gnutls/pkcs11.h
+index c3db2181a..52f7898b4 100644
+--- a/lib/includes/gnutls/pkcs11.h
++++ b/lib/includes/gnutls/pkcs11.h
+@@ -65,6 +65,7 @@ typedef struct gnutls_pkcs11_obj_st *gnutls_pkcs11_obj_t;
+ 
+ #define GNUTLS_PKCS11_FLAG_MANUAL 0	/* Manual loading of libraries */
+ #define GNUTLS_PKCS11_FLAG_AUTO 1	/* Automatically load libraries by reading /etc/gnutls/pkcs11.conf */
++#define GNUTLS_PKCS11_FLAG_AUTO_TRUSTED (1<<1)	/* Automatically load trusted libraries by reading /etc/gnutls/pkcs11.conf */
+ 
+ /* pkcs11.conf format:
+  * load = /lib/xxx-pkcs11.so
+diff --git a/lib/libgnutls.map b/lib/libgnutls.map
+index 43a6b1321..16c582c6f 100644
+--- a/lib/libgnutls.map
++++ b/lib/libgnutls.map
+@@ -1241,6 +1241,7 @@ GNUTLS_PRIVATE_3_4 {
+ 	_gnutls_mpi_log;
+ 	_gnutls_mpi_release;
+ 	# Internal symbols needed by tests/:
++	_gnutls_pkcs11_token_get_url;
+ 	_gnutls_pkcs12_string_to_key;
+ 	_gnutls_bin2hex;
+ 	_gnutls_mac_to_entry;
+diff --git a/lib/pkcs11.c b/lib/pkcs11.c
+index e014a6b5f..e6e37c60c 100644
+--- a/lib/pkcs11.c
++++ b/lib/pkcs11.c
+@@ -108,7 +108,8 @@ struct find_cert_st {
+ 
+ static struct gnutls_pkcs11_provider_st providers[MAX_PROVIDERS];
+ static unsigned int active_providers = 0;
+-static unsigned int providers_initialized = 0;
++
++static init_level_t providers_initialized = PROV_UNINITIALIZED;
+ static unsigned int pkcs11_forkid = 0;
+ 
+ static int _gnutls_pkcs11_reinit(void);
+@@ -116,6 +117,8 @@ static int _gnutls_pkcs11_reinit(void);
+ gnutls_pkcs11_token_callback_t _gnutls_token_func;
+ void *_gnutls_token_data;
+ 
++static int auto_load(unsigned trusted);
++
+ int pkcs11_rv_to_err(ck_rv_t rv)
+ {
+ 	switch (rv) {
+@@ -232,7 +235,8 @@ pkcs11_add_module(const char* name, struct ck_function_list *module, unsigned cu
+ 	/* initially check if this module is a duplicate */
+ 	for (i = 0; i < active_providers; i++) {
+ 		/* already loaded, skip the rest */
+-		if (module == providers[i].module) {
++		if (module == providers[i].module ||
++		    memcmp(&info, &providers[i].info, sizeof(info)) == 0) {
+ 			_gnutls_debug_log("p11: module %s is already loaded.\n", name);
+ 			return GNUTLS_E_INT_RET_0;
+ 		}
+@@ -261,7 +265,7 @@ pkcs11_add_module(const char* name, struct ck_function_list *module, unsigned cu
+  * The output value of the callback will be returned if it is
+  * a negative one (indicating failure).
+ */
+-int _gnutls_pkcs11_check_init(void *priv, pkcs11_reinit_function cb)
++int _gnutls_pkcs11_check_init(init_level_t req_level, void *priv, pkcs11_reinit_function cb)
+ {
+ 	int ret;
+ 
+@@ -269,7 +273,7 @@ int _gnutls_pkcs11_check_init(void *priv, pkcs11_reinit_function cb)
+ 	if (ret != 0)
+ 		return gnutls_assert_val(GNUTLS_E_LOCKING_ERROR);
+ 
+-	if (providers_initialized != 0) {
++	if (providers_initialized >= req_level) {
+ 		ret = 0;
+ 
+ 		if (_gnutls_detect_fork(pkcs11_forkid)) {
+@@ -288,10 +292,16 @@ int _gnutls_pkcs11_check_init(void *priv, pkcs11_reinit_function cb)
+ 
+ 		gnutls_mutex_unlock(&_gnutls_pkcs11_mutex);
+ 		return ret;
+-	}
++	} else if (providers_initialized < req_level &&
++		   (req_level == PROV_INIT_TRUSTED)) {
++		_gnutls_debug_log("Initializing needed PKCS #11 modules\n");
++		ret = auto_load(1);
+ 
+-	_gnutls_debug_log("Initializing PKCS #11 modules\n");
+-	ret = gnutls_pkcs11_init(GNUTLS_PKCS11_FLAG_AUTO, NULL);
++		providers_initialized = PROV_INIT_TRUSTED;
++	} else {
++		_gnutls_debug_log("Initializing all PKCS #11 modules\n");
++		ret = gnutls_pkcs11_init(GNUTLS_PKCS11_FLAG_AUTO, NULL);
++	}
+ 
+ 	gnutls_mutex_unlock(&_gnutls_pkcs11_mutex);
+ 
+@@ -742,13 +752,13 @@ static void compat_load(const char *configfile)
+ 	return;
+ }
+ 
+-static int auto_load(void)
++static int auto_load(unsigned trusted)
+ {
+ 	struct ck_function_list **modules;
+ 	int i, ret;
+ 	char* name;
+ 
+-	modules = p11_kit_modules_load_and_initialize(0);
++	modules = p11_kit_modules_load_and_initialize(trusted?P11_KIT_MODULE_TRUSTED:0);
+ 	if (modules == NULL) {
+ 		gnutls_assert();
+ 		_gnutls_debug_log
+@@ -817,15 +827,21 @@ gnutls_pkcs11_init(unsigned int flags, const char *deprecated_config_file)
+ 	if (flags == GNUTLS_PKCS11_FLAG_MANUAL) {
+ 		/* if manual configuration is requested then don't
+ 		 * bother loading any other providers */
+-		providers_initialized = 1;
++		providers_initialized = PROV_INIT_MANUAL;
+ 		return 0;
+ 	 } else if (flags & GNUTLS_PKCS11_FLAG_AUTO) {
+ 		if (deprecated_config_file == NULL)
+-			ret = auto_load();
++			ret = auto_load(0);
+ 
+ 		compat_load(deprecated_config_file);
+ 
+-		providers_initialized = 1;
++		providers_initialized = PROV_INIT_ALL;
++
++		return ret;
++	} else if (flags & GNUTLS_PKCS11_FLAG_AUTO_TRUSTED) {
++		ret = auto_load(1);
++
++		providers_initialized = PROV_INIT_TRUSTED;
+ 
+ 		return ret;
+ 	}
+@@ -918,7 +934,7 @@ void gnutls_pkcs11_deinit(void)
+ 		p11_kit_module_release(providers[i].module);
+ 	}
+ 	active_providers = 0;
+-	providers_initialized = 0;
++	providers_initialized = PROV_UNINITIALIZED;
+ 
+ 	gnutls_pkcs11_set_pin_function(NULL, NULL);
+ 	gnutls_pkcs11_set_token_function(NULL, NULL);
+@@ -2177,11 +2193,18 @@ find_token_modname_cb(struct ck_function_list *module, struct pkcs11_session_inf
+ 	return 0;
+ }
+ 
++/* Internal symbol used by tests */
++int
++_gnutls_pkcs11_token_get_url(unsigned int seq,
++			     gnutls_pkcs11_url_type_t detailed, char **url,
++			     unsigned flags);
++
+ /**
+- * gnutls_pkcs11_token_get_url:
++ * _gnutls_pkcs11_token_get_url:
+  * @seq: sequence number starting from 0
+  * @detailed: non zero if a detailed URL is required
+  * @url: will contain an allocated url
++ * @flags: zero or 1. When 1 no initialization is performed.
+  *
+  * This function will return the URL for each token available
+  * in system. The url has to be released using gnutls_free()
+@@ -2190,16 +2213,18 @@ find_token_modname_cb(struct ck_function_list *module, struct pkcs11_session_inf
+  * %GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE if the sequence number
+  * exceeds the available tokens, otherwise a negative error value.
+  *
+- * Since: 2.12.0
+  **/
+ int
+-gnutls_pkcs11_token_get_url(unsigned int seq,
+-			    gnutls_pkcs11_url_type_t detailed, char **url)
++_gnutls_pkcs11_token_get_url(unsigned int seq,
++			     gnutls_pkcs11_url_type_t detailed, char **url,
++			     unsigned flags)
+ {
+ 	int ret;
+ 	struct find_token_num tn;
+ 
+-	PKCS11_CHECK_INIT;
++	if (!(flags & 1)) {
++		PKCS11_CHECK_INIT;
++	}
+ 
+ 	memset(&tn, 0, sizeof(tn));
+ 	tn.seq = seq;
+@@ -2224,6 +2249,28 @@ gnutls_pkcs11_token_get_url(unsigned int seq,
+ }
+ 
+ /**
++ * gnutls_pkcs11_token_get_url:
++ * @seq: sequence number starting from 0
++ * @detailed: non zero if a detailed URL is required
++ * @url: will contain an allocated url
++ *
++ * This function will return the URL for each token available
++ * in system. The url has to be released using gnutls_free()
++ *
++ * Returns: On success, %GNUTLS_E_SUCCESS (0) is returned,
++ * %GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE if the sequence number
++ * exceeds the available tokens, otherwise a negative error value.
++ *
++ * Since: 2.12.0
++ **/
++int
++gnutls_pkcs11_token_get_url(unsigned int seq,
++			    gnutls_pkcs11_url_type_t detailed, char **url)
++{
++	return _gnutls_pkcs11_token_get_url(seq, detailed, url, 0);
++}
++
++/**
+  * gnutls_pkcs11_token_get_info:
+  * @url: should contain a PKCS 11 URL
+  * @ttype: Denotes the type of information requested
+@@ -3173,7 +3220,11 @@ gnutls_pkcs11_obj_list_import_url4(gnutls_pkcs11_obj_t ** p_list,
+ 	int ret;
+ 	struct find_obj_data_st priv;
+ 
+-	PKCS11_CHECK_INIT;
++	if (flags & GNUTLS_PKCS11_OBJ_FLAG_MARK_TRUSTED) {
++		PKCS11_CHECK_INIT_TRUSTED;
++	} else {
++		PKCS11_CHECK_INIT;
++	}
+ 
+ 	memset(&priv, 0, sizeof(priv));
+ 
+diff --git a/lib/pkcs11_int.h b/lib/pkcs11_int.h
+index 2c2de3463..de9afbdee 100644
+--- a/lib/pkcs11_int.h
++++ b/lib/pkcs11_int.h
+@@ -82,7 +82,15 @@ struct gnutls_pkcs11_privkey_st {
+  * directly. It can be provided a callback function to run when a reinitialization
+  * occurs. */
+ typedef int (*pkcs11_reinit_function)(void *priv);
+-int _gnutls_pkcs11_check_init(void *priv, pkcs11_reinit_function cb);
++
++typedef enum init_level_t {
++	PROV_UNINITIALIZED = 0,
++	PROV_INIT_MANUAL,
++	PROV_INIT_TRUSTED,
++	PROV_INIT_ALL
++} init_level_t;
++
++int _gnutls_pkcs11_check_init(init_level_t req_level, void *priv, pkcs11_reinit_function cb);
+ 
+ #define FIX_KEY_USAGE(pk, usage) \
+ 	if (usage == 0) { \
+@@ -93,12 +101,17 @@ int _gnutls_pkcs11_check_init(void *priv, pkcs11_reinit_function cb);
+ 	}
+ 
+ #define PKCS11_CHECK_INIT \
+-	ret = _gnutls_pkcs11_check_init(NULL, NULL); \
++	ret = _gnutls_pkcs11_check_init(PROV_INIT_MANUAL, NULL, NULL); \
++	if (ret < 0) \
++		return gnutls_assert_val(ret)
++
++#define PKCS11_CHECK_INIT_TRUSTED \
++	ret = _gnutls_pkcs11_check_init(PROV_INIT_TRUSTED, NULL, NULL); \
+ 	if (ret < 0) \
+ 		return gnutls_assert_val(ret)
+ 
+ #define PKCS11_CHECK_INIT_RET(x) \
+-	ret = _gnutls_pkcs11_check_init(NULL, NULL); \
++	ret = _gnutls_pkcs11_check_init(PROV_INIT_MANUAL, NULL, NULL); \
+ 	if (ret < 0) \
+ 		return gnutls_assert_val(x)
+ 
+diff --git a/lib/pkcs11_privkey.c b/lib/pkcs11_privkey.c
+index 34fe47a38..afe831ee9 100644
+--- a/lib/pkcs11_privkey.c
++++ b/lib/pkcs11_privkey.c
+@@ -36,7 +36,7 @@
+ /* In case of a fork, it will invalidate the open session
+  * in the privkey and start another */
+ #define PKCS11_CHECK_INIT_PRIVKEY(k) \
+-	ret = _gnutls_pkcs11_check_init(k, reopen_privkey_session); \
++	ret = _gnutls_pkcs11_check_init(PROV_INIT_MANUAL, k, reopen_privkey_session); \
+ 	if (ret < 0) \
+ 		return gnutls_assert_val(ret)
+ 
