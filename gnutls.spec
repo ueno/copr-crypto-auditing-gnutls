@@ -1,9 +1,10 @@
 # This spec file has been automatically updated
 Version:	3.6.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.4.2-no-now-guile.patch
 Patch3: gnutls-3.6.1-pkcs11-loading.patch
+Patch4: gnutls-3.6.1-pkcs11-loading2.patch
 %bcond_without dane
 %bcond_without guile
 Summary: A TLS protocol implementation
@@ -139,6 +140,8 @@ gpgv2 --keyring %{SOURCE2} %{SOURCE1} %{SOURCE0}
 %setup -q
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
 
 sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spec="/lib /usr/lib %{_libdir}|g' configure
 rm -f lib/minitasn1/*.c lib/minitasn1/*.h
