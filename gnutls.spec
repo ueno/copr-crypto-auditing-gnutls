@@ -272,6 +272,10 @@ fi
 %endif
 
 %changelog
+* Thu Nov 30 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.1-3
+- Corrected regression from 3.6.1-2 which prevented the loading of
+  arbitrary p11-kit modules (#1507402)
+
 * Mon Nov  6 2017 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.1-2
 - Prevent the loading of all PKCS#11 modules on certificate verification
   but only restrict to p11-kit trust module (#1507402)
