@@ -1,8 +1,15 @@
 diff --git a/lib/pkcs11.c b/lib/pkcs11.c
-index e6e37c60c..1a1c76d8c 100644
+index e6e37c60c..e1aa64f19 100644
 --- a/lib/pkcs11.c
 +++ b/lib/pkcs11.c
-@@ -273,7 +273,7 @@ int _gnutls_pkcs11_check_init(init_level_t req_level, void *priv, pkcs11_reinit_
+@@ -267,20 +267,20 @@ pkcs11_add_module(const char* name, struct ck_function_list *module, unsigned cu
+ */
+ int _gnutls_pkcs11_check_init(init_level_t req_level, void *priv, pkcs11_reinit_function cb)
+ {
+-	int ret;
++	int ret, sret = 0;
+ 
+ 	ret = gnutls_mutex_lock(&_gnutls_pkcs11_mutex);
  	if (ret != 0)
  		return gnutls_assert_val(GNUTLS_E_LOCKING_ERROR);
  
@@ -11,6 +18,14 @@ index e6e37c60c..1a1c76d8c 100644
  		ret = 0;
  
  		if (_gnutls_detect_fork(pkcs11_forkid)) {
+ 			/* if we are initialized but a fork is detected */
+ 			ret = _gnutls_pkcs11_reinit();
+ 			if (ret == 0) {
+-				ret = 1;
++				sret = 1;
+ 				if (cb) {
+ 					int ret2 = cb(priv);
+ 					if (ret2 < 0)
 @@ -290,25 +290,60 @@ int _gnutls_pkcs11_check_init(init_level_t req_level, void *priv, pkcs11_reinit_
  			}
  		}
@@ -74,7 +89,7 @@ index e6e37c60c..1a1c76d8c 100644
  	}
  
 -	gnutls_mutex_unlock(&_gnutls_pkcs11_mutex);
-+	ret = 0;
++	ret = sret;
  
 -	if (ret < 0)
 -		return gnutls_assert_val(ret);
@@ -186,6 +201,19 @@ index de9afbdee..3ba9c5501 100644
  /* thus function is called for every token in the traverse_tokens
   * function. Once everything is traversed it is called with NULL tinfo.
   * It should return 0 if found what it was looking for.
+diff --git a/lib/pkcs11_privkey.c b/lib/pkcs11_privkey.c
+index afe831ee9..fd1997c8c 100644
+--- a/lib/pkcs11_privkey.c
++++ b/lib/pkcs11_privkey.c
+@@ -36,7 +36,7 @@
+ /* In case of a fork, it will invalidate the open session
+  * in the privkey and start another */
+ #define PKCS11_CHECK_INIT_PRIVKEY(k) \
+-	ret = _gnutls_pkcs11_check_init(PROV_INIT_MANUAL, k, reopen_privkey_session); \
++	ret = _gnutls_pkcs11_check_init(PROV_INIT_ALL, k, reopen_privkey_session); \
+ 	if (ret < 0) \
+ 		return gnutls_assert_val(ret)
+ 
 diff --git a/lib/x509/verify-high.c b/lib/x509/verify-high.c
 index 69fc0f2e6..7b375d61f 100644
 --- a/lib/x509/verify-high.c
