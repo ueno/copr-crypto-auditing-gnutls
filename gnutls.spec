@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.6.1
-Release: 4%{?dist}
+Release: 5%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.4.2-no-now-guile.patch
 Patch3: gnutls-3.6.1-pkcs11-loading.patch
@@ -274,6 +274,9 @@ fi
 %endif
 
 %changelog
+* Wed Feb 07 2018 Fedora Release Engineering <releng@fedoraproject.org> - 3.6.1-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
+
 * Fri Feb  2 2018 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.1-4
 - Rebuilt to address incompatibility with new nettle
 
