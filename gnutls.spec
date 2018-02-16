@@ -1,11 +1,9 @@
 # This spec file has been automatically updated
-Version:	3.6.1
-Release: 5%{?dist}
+Version:	3.6.2
+Release: 1%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.4.2-no-now-guile.patch
-Patch3: gnutls-3.6.1-pkcs11-loading.patch
-Patch4: gnutls-3.6.1-pkcs11-loading2.patch
-Patch5: gnutls-3.6.1-pkcs11-tests.patch
+Patch3:	gnutls-3.6.1-disable-pss-tests.patch
 %bcond_without dane
 %bcond_without guile
 Summary: A TLS protocol implementation
@@ -142,8 +140,6 @@ gpgv2 --keyring %{SOURCE2} %{SOURCE1} %{SOURCE0}
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
-%patch5 -p1
 
 sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spec="/lib /usr/lib %{_libdir}|g' configure
 rm -f lib/minitasn1/*.c lib/minitasn1/*.h
@@ -274,6 +270,9 @@ fi
 %endif
 
 %changelog
+* Fri Feb 16 2018 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.2-1
+- Update to upstream 3.6.2 release
+
 * Wed Feb 07 2018 Fedora Release Engineering <releng@fedoraproject.org> - 3.6.1-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 
