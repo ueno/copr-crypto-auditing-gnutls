@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.6.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.4.2-no-now-guile.patch
 Patch3:	gnutls-3.6.1-disable-pss-tests.patch
@@ -20,6 +20,7 @@ BuildRequires: trousers-devel >= 0.3.11.2
 BuildRequires: libidn2-devel
 BuildRequires: libunistring-devel
 BuildRequires: gperf, net-tools, datefudge, softhsm
+BuildRequires: gnupg2
 # for a sanity check on cert loading
 BuildRequires: p11-kit-trust, ca-certificates
 Requires: crypto-policies
@@ -270,6 +271,9 @@ fi
 %endif
 
 %changelog
+* Fri May 25 2018 David Abdurachmanov <david.abdurachmanov@gmail.com> - 3.6.2-2
+- Add missing BuildRequires: gnupg2 for gpgv2 in %%prep
+
 * Fri Feb 16 2018 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.2-1
 - Update to upstream 3.6.2 release
 
