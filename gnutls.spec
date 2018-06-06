@@ -1,11 +1,18 @@
 # This spec file has been automatically updated
 Version:	3.6.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.4.2-no-now-guile.patch
 Patch3:	gnutls-3.6.1-disable-pss-tests.patch
 %bcond_without dane
+%if 0%{?rhel}
+%bcond_with guile
+%bcond_with fips
+%else
 %bcond_without guile
+%bcond_with fips
+%endif
+
 Summary: A TLS protocol implementation
 Name: gnutls
 # The libraries are LGPLv2.1+, utilities are GPLv3+
@@ -21,6 +28,10 @@ BuildRequires: libidn2-devel
 BuildRequires: libunistring-devel
 BuildRequires: gperf, net-tools, datefudge, softhsm
 BuildRequires: gnupg2
+%if %{with fips}
+BuildRequires: fipscheck
+%endif
+
 # for a sanity check on cert loading
 BuildRequires: p11-kit-trust, ca-certificates
 Requires: crypto-policies
@@ -150,6 +161,9 @@ echo "SYSTEM=NORMAL" >> tests/system.prio
 
 %build
 %configure --with-libtasn1-prefix=%{_prefix} \
+%if %{with fips}
+           --enable-fips140-mode \
+%endif
            --disable-static \
            --disable-openssl-compatibility \
            --disable-non-suiteb-curves \
@@ -172,6 +186,16 @@ echo "SYSTEM=NORMAL" >> tests/system.prio
            --with-default-priority-string="@SYSTEM"
 
 make %{?_smp_mflags} V=1
+
+%if %{with fips}
+%define __spec_install_post \
+	%{?__debug_package:%{__debug_install_post}} \
+	%{__arch_install_post} \
+	%{__os_install_post} \
+	fipshmac -d $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_libdir}/libgnutls.so.28.*.* \
+	file=`basename $RPM_BUILD_ROOT%{_libdir}/libgnutls.so.28.*.hmac` && mv $RPM_BUILD_ROOT%{_libdir}/$file $RPM_BUILD_ROOT%{_libdir}/.$file && ln -s .$file $RPM_BUILD_ROOT%{_libdir}/.libgnutls.so.28.hmac \
+%{nil}
+%endif
 
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
@@ -223,6 +247,9 @@ fi
 %files -f gnutls.lang
 %defattr(-,root,root,-)
 %{_libdir}/libgnutls.so.30*
+%if %{with fips}
+%{_libdir}/.libgnutls.so.30*.hmac
+%endif
 %doc README.md AUTHORS NEWS THANKS
 %license LICENSE doc/COPYING doc/COPYING.LESSER
 
@@ -233,6 +260,10 @@ fi
 %defattr(-,root,root,-)
 %{_includedir}/*
 %{_libdir}/libgnutls*.so
+%if %{with fips}
+%{_libdir}/.libgnutls.so.*.hmac
+%endif
+
 %{_libdir}/pkgconfig/*.pc
 %{_mandir}/man3/*
 %{_infodir}/gnutls*
@@ -271,6 +302,9 @@ fi
 %endif
 
 %changelog
+* Wed Jun 06 2018 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.2-3
+- Update to upstream 3.6.2 release
+
 * Fri May 25 2018 David Abdurachmanov <david.abdurachmanov@gmail.com> - 3.6.2-2
 - Add missing BuildRequires: gnupg2 for gpgv2 in %%prep
 
