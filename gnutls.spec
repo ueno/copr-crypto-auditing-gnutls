@@ -7,10 +7,10 @@ Patch3:	gnutls-3.6.1-disable-pss-tests.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
-%bcond_with fips
+%bcond_without fips
 %else
 %bcond_without guile
-%bcond_with fips
+%bcond_without fips
 %endif
 
 Summary: A TLS protocol implementation
