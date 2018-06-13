@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.6.2
-Release: 3%{?dist}
+Release: 4%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.4.2-no-now-guile.patch
 Patch3:	gnutls-3.6.1-disable-pss-tests.patch
@@ -302,6 +302,9 @@ fi
 %endif
 
 %changelog
+* Wed Jun 13 2018 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.2-4
+- Enable FIPS140-2 mode in Fedora
+
 * Wed Jun 06 2018 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.2-3
 - Update to upstream 3.6.2 release
 
