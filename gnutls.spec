@@ -245,7 +245,6 @@ fi
 %endif
 
 %files -f gnutls.lang
-%defattr(-,root,root,-)
 %{_libdir}/libgnutls.so.30*
 %if %{with fips}
 %{_libdir}/.libgnutls.so.30*.hmac
@@ -257,7 +256,6 @@ fi
 %{_libdir}/libgnutlsxx.so.*
 
 %files devel
-%defattr(-,root,root,-)
 %{_includedir}/*
 %{_libdir}/libgnutls*.so
 %if %{with fips}
@@ -271,7 +269,6 @@ fi
 %{_docdir}/manual/*
 
 %files utils
-%defattr(-,root,root,-)
 %{_bindir}/certtool
 %{_bindir}/tpmtool
 %{_bindir}/ocsptool
@@ -287,13 +284,11 @@ fi
 
 %if %{with dane}
 %files dane
-%defattr(-,root,root,-)
 %{_libdir}/libgnutls-dane.so.*
 %endif
 
 %if %{with guile}
 %files guile
-%defattr(-,root,root,-)
 %{_libdir}/guile/2.0/guile-gnutls*.so*
 %{_libdir}/guile/2.0/site-ccache/gnutls.go
 %{_libdir}/guile/2.0/site-ccache/gnutls/extra.go
