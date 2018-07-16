@@ -1,9 +1,9 @@
 # This spec file has been automatically updated
-Version:	3.6.2
-Release: 5%{?dist}
+Version:	3.6.3
+Release: 1%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.4.2-no-now-guile.patch
-Patch3:	gnutls-3.6.1-disable-pss-tests.patch
+Patch3:	gnutls-3.6.3-skip-new-priority-funcs-err-pos.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -26,7 +26,7 @@ BuildRequires: nettle-devel >= 3.1.1
 BuildRequires: trousers-devel >= 0.3.11.2
 BuildRequires: libidn2-devel
 BuildRequires: libunistring-devel
-BuildRequires: gperf, net-tools, datefudge, softhsm
+BuildRequires: gperf, net-tools, datefudge, softhsm, gcc, gcc-c++
 BuildRequires: gnupg2
 %if %{with fips}
 BuildRequires: fipscheck
@@ -161,6 +161,11 @@ echo "SYSTEM=NORMAL" >> tests/system.prio
 
 %build
 %configure --with-libtasn1-prefix=%{_prefix} \
+%if (0%{?fedora} <= 28)
+	   --enable-ssl3-support \
+%else
+	   --enable-tls13-support \
+%endif
 %if %{with fips}
            --enable-fips140-mode \
 %endif
@@ -245,6 +250,7 @@ fi
 %endif
 
 %files -f gnutls.lang
+%defattr(-,root,root,-)
 %{_libdir}/libgnutls.so.30*
 %if %{with fips}
 %{_libdir}/.libgnutls.so.30*.hmac
@@ -256,6 +262,7 @@ fi
 %{_libdir}/libgnutlsxx.so.*
 
 %files devel
+%defattr(-,root,root,-)
 %{_includedir}/*
 %{_libdir}/libgnutls*.so
 %if %{with fips}
@@ -269,6 +276,7 @@ fi
 %{_docdir}/manual/*
 
 %files utils
+%defattr(-,root,root,-)
 %{_bindir}/certtool
 %{_bindir}/tpmtool
 %{_bindir}/ocsptool
@@ -284,11 +292,13 @@ fi
 
 %if %{with dane}
 %files dane
+%defattr(-,root,root,-)
 %{_libdir}/libgnutls-dane.so.*
 %endif
 
 %if %{with guile}
 %files guile
+%defattr(-,root,root,-)
 %{_libdir}/guile/2.0/guile-gnutls*.so*
 %{_libdir}/guile/2.0/site-ccache/gnutls.go
 %{_libdir}/guile/2.0/site-ccache/gnutls/extra.go
@@ -297,6 +307,9 @@ fi
 %endif
 
 %changelog
+* Mon Jul 16 2018 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.3-1
+- Update to upstream 3.6.3 release
+
 * Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 3.6.2-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
