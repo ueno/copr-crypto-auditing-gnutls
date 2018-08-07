@@ -1,10 +1,11 @@
 # This spec file has been automatically updated
 Version:	3.6.3
-Release: 2%{?dist}
+Release: 3%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.4.2-no-now-guile.patch
 Patch3:	gnutls-3.6.3-skip-new-priority-funcs-err-pos.patch
 Patch4: gnutls-3.6.3-backport-upstream-fixes.patch
+Patch5: gnutls-3.6.3-fix-ecdsa.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -154,6 +155,7 @@ gpgv2 --keyring %{SOURCE2} %{SOURCE1} %{SOURCE0}
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spec="/lib /usr/lib %{_libdir}|g' configure
 rm -f lib/minitasn1/*.c lib/minitasn1/*.h
@@ -309,8 +311,11 @@ fi
 %endif
 
 %changelog
+* Tue Aug 07 2018 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.3-3
+- Fixed ECDSA public key import (#1612803)
+
 * Thu Jul 26 2018 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.3-2
-- Backported regression fixed from 3.6.2
+- Backported regression fixes from 3.6.2
 
 * Mon Jul 16 2018 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.3-1
 - Update to upstream 3.6.3 release
