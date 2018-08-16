@@ -1,0 +1,12 @@
+diff --git a/src/cli.c b/src/cli.c
+index 21be015dc..42d027736 100644
+--- a/src/cli.c
++++ b/src/cli.c
+@@ -1273,7 +1273,6 @@ int main(int argc, char **argv)
+ 				}
+ 				continue;
+ 			}
+-			bytes=strlen(buffer);
+ 			buffer[bytes] = 0;
+ 
+ 			if (crlf != 0) {

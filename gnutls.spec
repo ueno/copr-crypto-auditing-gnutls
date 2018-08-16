@@ -1,11 +1,13 @@
 # This spec file has been automatically updated
 Version:	3.6.3
-Release: 3%{?dist}
+Release: 4%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.4.2-no-now-guile.patch
 Patch3:	gnutls-3.6.3-skip-new-priority-funcs-err-pos.patch
 Patch4: gnutls-3.6.3-backport-upstream-fixes.patch
 Patch5: gnutls-3.6.3-fix-ecdsa.patch
+Patch6: gnutls-3.6.3-gnutls-cli-fix.patch
+Patch7: gnutls-3.6.3-rollback-fix.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -156,6 +158,8 @@ gpgv2 --keyring %{SOURCE2} %{SOURCE1} %{SOURCE0}
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
+%patch7 -p1
 
 sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spec="/lib /usr/lib %{_libdir}|g' configure
 rm -f lib/minitasn1/*.c lib/minitasn1/*.h
@@ -311,6 +315,11 @@ fi
 %endif
 
 %changelog
+* Thu Aug 16 2018 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.3-4
+- Fixed gnutls-cli input reading
+- Ensure that we do not cause issues with version rollback detection
+  and TLS1.3.
+
 * Tue Aug 07 2018 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.3-3
 - Fixed ECDSA public key import (#1612803)
 
