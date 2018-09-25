@@ -1,13 +1,8 @@
 # This spec file has been automatically updated
-Version:	3.6.3
-Release: 4%{?dist}
+Version:	3.6.4
+Release: 1%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
-Patch2:	gnutls-3.4.2-no-now-guile.patch
-Patch3:	gnutls-3.6.3-skip-new-priority-funcs-err-pos.patch
-Patch4: gnutls-3.6.3-backport-upstream-fixes.patch
-Patch5: gnutls-3.6.3-fix-ecdsa.patch
-Patch6: gnutls-3.6.3-gnutls-cli-fix.patch
-Patch7: gnutls-3.6.3-rollback-fix.patch
+Patch2:	gnutls-3.6.4-no-now-guile.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -152,14 +147,7 @@ This package contains Guile bindings for the library.
 %prep
 gpgv2 --keyring %{SOURCE2} %{SOURCE1} %{SOURCE0}
 
-%setup -q
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
+%autosetup -p1
 
 sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spec="/lib /usr/lib %{_libdir}|g' configure
 rm -f lib/minitasn1/*.c lib/minitasn1/*.h
@@ -167,16 +155,15 @@ rm -f src/libopts/*.c src/libopts/*.h src/libopts/compat/*.c src/libopts/compat/
 
 echo "SYSTEM=NORMAL" >> tests/system.prio
 
+# Note that we explicitly enable SHA1, as SHA1 deprecation is handled
+# via the crypto policies
+
 %build
 %configure --with-libtasn1-prefix=%{_prefix} \
-%if (0%{?fedora} <= 28)
-	   --enable-ssl3-support \
-%else
-	   --enable-tls13-support \
-%endif
 %if %{with fips}
            --enable-fips140-mode \
 %endif
+	   --enable-sha1-support \
            --disable-static \
            --disable-openssl-compatibility \
            --disable-non-suiteb-curves \
@@ -315,6 +302,12 @@ fi
 %endif
 
 %changelog
+* Tue Sep 25 2018 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.4-1
+- Updated to upstream 3.6.4 release
+- Added support for the latest version of the TLS1.3 protocol
+- Enabled SHA1 support as SHA1 deprecation is handled via the
+  fedora crypto policies.
+
 * Thu Aug 16 2018 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.3-4
 - Fixed gnutls-cli input reading
 - Ensure that we do not cause issues with version rollback detection
