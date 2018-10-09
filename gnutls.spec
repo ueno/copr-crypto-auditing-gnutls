@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.6.4
-Release: 1%{?dist}
+Release: 2%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.6.4-no-now-guile.patch
 %bcond_without dane
@@ -302,6 +302,9 @@ fi
 %endif
 
 %changelog
+* Tue Oct 09 2018 Petr Menšík <pemensik@redhat.com> - 3.6.4-2
+- Rebuilt for unbound 1.8
+
 * Tue Sep 25 2018 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.4-1
 - Updated to upstream 3.6.4 release
 - Added support for the latest version of the TLS1.3 protocol
