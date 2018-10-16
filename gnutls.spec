@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.6.4
-Release: 2%{?dist}
+Release: 3%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.6.4-no-now-guile.patch
 %bcond_without dane
@@ -159,6 +159,8 @@ echo "SYSTEM=NORMAL" >> tests/system.prio
 # via the crypto policies
 
 %build
+CCASFLAGS="$CCASFLAGS -Wa,--generate-missing-build-notes=yes"
+export CCASFLAGS
 %configure --with-libtasn1-prefix=%{_prefix} \
 %if %{with fips}
            --enable-fips140-mode \
@@ -302,6 +304,9 @@ fi
 %endif
 
 %changelog
+* Tue Oct 16 2018 Tomáš Mráz <tmraz@redhat.com> - 3.6.4-3
+- Add missing annobin notes for assembler sources
+
 * Tue Oct 09 2018 Petr Menšík <pemensik@redhat.com> - 3.6.4-2
 - Rebuilt for unbound 1.8
 
