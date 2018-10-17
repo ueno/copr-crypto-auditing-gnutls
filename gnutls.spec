@@ -1,8 +1,9 @@
 # This spec file has been automatically updated
 Version:	3.6.4
-Release: 3%{?dist}
+Release: 4%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.6.4-no-now-guile.patch
+Patch3: gnutls-3.6.4-fix-rehandshake.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -304,6 +305,9 @@ fi
 %endif
 
 %changelog
+* Wed Oct 17 2018 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.4-4
+- Fix issue with rehandshake affecting glib-networking (#1634736)
+
 * Tue Oct 16 2018 Tomáš Mráz <tmraz@redhat.com> - 3.6.4-3
 - Add missing annobin notes for assembler sources
 
