@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.6.4
-Release: 4%{?dist}
+Release: 5%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.6.4-no-now-guile.patch
 Patch3: gnutls-3.6.4-fix-rehandshake.patch
@@ -217,14 +217,6 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls-dane.pc
 %check
 make check %{?_smp_mflags}
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-%post c++ -p /sbin/ldconfig
-
-%postun c++ -p /sbin/ldconfig
-
 %post devel
 if [ -f %{_infodir}/gnutls.info.gz ]; then
     /sbin/install-info %{_infodir}/gnutls.info.gz %{_infodir}/dir || :
@@ -234,18 +226,6 @@ fi
 if [ $1 = 0 -a -f %{_infodir}/gnutls.info.gz ]; then
    /sbin/install-info --delete %{_infodir}/gnutls.info.gz %{_infodir}/dir || :
 fi
-
-%if %{with dane}
-%post dane -p /sbin/ldconfig
-
-%postun dane -p /sbin/ldconfig
-%endif
-
-%if %{with guile}
-%post guile -p /sbin/ldconfig
-
-%postun guile -p /sbin/ldconfig
-%endif
 
 %files -f gnutls.lang
 %defattr(-,root,root,-)
@@ -305,6 +285,9 @@ fi
 %endif
 
 %changelog
+* Mon Oct 29 2018 James Antill <james.antill@redhat.com> - 3.6.4-5
+- Remove ldconfig scriptlet, now done via. transfiletrigger in glibc.
+
 * Wed Oct 17 2018 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.4-4
 - Fix issue with rehandshake affecting glib-networking (#1634736)
 
