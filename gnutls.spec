@@ -3,7 +3,6 @@ Version:	3.6.4
 Release: 5%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.6.4-no-now-guile.patch
-Patch3: gnutls-3.6.4-fix-rehandshake.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
