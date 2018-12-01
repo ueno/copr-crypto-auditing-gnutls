@@ -46,8 +46,8 @@ BuildRequires: unbound-devel unbound-libs
 BuildRequires: guile-devel
 %endif
 URL: http://www.gnutls.org/
-Source0: ftp://ftp.gnutls.org/gcrypt/gnutls/%{name}-%{version}.tar.xz
-Source1: ftp://ftp.gnutls.org/gcrypt/gnutls/%{name}-%{version}.tar.xz.sig
+Source0: ftp://ftp.gnutls.org/gcrypt/gnutls/v3.6/%{name}-%{version}.tar.xz
+Source1: ftp://ftp.gnutls.org/gcrypt/gnutls/v3.6/%{name}-%{version}.tar.xz.sig
 Source2: gpgkey-1F42418905D8206AA754CCDC29EE58B996865171.gpg
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
