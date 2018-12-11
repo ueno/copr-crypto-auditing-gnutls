@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
-Version:	3.6.4
-Release: 5%{?dist}
+Version:	3.6.5
+Release: 1%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.6.4-no-now-guile.patch
 %bcond_without dane
@@ -284,6 +284,9 @@ fi
 %endif
 
 %changelog
+* Tue Dec 11 2018 Anderson Toshiyuki Sasaki <ansasaki@redhat.com> - 3.6.5-1
+- Update to upstream 3.6.5 release
+
 * Mon Oct 29 2018 James Antill <james.antill@redhat.com> - 3.6.4-5
 - Remove ldconfig scriptlet, now done via. transfiletrigger in glibc.
 
