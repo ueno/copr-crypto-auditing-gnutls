@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.6.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.6.4-no-now-guile.patch
 %bcond_without dane
@@ -21,7 +21,7 @@ BuildRequires: p11-kit-devel >= 0.21.3, gettext-devel
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 4.3
 BuildRequires: libtool, automake, autoconf, texinfo
 BuildRequires: autogen-libopts-devel >= 5.18 autogen
-BuildRequires: nettle-devel >= 3.1.1
+BuildRequires: nettle-devel >= 3.4.1
 BuildRequires: trousers-devel >= 0.3.11.2
 BuildRequires: libidn2-devel
 BuildRequires: libunistring-devel
@@ -36,6 +36,7 @@ BuildRequires: p11-kit-trust, ca-certificates
 Requires: crypto-policies
 Requires: p11-kit-trust
 Requires: libtasn1 >= 4.3
+Requires: nettle >= 3.4.1
 Recommends: trousers >= 0.3.11.2
 
 %if %{with dane}
@@ -284,6 +285,9 @@ fi
 %endif
 
 %changelog
+* Fri Jan 11 2019 Anderson Toshiyuki Sasaki <ansasaki@redhat.com> - 3.6.5-2
+- Added explicit Requires for nettle >= 3.4.1
+
 * Tue Dec 11 2018 Anderson Toshiyuki Sasaki <ansasaki@redhat.com> - 3.6.5-1
 - Update to upstream 3.6.5 release
 
