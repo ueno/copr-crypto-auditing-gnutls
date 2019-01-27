@@ -66,8 +66,6 @@ Requires: %{name}-c++%{?_isa} = %{version}-%{release}
 Requires: %{name}-dane%{?_isa} = %{version}-%{release}
 %endif
 Requires: pkgconfig
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
 
 %package utils
 License: GPLv3+
@@ -216,16 +214,6 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls-dane.pc
 
 %check
 make check %{?_smp_mflags}
-
-%post devel
-if [ -f %{_infodir}/gnutls.info.gz ]; then
-    /sbin/install-info %{_infodir}/gnutls.info.gz %{_infodir}/dir || :
-fi
-
-%preun devel
-if [ $1 = 0 -a -f %{_infodir}/gnutls.info.gz ]; then
-   /sbin/install-info --delete %{_infodir}/gnutls.info.gz %{_infodir}/dir || :
-fi
 
 %files -f gnutls.lang
 %defattr(-,root,root,-)
