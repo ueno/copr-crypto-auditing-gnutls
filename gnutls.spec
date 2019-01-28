@@ -16,7 +16,6 @@ Summary: A TLS protocol implementation
 Name: gnutls
 # The libraries are LGPLv2.1+, utilities are GPLv3+
 License: GPLv3+ and LGPLv2+
-Group: System Environment/Libraries
 BuildRequires: p11-kit-devel >= 0.21.3, gettext-devel
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 4.3
 BuildRequires: libtool, automake, autoconf, texinfo
@@ -59,7 +58,6 @@ Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %package devel
 Summary: Development files for the %{name} package
-Group: Development/Libraries
 Requires: %{name}%{?_isa} = %{version}-%{release}
 Requires: %{name}-c++%{?_isa} = %{version}-%{release}
 %if %{with dane}
@@ -70,7 +68,6 @@ Requires: pkgconfig
 %package utils
 License: GPLv3+
 Summary: Command line tools for TLS protocol
-Group: Applications/System
 Requires: %{name}%{?_isa} = %{version}-%{release}
 %if %{with dane}
 Requires: %{name}-dane%{?_isa} = %{version}-%{release}
@@ -85,7 +82,6 @@ Requires: %{name}%{?_isa} = %{version}-%{release}
 %if %{with guile}
 %package guile
 Summary: Guile bindings for the GNUTLS library
-Group: Development/Libraries
 Requires: %{name}%{?_isa} = %{version}-%{release}
 Requires: guile
 %endif
