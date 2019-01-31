@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.6.5
-Release: 2%{?dist}
+Release: 3%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.6.4-no-now-guile.patch
 %bcond_without dane
@@ -269,6 +269,9 @@ make check %{?_smp_mflags}
 %endif
 
 %changelog
+* Thu Jan 31 2019 Fedora Release Engineering <releng@fedoraproject.org> - 3.6.5-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
+
 * Fri Jan 11 2019 Anderson Toshiyuki Sasaki <ansasaki@redhat.com> - 3.6.5-2
 - Added explicit Requires for nettle >= 3.4.1
 
