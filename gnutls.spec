@@ -1,8 +1,9 @@
 # This spec file has been automatically updated
-Version:	3.6.5
-Release: 3%{?dist}
+Version:	3.6.6
+Release: 1%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.6.4-no-now-guile.patch
+Patch3: gnutls-3.6.6-use-old-guile.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -143,6 +144,7 @@ This package contains Guile bindings for the library.
 gpgv2 --keyring %{SOURCE2} %{SOURCE1} %{SOURCE0}
 
 %autosetup -p1
+autoreconf
 
 sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spec="/lib /usr/lib %{_libdir}|g' configure
 rm -f lib/minitasn1/*.c lib/minitasn1/*.h
@@ -269,6 +271,9 @@ make check %{?_smp_mflags}
 %endif
 
 %changelog
+* Fri Feb  1 2019 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.6-1
+- Update to upstream 3.6.6 release
+
 * Thu Jan 31 2019 Fedora Release Engineering <releng@fedoraproject.org> - 3.6.5-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
 
