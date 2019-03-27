@@ -1,9 +1,8 @@
 # This spec file has been automatically updated
-Version:	3.6.6
+Version:	3.6.7
 Release: 1%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
-Patch2:	gnutls-3.6.4-no-now-guile.patch
-Patch3: gnutls-3.6.6-use-old-guile.patch
+Patch2:	gnutls-3.6.7-no-now-guile.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -271,6 +270,11 @@ make check %{?_smp_mflags}
 %endif
 
 %changelog
+* Wed Mar 27 2019 Anderson Toshiyuki Sasaki <ansasaki@redhat.com> - 3.6.7-1
+- Update to upstream 3.6.7 release
+- Fixed CVE-2019-3836 (#1693214)
+- Fixed CVE-2019-3829 (#1693210)
+
 * Fri Feb  1 2019 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.6-1
 - Update to upstream 3.6.6 release
 

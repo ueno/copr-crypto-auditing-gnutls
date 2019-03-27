@@ -1,11 +1,9 @@
-diff --git a/guile/src/Makefile.in b/guile/src/Makefile.in
-index 3e4f547..6ffec0e 100644
---- a/guile/src/Makefile.in
-+++ b/guile/src/Makefile.in
-@@ -1430,7 +1430,7 @@ guileextension_LTLIBRARIES = guile-gnutls-v-2.la
+--- a/guile/src/Makefile.in	2019-03-27 11:51:55.984398001 +0100
++++ b/guile/src/Makefile.in	2019-03-27 11:52:27.259626076 +0100
+@@ -1472,7 +1472,7 @@
  # Use '-module' to build a "dlopenable module", in Libtool terms.
  # Use '-undefined' to placate Libtool on Windows; see
- # <http://lists.gnutls.org/pipermail/gnutls-devel/2014-December/007294.html>.
+ # <https://lists.gnutls.org/pipermail/gnutls-devel/2014-December/007294.html>.
 -guile_gnutls_v_2_la_LDFLAGS = -module -no-undefined
 +guile_gnutls_v_2_la_LDFLAGS = -module -no-undefined -Wl,-z,lazy
  
