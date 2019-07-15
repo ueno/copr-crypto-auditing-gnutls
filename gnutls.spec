@@ -25,8 +25,7 @@ BuildRequires: trousers-devel >= 0.3.11.2
 BuildRequires: libidn2-devel
 BuildRequires: libunistring-devel
 BuildRequires: gperf, net-tools, datefudge, softhsm, gcc, gcc-c++
-# Temporarily disabled for dependency between gnupg2, gnutls, and nettle
-#BuildRequires: gnupg2
+BuildRequires: gnupg2
 %if %{with fips}
 BuildRequires: fipscheck
 %endif
@@ -141,8 +140,7 @@ This package contains Guile bindings for the library.
 %endif
 
 %prep
-# Temporarily disabled for dependency between gnupg2, gnutls, and nettle
-#gpgv2 --keyring %{SOURCE2} %{SOURCE1} %{SOURCE0}
+gpgv2 --keyring %{SOURCE2} %{SOURCE1} %{SOURCE0}
 
 %autosetup -p1
 autoreconf
