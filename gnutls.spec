@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.6.8
-Release: 1%{?dist}
+Release: 2%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.6.7-no-now-guile.patch
 %bcond_without dane
@@ -42,7 +42,7 @@ Recommends: trousers >= 0.3.11.2
 BuildRequires: unbound-devel unbound-libs
 %endif
 %if %{with guile}
-BuildRequires: guile-devel
+BuildRequires: guile22-devel
 %endif
 URL: http://www.gnutls.org/
 Source0: ftp://ftp.gnutls.org/gcrypt/gnutls/v3.6/%{name}-%{version}.tar.xz
@@ -271,6 +271,9 @@ make check %{?_smp_mflags}
 %endif
 
 %changelog
+* Mon Jul 15 2019 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.8-2
+- Rebuilt with guile-2.2
+
 * Tue May 28 2019 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.8-1
 - Update to upstream 3.6.8 release
 
