@@ -83,7 +83,7 @@ Requires: %{name}%{?_isa} = %{version}-%{release}
 %package guile
 Summary: Guile bindings for the GNUTLS library
 Requires: %{name}%{?_isa} = %{version}-%{release}
-Requires: guile
+Requires: guile22
 %endif
 
 %description
@@ -157,6 +157,14 @@ echo "SYSTEM=NORMAL" >> tests/system.prio
 %build
 CCASFLAGS="$CCASFLAGS -Wa,--generate-missing-build-notes=yes"
 export CCASFLAGS
+
+# These should be checked by m4/guile.m4 instead of configure.ac
+# taking into account of _guile_suffix
+guile_snarf=%{_bindir}/guile-snarf2.2
+export guile_snarf
+GUILD=%{_bindir}/guild2.2
+export GUILD
+
 %configure --with-libtasn1-prefix=%{_prefix} \
 %if %{with fips}
            --enable-fips140-mode \
@@ -171,7 +179,7 @@ export CCASFLAGS
            --htmldir=%{_docdir}/manual \
 %if %{with guile}
            --enable-guile \
-           --with-guile-extension-dir=%{_libdir}/guile/2.0 \
+           --with-guile-extension-dir=%{_libdir}/guile/2.2 \
 %else
            --disable-guile \
 %endif
@@ -201,8 +209,8 @@ make install DESTDIR=$RPM_BUILD_ROOT
 make -C doc install-html DESTDIR=$RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
-rm -f $RPM_BUILD_ROOT%{_libdir}/guile/2.0/guile-gnutls*.a
-rm -f $RPM_BUILD_ROOT%{_libdir}/guile/2.0/guile-gnutls*.la
+rm -f $RPM_BUILD_ROOT%{_libdir}/guile/2.2/guile-gnutls*.a
+rm -f $RPM_BUILD_ROOT%{_libdir}/guile/2.2/guile-gnutls*.la
 rm -f $RPM_BUILD_ROOT%{_libdir}/gnutls/libpkcs11mock1.*
 %if %{without dane}
 rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls-dane.pc
@@ -263,11 +271,11 @@ make check %{?_smp_mflags}
 %if %{with guile}
 %files guile
 %defattr(-,root,root,-)
-%{_libdir}/guile/2.0/guile-gnutls*.so*
-%{_libdir}/guile/2.0/site-ccache/gnutls.go
-%{_libdir}/guile/2.0/site-ccache/gnutls/extra.go
-%{_datadir}/guile/site/2.0/gnutls.scm
-%{_datadir}/guile/site/2.0/gnutls/extra.scm
+%{_libdir}/guile/2.2/guile-gnutls*.so*
+%{_libdir}/guile/2.2/site-ccache/gnutls.go
+%{_libdir}/guile/2.2/site-ccache/gnutls/extra.go
+%{_datadir}/guile/site/2.2/gnutls.scm
+%{_datadir}/guile/site/2.2/gnutls/extra.scm
 %endif
 
 %changelog
