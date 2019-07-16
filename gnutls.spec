@@ -20,7 +20,7 @@ BuildRequires: p11-kit-devel >= 0.21.3, gettext-devel
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 4.3
 BuildRequires: libtool, automake, autoconf, texinfo
 BuildRequires: autogen-libopts-devel >= 5.18 autogen
-BuildRequires: nettle-devel >= 3.4.1
+BuildRequires: nettle-devel >= 3.5.1
 BuildRequires: trousers-devel >= 0.3.11.2
 BuildRequires: libidn2-devel
 BuildRequires: libunistring-devel
