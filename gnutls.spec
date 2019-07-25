@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.6.8
-Release: 2%{?dist}
+Release: 3%{?dist}
 Patch1:	gnutls-3.2.7-rpath.patch
 Patch2:	gnutls-3.6.7-no-now-guile.patch
 %bcond_without dane
@@ -279,6 +279,9 @@ make check %{?_smp_mflags}
 %endif
 
 %changelog
+* Thu Jul 25 2019 Fedora Release Engineering <releng@fedoraproject.org> - 3.6.8-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
+
 * Mon Jul 15 2019 Nikos Mavrogiannopoulos <nmav@redhat.com> - 3.6.8-2
 - Rebuilt with guile-2.2
 
