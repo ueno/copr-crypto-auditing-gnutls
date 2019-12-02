@@ -219,7 +219,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls-dane.pc
 %find_lang gnutls
 
 %check
-make check %{?_smp_mflags}
+make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 
 %files -f gnutls.lang
 %defattr(-,root,root,-)
