@@ -1,5 +1,5 @@
 # This spec file has been automatically updated
-Version:	3.6.10
+Version:	3.6.11
 Release: 1%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
@@ -279,6 +279,9 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %endif
 
 %changelog
+* Mon Dec 02 2019 Nikos Mavrogiannopoulos <nmav@gnutls.org> - 3.6.11-1
+- Update to upstream 3.6.11 release
+
 * Sun Sep 29 2019 Nikos Mavrogiannopoulos <nmav@gnutls.org> - 3.6.10-1
 - Update to upstream 3.6.10 release
 
