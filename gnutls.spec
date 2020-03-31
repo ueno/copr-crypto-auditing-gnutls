@@ -1,11 +1,8 @@
 # This spec file has been automatically updated
-Version:	3.6.12
-Release: 2%{?dist}
+Version:	3.6.13
+Release: 1%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
-Patch3:	gnutls-3.6.12-fix-fips-self-tests.patch
-Patch4:	gnutls-3.6.12-load-config-after-fips-post.patch
-Patch5:	gnutls-3.6.12-fix-echo-server.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -282,6 +279,9 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %endif
 
 %changelog
+* Tue Mar 31 2020 Daiki Ueno <dueno@redhat.com> - 3.6.13-1
+- Update to upstream 3.6.13 release
+
 * Thu Mar 26 2020 Anderson Sasaki <ansasaki@redhat.com> - 3.6.12-2
 - Fix FIPS POST (#1813384)
 - Fix gnutls-serv --echo to not exit when a message is received (#1816583)
