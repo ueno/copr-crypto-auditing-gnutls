@@ -1,8 +1,9 @@
 # This spec file has been automatically updated
 Version:	3.6.13
-Release: 1%{?dist}
+Release: 2%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
+Patch3:	gnutls-3.6.13-bump-linked-libs-soname-f33.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -279,6 +280,9 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %endif
 
 %changelog
+* Thu May 14 2020 Anderson Sasaki <ansasaki@redhat.com> - 3.6.13-2
+- Bump linked libraries soname to fix FIPS selftests (#1835265)
+
 * Tue Mar 31 2020 Daiki Ueno <dueno@redhat.com> - 3.6.13-1
 - Update to upstream 3.6.13 release
 
