@@ -1,9 +1,10 @@
 # This spec file has been automatically updated
 Version:	3.6.13
-Release: 2%{?dist}
+Release: 3%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
 Patch3:	gnutls-3.6.13-bump-linked-libs-soname-f33.patch
+Patch4:	gnutls-3.6.13-nettle-disable-RSA-blinding-in-FIPS-selftests.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -280,6 +281,9 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %endif
 
 %changelog
+* Tue May 19 2020 Anderson Sasaki <ansasaki@redhat.com> - 3.6.13-3
+- Disable RSA blinding during FIPS self-tests
+
 * Thu May 14 2020 Anderson Sasaki <ansasaki@redhat.com> - 3.6.13-2
 - Bump linked libraries soname to fix FIPS selftests (#1835265)
 
