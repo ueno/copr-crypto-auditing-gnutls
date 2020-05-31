@@ -1,11 +1,12 @@
 # This spec file has been automatically updated
 Version:	3.6.13
-Release: 4%{?dist}
+Release: 5%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
 Patch3:	gnutls-3.6.13-bump-linked-libs-soname-f33.patch
 Patch4:	gnutls-3.6.13-nettle-disable-RSA-blinding-in-FIPS-selftests.patch
 Patch5:	gnutls-3.6.13-cli-wait-resumption.patch
+Patch6:	gnutls-3.6.13-superseding-chain.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -282,6 +283,9 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %endif
 
 %changelog
+* Sun May 31 2020 Daiki Ueno <dueno@redhat.com> - 3.6.13-5
+- Fix cert chain validation behavior if the last cert has expired (#1842178)
+
 * Mon May 25 2020 Anderson Sasaki <ansasaki@redhat.com> - 3.6.13-4
 - Add option to gnutls-cli to wait for resumption under TLS 1.3
 
