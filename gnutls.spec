@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.6.13
-Release: 5%{?dist}
+Release: 6%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
 Patch3:	gnutls-3.6.13-bump-linked-libs-soname-f33.patch
@@ -283,6 +283,9 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %endif
 
 %changelog
+* Sun May 31 2020 Daiki Ueno <dueno@redhat.com> - 3.6.13-6
+- Update gnutls-3.6.13-superseding-chain.patch
+
 * Sun May 31 2020 Daiki Ueno <dueno@redhat.com> - 3.6.13-5
 - Fix cert chain validation behavior if the last cert has expired (#1842178)
 

@@ -1,4 +1,4 @@
-From f6ce3a62cb39fb281f5a47c543de7d9db3206050 Mon Sep 17 00:00:00 2001
+From 299bd4f113d0bd39fa1577a671a04ed7899eff3c Mon Sep 17 00:00:00 2001
 From: Daiki Ueno <ueno@gnu.org>
 Date: Sun, 31 May 2020 12:39:14 +0200
 Subject: [PATCH 1/3] _gnutls_pkcs11_verify_crt_status: check validity against
@@ -7,24 +7,24 @@ Subject: [PATCH 1/3] _gnutls_pkcs11_verify_crt_status: check validity against
 To verify a certificate chain, this function replaces known
 certificates with the ones in the system trust store if possible.
 
-However, if it is found, the function checked the validity of the
+However, if it is found, the function checks the validity of the
 original certificate rather than the certificate found in the trust
 store.  That reveals a problem in a scenario that (1) a certificate is
 signed by multiple issuers and (2) one of the issuers' certificate has
 expired and included in the input chain.
 
 This patch makes it a little robuster by actually retrieving the
-certificate from the trust store and check against it.
+certificate from the trust store and perform check against it.
 
 Signed-off-by: Daiki Ueno <ueno@gnu.org>
 ---
- lib/pkcs11.c      | 96 +++++++++++++++++++++++++++++++++--------------
+ lib/pkcs11.c      | 98 +++++++++++++++++++++++++++++++++--------------
  lib/pkcs11_int.h  |  5 +++
  lib/x509/verify.c |  7 +++-
- 3 files changed, 78 insertions(+), 30 deletions(-)
+ 3 files changed, 80 insertions(+), 30 deletions(-)
 
 diff --git a/lib/pkcs11.c b/lib/pkcs11.c
-index fad16aaf4..662dda441 100644
+index fad16aaf4..d8d4a6511 100644
 --- a/lib/pkcs11.c
 +++ b/lib/pkcs11.c
 @@ -4547,34 +4547,10 @@ int gnutls_pkcs11_get_raw_issuer_by_subject_key_id (const char *url,
@@ -82,8 +82,12 @@ index fad16aaf4..662dda441 100644
  	if (url == NULL || url[0] == 0) {
  		url = "pkcs11:";
  	}
-@@ -4634,6 +4619,14 @@ unsigned gnutls_pkcs11_crt_is_known(const char *url, gnutls_x509_crt_t cert,
+@@ -4632,8 +4617,18 @@ unsigned gnutls_pkcs11_crt_is_known(const char *url, gnutls_x509_crt_t cert,
+ 		_gnutls_debug_log("crt_is_known: did not find cert, using issuer DN + serial, using DN only\n");
+ 		/* attempt searching with the subject DN only */
  		gnutls_assert();
++		if (priv.obj)
++			gnutls_pkcs11_obj_deinit(priv.obj);
  		gnutls_free(priv.serial.data);
  		memset(&priv, 0, sizeof(priv));
 +		if (trusted_cert) {
@@ -97,7 +101,7 @@ index fad16aaf4..662dda441 100644
  		priv.crt = cert;
  		priv.flags = flags;
  
-@@ -4650,9 +4643,26 @@ unsigned gnutls_pkcs11_crt_is_known(const char *url, gnutls_x509_crt_t cert,
+@@ -4650,9 +4645,26 @@ unsigned gnutls_pkcs11_crt_is_known(const char *url, gnutls_x509_crt_t cert,
  		goto cleanup;
  	}
  
@@ -124,7 +128,7 @@ index fad16aaf4..662dda441 100644
  	if (info)
  		p11_kit_uri_free(info);
  	gnutls_free(priv.serial.data);
-@@ -4660,6 +4670,36 @@ unsigned gnutls_pkcs11_crt_is_known(const char *url, gnutls_x509_crt_t cert,
+@@ -4660,6 +4672,36 @@ unsigned gnutls_pkcs11_crt_is_known(const char *url, gnutls_x509_crt_t cert,
  	return ret;
  }
  
@@ -214,7 +218,7 @@ index d20267019..fd7c6a164 100644
 2.26.2
 
 
-From 2b83f612f2b2647c271969f3df64fb3a52753724 Mon Sep 17 00:00:00 2001
+From cdf075e7f54cb77f046ef3e7c2147f159941faca Mon Sep 17 00:00:00 2001
 From: Daiki Ueno <ueno@gnu.org>
 Date: Sun, 31 May 2020 13:59:53 +0200
 Subject: [PATCH 2/3] x509: trigger fallback verification path when cert is
@@ -257,7 +261,7 @@ index b1421ef17..40638ad3a 100644
 2.26.2
 
 
-From e337e56adfeeb4af7fe34291ed15d15b362a94bb Mon Sep 17 00:00:00 2001
+From 9067bcbee8ff18badff1e829d22e63590dbd7a5c Mon Sep 17 00:00:00 2001
 From: Daiki Ueno <ueno@gnu.org>
 Date: Sun, 31 May 2020 14:28:48 +0200
 Subject: [PATCH 3/3] tests: add test case for certificate chain superseding
