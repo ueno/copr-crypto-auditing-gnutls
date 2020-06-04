@@ -1,12 +1,8 @@
 # This spec file has been automatically updated
-Version:	3.6.13
-Release: 6%{?dist}
+Version:	3.6.14
+Release: 1%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
-Patch3:	gnutls-3.6.13-bump-linked-libs-soname-f33.patch
-Patch4:	gnutls-3.6.13-nettle-disable-RSA-blinding-in-FIPS-selftests.patch
-Patch5:	gnutls-3.6.13-cli-wait-resumption.patch
-Patch6:	gnutls-3.6.13-superseding-chain.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -51,7 +47,7 @@ BuildRequires: guile22-devel
 URL: http://www.gnutls.org/
 Source0: ftp://ftp.gnutls.org/gcrypt/gnutls/v3.6/%{name}-%{version}.tar.xz
 Source1: ftp://ftp.gnutls.org/gcrypt/gnutls/v3.6/%{name}-%{version}.tar.xz.sig
-Source2: gpgkey-1F42418905D8206AA754CCDC29EE58B996865171.gpg
+Source2: gpgkey-462225C3B46F34879FC8496CD605848ED7E69871.gpg
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
@@ -147,7 +143,6 @@ This package contains Guile bindings for the library.
 gpgv2 --keyring %{SOURCE2} %{SOURCE1} %{SOURCE0}
 
 %autosetup -p1
-autoreconf
 
 sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spec="/lib /usr/lib %{_libdir}|g' configure
 rm -f lib/minitasn1/*.c lib/minitasn1/*.h
