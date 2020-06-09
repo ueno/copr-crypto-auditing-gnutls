@@ -4,6 +4,7 @@ Release: 2%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
 Patch3:	gnutls-3.6.14-fix-iovec-memory-leak.patch
+Patch4:	gnutls-3.6.14-configure-fix-soname-detection.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -281,6 +282,7 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %changelog
 * Tue Jun 09 2020 Anderson Sasaki <ansasaki@redhat.com> - 3.6.14-2
 - Fix memory leak when serializing iovec_t (#1845083)
+- Fix automatic libraries sonames detection (#1845806)
 
 * Thu Jun  4 2020 Daiki Ueno <dueno@redhat.com> - 3.6.14-1
 - Update to upstream 3.6.14 release
