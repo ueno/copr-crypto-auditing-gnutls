@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.6.14
-Release: 2%{?dist}
+Release: 3%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
 Patch3:	gnutls-3.6.14-fix-iovec-memory-leak.patch
@@ -280,6 +280,9 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %endif
 
 %changelog
+* Thu Jul 02 2020 Anderson Sasaki <ansasaki@redhat.com> - 3.6.14-3
+- Rebuild with autogen built with guile-2.2 (#1852706)
+
 * Tue Jun 09 2020 Anderson Sasaki <ansasaki@redhat.com> - 3.6.14-2
 - Fix memory leak when serializing iovec_t (#1845083)
 - Fix automatic libraries sonames detection (#1845806)
