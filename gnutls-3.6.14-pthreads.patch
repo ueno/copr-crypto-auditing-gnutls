@@ -1,0 +1,50 @@
+From f15c02b1fb9faf3e06db2c51196a27b0f9d72672 Mon Sep 17 00:00:00 2001
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+Date: Sun, 28 Jun 2020 21:33:09 +0200
+Subject: [PATCH] build: use $(LIBPTHREAD) rather than non-existent
+ $(LTLIBPTHREAD)
+
+On a very recent openSUSE build, libgnutls is getting built without
+libpthread. This caused a thread related error when trying to load a
+pkcs11 module that uses threading. The reason is rather convoluted:
+glibc actually controls all the pthread_ function calls, but it
+returns success without doing anything unless -lpthread is in the link
+list. What's happening is that gnutls_system_mutex_init() is being
+called on _gnutls_pkcs11_mutex before library pthreading is
+initialized, so the pthread_mutex_init ends up being a nop. Then, when
+the pkcs11 module is loaded, pthreads get initialized and the call to
+pthread_mutex_lock is real, but errors out on the uninitialized mutex.
+
+The problem seems to be that nothing in the gnulib macros gnutls
+relies on for threading support detection actually sets LTLIBPTHREAD,
+they only set LIBPTHREAD. The fix is to use LIBPTHREAD in
+lib/Makefile.in
+
+Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
+---
+ bootstrap.conf  | 4 ++--
+ lib/Makefile.am | 8 +++++++-
+ 2 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index fa47ac5e6..02504d8d1 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -168,7 +168,13 @@ libgnutls_la_LIBADD += accelerated/libaccelerated.la
+ endif
+ 
+ if !WINDOWS
+-thirdparty_libadd += $(LTLIBPTHREAD)
++# p11-kit does not work without threading support:
++# https://github.com/p11-glue/p11-kit/pull/183
++if ENABLE_PKCS11
++thirdparty_libadd += $(LIBPMULTITHREAD)
++else
++thirdparty_libadd += $(LIBPTHREAD)
++endif
+ endif
+ 
+ if NEEDS_LIBRT
+-- 
+2.26.2
+
