@@ -3,9 +3,6 @@ Version:	3.6.15
 Release: 1%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
-Patch3:	gnutls-3.6.14-fix-iovec-memory-leak.patch
-Patch4:	gnutls-3.6.14-configure-fix-soname-detection.patch
-Patch5: gnutls-3.6.14-pthreads.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -146,7 +143,7 @@ This package contains Guile bindings for the library.
 gpgv2 --keyring %{SOURCE2} %{SOURCE1} %{SOURCE0}
 
 %autosetup -p1
-autoreconf -fi
+#autoreconf -fi
 
 sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spec="/lib /usr/lib %{_libdir}|g' configure
 rm -f lib/minitasn1/*.c lib/minitasn1/*.h
