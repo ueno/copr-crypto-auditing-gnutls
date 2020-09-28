@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.6.15
-Release: 1%{?dist}
+Release: 2%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
 Patch3:	gnutls-3.6.15-gnulib-perror-tests.patch
@@ -156,11 +156,6 @@ echo "SYSTEM=NORMAL" >> tests/system.prio
 # via the crypto policies
 
 %build
-# gnulib has bogus floating point tests which are compromised by
-# LTO affecting ppc64le builds
-%ifarch ppc64le
-%define _lto_cflags %{nil}
-%endif
 CCASFLAGS="$CCASFLAGS -Wa,--generate-missing-build-notes=yes"
 export CCASFLAGS
 
@@ -285,6 +280,9 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %endif
 
 %changelog
+* Mon Sep 28 2020 Jeff Law <law@redhat.com> - 3.6.14-8
+- Re-enable LTO now that upstream GCC bugs have been fixed
+
 * Fri Sep  4 2020 Daiki Ueno <dueno@redhat.com> - 3.6.15-1
 - Update to upstream 3.6.15 release
 
