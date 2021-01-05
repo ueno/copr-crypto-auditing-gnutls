@@ -45,6 +45,7 @@ BuildRequires: unbound-devel unbound-libs
 %if %{with guile}
 BuildRequires: guile22-devel
 %endif
+BuildRequires: make
 URL: http://www.gnutls.org/
 Source0: ftp://ftp.gnutls.org/gcrypt/gnutls/v3.6/%{name}-%{version}.tar.xz
 Source1: ftp://ftp.gnutls.org/gcrypt/gnutls/v3.6/%{name}-%{version}.tar.xz.sig
