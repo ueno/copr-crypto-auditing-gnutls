@@ -1,9 +1,10 @@
 # This spec file has been automatically updated
 Version:	3.6.15
-Release: 3%{?dist}
+Release: 4%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
 Patch3:	gnutls-3.6.15-gnulib-perror-tests.patch
+Patch4:	gnutls-3.6.15-test-fixes.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -281,10 +282,14 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %endif
 
 %changelog
+* Tue Jan 26 2021 Daiki Ueno <dueno@redhat.com> - 3.6.15-4
+- Fix broken tests on rawhide (#1908110)
+- Add BuildRequires: make (by Tom Stellard)
+
 * Tue Jan 26 2021 Fedora Release Engineering <releng@fedoraproject.org> - 3.6.15-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_34_Mass_Rebuild
 
-* Mon Sep 28 2020 Jeff Law <law@redhat.com> - 3.6.14-8
+* Mon Sep 28 2020 Jeff Law <law@redhat.com> - 3.6.15-2
 - Re-enable LTO now that upstream GCC bugs have been fixed
 
 * Fri Sep  4 2020 Daiki Ueno <dueno@redhat.com> - 3.6.15-1
