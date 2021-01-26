@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.6.15
-Release: 2%{?dist}
+Release: 3%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
 Patch3:	gnutls-3.6.15-gnulib-perror-tests.patch
@@ -281,6 +281,9 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %endif
 
 %changelog
+* Tue Jan 26 2021 Fedora Release Engineering <releng@fedoraproject.org> - 3.6.15-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_34_Mass_Rebuild
+
 * Mon Sep 28 2020 Jeff Law <law@redhat.com> - 3.6.14-8
 - Re-enable LTO now that upstream GCC bugs have been fixed
 
