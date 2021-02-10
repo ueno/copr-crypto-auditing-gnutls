@@ -1,10 +1,11 @@
 # This spec file has been automatically updated
 Version:	3.7.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
 Patch3:	gnutls-3.7.0-test-fixes.patch
 Patch4:	gnutls-3.7.0-gost.patch
+Patch5:	gnutls-3.7.0-duplicate-certs.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -284,6 +285,9 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %endif
 
 %changelog
+* Wed Feb 10 2021 Daiki Ueno <dueno@redhat.com> - 3.7.0-2
+- Tolerate duplicate certs in the chain
+
 * Mon Feb  8 2021 Daiki Ueno <dueno@redhat.com> - 3.7.0-1
 - Update to upstream 3.7.0 release
 - Temporarily disable LTO
