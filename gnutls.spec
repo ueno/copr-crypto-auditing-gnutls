@@ -1,10 +1,10 @@
 # This spec file has been automatically updated
-Version:	3.6.15
-Release: 4%{?dist}
+Version:	3.7.0
+Release: 1%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
-Patch3:	gnutls-3.6.15-gnulib-perror-tests.patch
-Patch4:	gnutls-3.6.15-test-fixes.patch
+Patch3:	gnutls-3.7.0-test-fixes.patch
+Patch4:	gnutls-3.7.0-gost.patch
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -158,6 +158,8 @@ echo "SYSTEM=NORMAL" >> tests/system.prio
 # via the crypto policies
 
 %build
+%define _lto_cflags %{nil}
+
 CCASFLAGS="$CCASFLAGS -Wa,--generate-missing-build-notes=yes"
 export CCASFLAGS
 
@@ -282,6 +284,10 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %endif
 
 %changelog
+* Mon Feb  8 2021 Daiki Ueno <dueno@redhat.com> - 3.7.0-1
+- Update to upstream 3.7.0 release
+- Temporarily disable LTO
+
 * Tue Jan 26 2021 Daiki Ueno <dueno@redhat.com> - 3.6.15-4
 - Fix broken tests on rawhide (#1908110)
 - Add BuildRequires: make (by Tom Stellard)
