@@ -1,11 +1,12 @@
 # This spec file has been automatically updated
 Version:	3.7.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
 Patch3:	gnutls-3.7.0-test-fixes.patch
 Patch4:	gnutls-3.7.0-gost.patch
 Patch5:	gnutls-3.7.0-duplicate-certs.patch
+%bcond_with bootstrap
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -21,13 +22,15 @@ Name: gnutls
 License: GPLv3+ and LGPLv2+
 BuildRequires: p11-kit-devel >= 0.21.3, gettext-devel
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 4.3
-BuildRequires: libtool, automake, autoconf, texinfo
-BuildRequires: autogen-libopts-devel >= 5.18 autogen
+%if %{with bootstrap}
+BuildRequires: automake, autoconf, gperf, libtool, texinfo
+BuildRequires: autogen-libopts-devel >= 5.18, autogen
+%endif
 BuildRequires: nettle-devel >= 3.5.1
 BuildRequires: trousers-devel >= 0.3.11.2
 BuildRequires: libidn2-devel
 BuildRequires: libunistring-devel
-BuildRequires: gperf, net-tools, datefudge, softhsm, gcc, gcc-c++
+BuildRequires: net-tools, datefudge, softhsm, gcc, gcc-c++
 BuildRequires: gnupg2
 %if %{with fips}
 BuildRequires: fipscheck
@@ -147,11 +150,13 @@ This package contains Guile bindings for the library.
 gpgv2 --keyring %{SOURCE2} %{SOURCE1} %{SOURCE0}
 
 %autosetup -p1
-#autoreconf -fi
+%if %{with bootstrap}
+rm -f src/libopts/*.c src/libopts/*.h src/libopts/compat/*.c src/libopts/compat/*.h
+autoreconf -fi
+%endif
 
 sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spec="/lib /usr/lib %{_libdir}|g' configure
 rm -f lib/minitasn1/*.c lib/minitasn1/*.h
-rm -f src/libopts/*.c src/libopts/*.h src/libopts/compat/*.c src/libopts/compat/*.h 
 
 echo "SYSTEM=NORMAL" >> tests/system.prio
 
@@ -164,14 +169,16 @@ echo "SYSTEM=NORMAL" >> tests/system.prio
 CCASFLAGS="$CCASFLAGS -Wa,--generate-missing-build-notes=yes"
 export CCASFLAGS
 
+%if %{with guile}
 # These should be checked by m4/guile.m4 instead of configure.ac
 # taking into account of _guile_suffix
 guile_snarf=%{_bindir}/guile-snarf2.2
 export guile_snarf
 GUILD=%{_bindir}/guild2.2
 export GUILD
+%endif
 
-%configure --with-libtasn1-prefix=%{_prefix} \
+%configure \
 %if %{with fips}
            --enable-fips140-mode \
 %endif
@@ -191,9 +198,9 @@ export GUILD
 %endif
 %if %{with dane}
            --with-unbound-root-key-file=/var/lib/unbound/root.key \
-           --enable-dane \
+           --enable-libdane \
 %else
-           --disable-dane \
+           --disable-libdane \
 %endif
            --disable-rpath \
            --with-default-priority-string="@SYSTEM"
@@ -285,6 +292,9 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %endif
 
 %changelog
+* Tue Mar  2 2021 Daiki Ueno <dueno@redhat.com> - 3.7.0-3
+- Reduce BRs for non-bootstrapping build
+
 * Wed Feb 10 2021 Daiki Ueno <dueno@redhat.com> - 3.7.0-2
 - Tolerate duplicate certs in the chain
 
