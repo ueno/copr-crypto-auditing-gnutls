@@ -1,0 +1,44 @@
+From e97a5f07bc9d9394424c6520656e902019fcb380 Mon Sep 17 00:00:00 2001
+From: Daiki Ueno <ueno@gnu.org>
+Date: Fri, 5 Mar 2021 12:08:25 +0100
+Subject: [PATCH] gnutls_x509_trust_list_verify_crt2: skip duped certs for
+ PKCS11 too
+
+The commit 09b40be6e0e0a59ba4bd764067eb353241043a70 (part of
+gnutls/gnutls!1370) didn't cover the case where the trust store is
+backed by PKCS #11, because it used _gnutls_trust_list_get_issuer,
+which only works with file based trust store.
+
+This patch replaces the call with more generic
+gnutls_x509_trust_list_get_issuer so it also works with other trust
+store implementations.
+
+Reported by Michal Ruprich.
+
+Signed-off-by: Daiki Ueno <ueno@gnu.org>
+---
+ lib/x509/verify-high.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/lib/x509/verify-high.c b/lib/x509/verify-high.c
+index 9a16e6b42..736326ee1 100644
+--- a/lib/x509/verify-high.c
++++ b/lib/x509/verify-high.c
+@@ -1495,10 +1495,10 @@ gnutls_x509_trust_list_verify_crt2(gnutls_x509_trust_list_t list,
+ 
+ 		/* If the issuer of the certificate is known, no need
+ 		 * for further processing. */
+-		if (_gnutls_trust_list_get_issuer(list,
+-						  cert_list[i - 1],
+-						  &issuer,
+-						  0) == 0) {
++		if (gnutls_x509_trust_list_get_issuer(list,
++						      cert_list[i - 1],
++						      &issuer,
++						      0) == 0) {
+ 			cert_list_size = i;
+ 			break;
+ 		}
+-- 
+2.29.2
+
