@@ -223,7 +223,6 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 rm -f $RPM_BUILD_ROOT%{_libdir}/guile/2.2/guile-gnutls*.a
 rm -f $RPM_BUILD_ROOT%{_libdir}/guile/2.2/guile-gnutls*.la
-rm -f $RPM_BUILD_ROOT%{_libdir}/gnutls/libpkcs11mock1.*
 %if %{without dane}
 rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls-dane.pc
 %endif
@@ -288,6 +287,7 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %changelog
 * Sun Mar 28 2021 Daiki Ueno <dueno@redhat.com> - 3.7.1-3
 - Remove %%defattr invocations which are no longer necessary
+- libpkcs11mock1.* is not installed anymore
 
 * Tue Mar 16 2021 Daiki Ueno <dueno@redhat.com> - 3.7.1-2
 - Restore fipscheck dependency
