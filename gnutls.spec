@@ -50,8 +50,8 @@ BuildRequires: guile22-devel
 %endif
 BuildRequires: make
 URL: http://www.gnutls.org/
-Source0: ftp://ftp.gnutls.org/gcrypt/gnutls/v3.6/%{name}-%{version}.tar.xz
-Source1: ftp://ftp.gnutls.org/gcrypt/gnutls/v3.6/%{name}-%{version}.tar.xz.sig
+Source0: https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/%{name}-%{version}.tar.xz
+Source1: https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/%{name}-%{version}.tar.xz.sig
 Source2: gpgkey-462225C3B46F34879FC8496CD605848ED7E69871.gpg
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
@@ -289,6 +289,7 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 - Remove %%defattr invocations which are no longer necessary
 - libpkcs11mock1.* is not installed anymore
 - hobble-gnutls: Remove SRP removal
+- Use correct source URL
 
 * Tue Mar 16 2021 Daiki Ueno <dueno@redhat.com> - 3.7.1-2
 - Restore fipscheck dependency
