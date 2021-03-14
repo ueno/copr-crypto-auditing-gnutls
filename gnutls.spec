@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.7.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
 Patch3:	gnutls-3.7.1-aggressive-realloc-fixes.patch
@@ -234,7 +234,6 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls-dane.pc
 make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 
 %files -f gnutls.lang
-%defattr(-,root,root,-)
 %{_libdir}/libgnutls.so.30*
 %if %{with fips}
 %{_libdir}/.libgnutls.so.30*.hmac
@@ -246,7 +245,6 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %{_libdir}/libgnutlsxx.so.*
 
 %files devel
-%defattr(-,root,root,-)
 %{_includedir}/*
 %{_libdir}/libgnutls*.so
 %if %{with fips}
@@ -260,7 +258,6 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %{_docdir}/manual/*
 
 %files utils
-%defattr(-,root,root,-)
 %{_bindir}/certtool
 %{_bindir}/tpmtool
 %{_bindir}/ocsptool
@@ -276,13 +273,11 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 
 %if %{with dane}
 %files dane
-%defattr(-,root,root,-)
 %{_libdir}/libgnutls-dane.so.*
 %endif
 
 %if %{with guile}
 %files guile
-%defattr(-,root,root,-)
 %{_libdir}/guile/2.2/guile-gnutls*.so*
 %{_libdir}/guile/2.2/site-ccache/gnutls.go
 %{_libdir}/guile/2.2/site-ccache/gnutls/extra.go
@@ -291,6 +286,9 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %endif
 
 %changelog
+* Sun Mar 28 2021 Daiki Ueno <dueno@redhat.com> - 3.7.1-3
+- Remove %%defattr invocations which are no longer necessary
+
 * Tue Mar 16 2021 Daiki Ueno <dueno@redhat.com> - 3.7.1-2
 - Restore fipscheck dependency
 
