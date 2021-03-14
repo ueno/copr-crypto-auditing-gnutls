@@ -288,6 +288,7 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 * Sun Mar 28 2021 Daiki Ueno <dueno@redhat.com> - 3.7.1-3
 - Remove %%defattr invocations which are no longer necessary
 - libpkcs11mock1.* is not installed anymore
+- hobble-gnutls: Remove SRP removal
 
 * Tue Mar 16 2021 Daiki Ueno <dueno@redhat.com> - 3.7.1-2
 - Restore fipscheck dependency
