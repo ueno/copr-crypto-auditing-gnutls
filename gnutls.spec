@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version:	3.7.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
 Patch3:	gnutls-3.7.1-aggressive-realloc-fixes.patch
@@ -30,6 +30,9 @@ BuildRequires: libidn2-devel
 BuildRequires: libunistring-devel
 BuildRequires: net-tools, datefudge, softhsm, gcc, gcc-c++
 BuildRequires: gnupg2
+%if %{with fips}
+BuildRequires: fipscheck
+%endif
 
 # for a sanity check on cert loading
 BuildRequires: p11-kit-trust, ca-certificates
@@ -207,9 +210,9 @@ make %{?_smp_mflags} V=1
 	%{?__debug_package:%{__debug_install_post}} \
 	%{__arch_install_post} \
 	%{__os_install_post} \
-	file=`basename $RPM_BUILD_ROOT%{_libdir}/libgnutls.so.30.*`.hmac && \
-	mv $RPM_BUILD_ROOT%{_libdir}/.libgnutls.so.30.hmac $RPM_BUILD_ROOT%{_libdir}/.$file && \
-	ln -s .$file $RPM_BUILD_ROOT%{_libdir}/.libgnutls.so.30.hmac \
+	rm -f $RPM_BUILD_ROOT%{_libdir}/.libgnutls.so.*.hmac \
+	fipshmac -d $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_libdir}/libgnutls.so.30.*.* \
+	file=`basename $RPM_BUILD_ROOT%{_libdir}/libgnutls.so.30.*.hmac` && mv $RPM_BUILD_ROOT%{_libdir}/$file $RPM_BUILD_ROOT%{_libdir}/.$file && ln -s .$file $RPM_BUILD_ROOT%{_libdir}/.libgnutls.so.30.hmac \
 %{nil}
 %endif
 
@@ -288,6 +291,9 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %endif
 
 %changelog
+* Tue Mar 16 2021 Daiki Ueno <dueno@redhat.com> - 3.7.1-2
+- Restore fipscheck dependency
+
 * Sat Mar 13 2021 Daiki Ueno <dueno@redhat.com> - 3.7.1-1
 - Update to upstream 3.7.1 release
 - Remove fipscheck dependency, as it is now calculated with an
