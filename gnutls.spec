@@ -145,7 +145,7 @@ This package contains Guile bindings for the library.
 %endif
 
 %prep
-gpgv2 --keyring %{SOURCE2} %{SOURCE1} %{SOURCE0}
+%{gpgverify} --keyring='%{SOURCE2}' --signature='%{SOURCE1}' --data='%{SOURCE0}'
 
 %autosetup -p1
 %if %{with bootstrap}
@@ -290,6 +290,7 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 - libpkcs11mock1.* is not installed anymore
 - hobble-gnutls: Remove SRP removal
 - Use correct source URL
+- Switch to using %%gpgverify macro
 
 * Tue Mar 16 2021 Daiki Ueno <dueno@redhat.com> - 3.7.1-2
 - Restore fipscheck dependency
