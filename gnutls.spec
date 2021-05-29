@@ -1,9 +1,8 @@
 # This spec file has been automatically updated
-Version:	3.7.1
-Release: 3%{?dist}
+Version:	3.7.2
+Release: 1%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
-Patch3:	gnutls-3.7.1-aggressive-realloc-fixes.patch
 %bcond_with bootstrap
 %bcond_without dane
 %if 0%{?rhel}
@@ -285,6 +284,9 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %endif
 
 %changelog
+* Sat May 29 2021 Daiki Ueno <dueno@redhat.com> - 3.7.2-1
+- Update to upstream 3.7.2 release
+
 * Sun Mar 28 2021 Daiki Ueno <dueno@redhat.com> - 3.7.1-3
 - Remove %%defattr invocations which are no longer necessary
 - libpkcs11mock1.* is not installed anymore
