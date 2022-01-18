@@ -12,6 +12,7 @@ Patch2:	gnutls-3.2.7-rpath.patch
 %bcond_without guile
 %bcond_without fips
 %endif
+%bcond_with tpm12
 
 Summary: A TLS protocol implementation
 Name: gnutls
@@ -24,7 +25,9 @@ BuildRequires: automake, autoconf, gperf, libtool, texinfo
 BuildRequires: autogen-libopts-devel >= 5.18, autogen
 %endif
 BuildRequires: nettle-devel >= 3.5.1
+%if %{with tpm12}
 BuildRequires: trousers-devel >= 0.3.11.2
+%endif
 BuildRequires: libidn2-devel
 BuildRequires: libunistring-devel
 BuildRequires: net-tools, datefudge, softhsm, gcc, gcc-c++
@@ -39,7 +42,9 @@ Requires: crypto-policies
 Requires: p11-kit-trust
 Requires: libtasn1 >= 4.3
 Requires: nettle >= 3.4.1
+%if %{with tpm12}
 Recommends: trousers >= 0.3.11.2
+%endif
 
 %if %{with dane}
 BuildRequires: unbound-devel unbound-libs
@@ -185,7 +190,11 @@ export GUILD
            --disable-non-suiteb-curves \
            --with-system-priority-file=%{_sysconfdir}/crypto-policies/back-ends/gnutls.config \
            --with-default-trust-store-pkcs11="pkcs11:" \
+%if %{with tpm12}
            --with-trousers-lib=%{_libdir}/libtspi.so.1 \
+%else
+           --without-tpm \
+%endif
            --htmldir=%{_docdir}/manual \
 %if %{with guile}
            --enable-guile \
@@ -257,7 +266,9 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 
 %files utils
 %{_bindir}/certtool
+%if %{with tpm12}
 %{_bindir}/tpmtool
+%endif
 %{_bindir}/ocsptool
 %{_bindir}/psktool
 %{_bindir}/p11tool
