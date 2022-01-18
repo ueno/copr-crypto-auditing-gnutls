@@ -13,6 +13,7 @@ Patch2:	gnutls-3.2.7-rpath.patch
 %bcond_without fips
 %endif
 %bcond_with tpm12
+%bcond_without gost
 
 Summary: A TLS protocol implementation
 Name: gnutls
@@ -183,6 +184,11 @@ export GUILD
 %configure \
 %if %{with fips}
            --enable-fips140-mode \
+%endif
+%if %{with gost}
+    	   --enable-gost \
+%else
+	   --disable-gost \
 %endif
 	   --enable-sha1-support \
            --disable-static \
