@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
-Version:	3.7.2
-Release: 2%{?dist}
+Version:	3.7.3
+Release: 1%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
 %bcond_with bootstrap
@@ -23,7 +23,6 @@ BuildRequires: p11-kit-devel >= 0.21.3, gettext-devel
 BuildRequires: zlib-devel, readline-devel, libtasn1-devel >= 4.3
 %if %{with bootstrap}
 BuildRequires: automake, autoconf, gperf, libtool, texinfo
-BuildRequires: autogen-libopts-devel >= 5.18, autogen
 %endif
 BuildRequires: nettle-devel >= 3.5.1
 %if %{with tpm12}
@@ -301,6 +300,11 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %endif
 
 %changelog
+* Tue Jan 18 2022 Daiki Ueno <dueno@redhat.com> - 3.7.3-1
+- Update to upstream 3.7.3 release
+- Remove dependency on autogen
+- Add build-time conditionals for TPM 1.2 and GOST cryptography
+
 * Thu Jul 22 2021 Fedora Release Engineering <releng@fedoraproject.org> - 3.7.2-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
 
