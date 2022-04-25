@@ -1,6 +1,6 @@
 # This spec file has been automatically updated
 Version: 3.7.3
-Release: %autorelease
+Release: %{?autorel}%{!?autorel:1}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
 %bcond_with bootstrap
@@ -54,8 +54,9 @@ BuildRequires: guile22-devel
 %endif
 BuildRequires: make
 URL: http://www.gnutls.org/
-Source0: https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/%{name}-%{version}.tar.xz
-Source1: https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/%{name}-%{version}.tar.xz.sig
+%define short_version %(echo %{version} | grep -m1 -o "[0-9]*\.[0-9]*" | head -1)
+Source0: https://www.gnupg.org/ftp/gcrypt/gnutls/v%{short_version}/%{name}-%{version}.tar.xz
+Source1: https://www.gnupg.org/ftp/gcrypt/gnutls/v%{short_version}/%{name}-%{version}.tar.xz.sig
 Source2: gpgkey-462225C3B46F34879FC8496CD605848ED7E69871.gpg
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
