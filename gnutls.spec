@@ -1,5 +1,5 @@
 # This spec file has been automatically updated
-Version: 3.7.3
+Version: 3.7.4
 Release: %{?autorel}%{!?autorel:1}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
@@ -57,7 +57,7 @@ URL: http://www.gnutls.org/
 %define short_version %(echo %{version} | grep -m1 -o "[0-9]*\.[0-9]*" | head -1)
 Source0: https://www.gnupg.org/ftp/gcrypt/gnutls/v%{short_version}/%{name}-%{version}.tar.xz
 Source1: https://www.gnupg.org/ftp/gcrypt/gnutls/v%{short_version}/%{name}-%{version}.tar.xz.sig
-Source2: gpgkey-462225C3B46F34879FC8496CD605848ED7E69871.gpg
+Source2: gnutls-release-keyring.gpg
 
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
