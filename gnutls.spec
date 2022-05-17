@@ -1,5 +1,5 @@
 # This spec file has been automatically updated
-Version: 3.7.4
+Version: 3.7.5
 Release: %{?autorel}%{!?autorel:1}%{?dist}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
