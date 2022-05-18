@@ -219,17 +219,6 @@ export GUILD
 
 make %{?_smp_mflags} V=1
 
-%if %{with fips}
-%define __spec_install_post \
-	%{?__debug_package:%{__debug_install_post}} \
-	%{__arch_install_post} \
-	%{__os_install_post} \
-	rm -f $RPM_BUILD_ROOT%{_libdir}/.libgnutls.so.*.hmac \
-	fipshmac -d $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_libdir}/libgnutls.so.30.*.* \
-	file=`basename $RPM_BUILD_ROOT%{_libdir}/libgnutls.so.30.*.hmac` && mv $RPM_BUILD_ROOT%{_libdir}/$file $RPM_BUILD_ROOT%{_libdir}/.$file && ln -s .$file $RPM_BUILD_ROOT%{_libdir}/.libgnutls.so.30.hmac \
-%{nil}
-%endif
-
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
 make -C doc install-html DESTDIR=$RPM_BUILD_ROOT
@@ -241,6 +230,22 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/guile/2.2/guile-gnutls*.la
 rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls-dane.pc
 %endif
 
+%if %{with fips}
+# doing it twice should be a no-op the second time,
+# and this way we avoid redefining it and missing a future change
+%{__spec_install_post}
+./lib/fipshmac "$RPM_BUILD_ROOT%{_libdir}/libgnutls.so.30" > $RPM_BUILD_ROOT%{_libdir}/.gnutls.hmac
+sed -i "s^$RPM_BUILD_ROOT/usr^^" $RPM_BUILD_ROOT%{_libdir}/.gnutls.hmac
+%endif
+
+%if %{with fips}
+%define __spec_install_post \
+	%{?__debug_package:%{__debug_install_post}} \
+	%{__arch_install_post} \
+	%{__os_install_post} \
+%{nil}
+%endif
+
 %find_lang gnutls
 
 %check
@@ -249,7 +254,7 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %files -f gnutls.lang
 %{_libdir}/libgnutls.so.30*
 %if %{with fips}
-%{_libdir}/.libgnutls.so.30*.hmac
+%{_libdir}/.gnutls.hmac
 %endif
 %doc README.md AUTHORS NEWS THANKS
 %license LICENSE doc/COPYING doc/COPYING.LESSER
@@ -260,9 +265,6 @@ make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
 %files devel
 %{_includedir}/*
 %{_libdir}/libgnutls*.so
-%if %{with fips}
-%{_libdir}/.libgnutls.so.*.hmac
-%endif
 
 %{_libdir}/pkgconfig/*.pc
 %{_mandir}/man3/*
