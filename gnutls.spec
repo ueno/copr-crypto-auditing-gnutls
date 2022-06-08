@@ -32,9 +32,6 @@ BuildRequires: libidn2-devel
 BuildRequires: libunistring-devel
 BuildRequires: net-tools, datefudge, softhsm, gcc, gcc-c++
 BuildRequires: gnupg2
-%if %{with fips}
-BuildRequires: fipscheck
-%endif
 
 # for a sanity check on cert loading
 BuildRequires: p11-kit-trust, ca-certificates
