@@ -41,6 +41,13 @@ Patch: gnutls-3.7.8-ktls_skip_tls12_chachapoly_test.patch
 %endif
 
 
+%define fips_requires() %{lua:
+local f = assert(io.popen("rpm -q --queryformat '%{EVR}' --whatprovides "..rpm.expand("'%1%{?_isa}'")))
+local v = f:read("*all")
+f:close()
+print("Requires: "..rpm.expand("%1%{?_isa}").." = "..v.."\\n")
+}
+
 Summary: A TLS protocol implementation
 Name: gnutls
 # The libraries are LGPLv2.1+, utilities are GPLv3+
@@ -71,6 +78,7 @@ BuildRequires: p11-kit-trust, ca-certificates
 Requires: crypto-policies
 Requires: p11-kit-trust
 Requires: libtasn1 >= 4.3
+# always bump when a nettle release is packaged
 Requires: nettle >= 3.9.1
 %if %{with tpm12}
 Recommends: trousers >= 0.3.11.2
@@ -136,6 +144,14 @@ Summary: A DANE protocol implementation for GnuTLS
 Requires: %{name}%{?_isa} = %{version}-%{release}
 %endif
 
+%if %{with fips}
+%package fips
+Summary: Virtual package to install packages required to use %{name} under FIPS mode
+Requires: %{name}%{?_isa} = %{version}-%{release}
+%{fips_requires nettle}
+%{fips_requires gmp}
+%endif
+
 %description
 GnuTLS is a secure communications library implementing the SSL, TLS and DTLS 
 protocols and technologies around them. It provides a simple C language 
@@ -177,6 +193,17 @@ protocols as well as APIs to parse and write X.509, PKCS #12, OpenPGP and
 other required structures. 
 This package contains library that implements the DANE protocol for verifying
 TLS certificates through DNSSEC.
+%endif
+
+%if %{with fips}
+%description fips
+GnuTLS is a secure communications library implementing the SSL, TLS and DTLS 
+protocols and technologies around them. It provides a simple C language 
+application programming interface (API) to access the secure communications 
+protocols as well as APIs to parse and write X.509, PKCS #12, OpenPGP and 
+other required structures.
+This package does not contain any file, but installs required packages
+to use GnuTLS under FIPS mode.
 %endif
 
 %if %{with mingw}
@@ -431,6 +458,10 @@ popd
 %if %{with dane}
 %files dane
 %{_libdir}/libgnutls-dane.so.*
+%endif
+
+%if %{with fips}
+%files fips
 %endif
 
 %if %{with mingw}
