@@ -3,7 +3,10 @@ Version: 3.7.6
 Release: %{?autorelease}%{!?autorelease:1%{?dist}}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
-%bcond_with bootstrap
+Patch3: gnutls-3.7.6-ktls-disabled-by-default.patch
+Patch4: gnutls-3.7.6-ktls-minor-fixes.patch
+
+%bcond_without bootstrap
 %bcond_without dane
 %if 0%{?rhel}
 %bcond_with guile
@@ -49,7 +52,7 @@ BuildRequires: unbound-devel unbound-libs
 %if %{with guile}
 BuildRequires: guile22-devel
 %endif
-BuildRequires: make
+BuildRequires: make gtk-doc
 URL: http://www.gnutls.org/
 %define short_version %(echo %{version} | grep -m1 -o "[0-9]*\.[0-9]*" | head -1)
 Source0: https://www.gnupg.org/ftp/gcrypt/gnutls/v%{short_version}/%{name}-%{version}.tar.xz
@@ -212,7 +215,8 @@ export GUILD
            --disable-libdane \
 %endif
            --disable-rpath \
-           --with-default-priority-string="@SYSTEM"
+           --with-default-priority-string="@SYSTEM" \
+		   --enable-ktls
 
 make %{?_smp_mflags} V=1
 
