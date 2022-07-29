@@ -1,0 +1,13 @@
+diff --color -rup a/lib/handshake.c b/lib/handshake.c
+--- a/lib/handshake.c	2022-07-28 12:44:40.000000000 +0200
++++ b/lib/handshake.c	2022-07-29 12:30:00.110002282 +0200
+@@ -2861,7 +2861,8 @@ int gnutls_handshake(gnutls_session_t se
+ 
+ #ifdef ENABLE_KTLS
+ 		if (_gnutls_config_is_ktls_enabled()) {
+-			if (session->internals.pull_func ||
++			if ((session->internals.pull_func &&
++			    session->internals.pull_func != system_read) ||
+ 			    session->internals.push_func) {
+ 				_gnutls_audit_log(session,
+ 						  "Not enabling KTLS with "

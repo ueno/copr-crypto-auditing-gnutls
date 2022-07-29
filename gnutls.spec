@@ -1,10 +1,9 @@
 # This spec file has been automatically updated
-Version: 3.7.6
+Version: 3.7.7
 Release: %{?autorelease}%{!?autorelease:1%{?dist}}
 Patch1:	gnutls-3.6.7-no-now-guile.patch
 Patch2:	gnutls-3.2.7-rpath.patch
-Patch3: gnutls-3.7.6-ktls-disabled-by-default.patch
-Patch4: gnutls-3.7.6-ktls-minor-fixes.patch
+Patch3: gnutls-3.7.7-fix-ktls.patch
 
 %bcond_without bootstrap
 %bcond_without dane
