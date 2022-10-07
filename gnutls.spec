@@ -171,10 +171,7 @@ This package contains Guile bindings for the library.
 %endif
 
 %prep
-# Workaround: to allow building the package under FIPS, do not treat
-# errors in the GPG check as fatal, where EdDSA signature verification
-# is not allowed:
-%{gpgverify} --keyring='%{SOURCE2}' --signature='%{SOURCE1}' --data='%{SOURCE0}' || :
+%{gpgverify} --keyring='%{SOURCE2}' --signature='%{SOURCE1}' --data='%{SOURCE0}'
 
 %autosetup -p1 -S git
 
