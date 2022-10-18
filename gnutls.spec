@@ -12,11 +12,10 @@ sha256sum:close()
 print(string.sub(hash, 0, 16))
 }
 
-Version: 3.7.7
+Version: 3.7.8
 Release: %{?autorelease}%{!?autorelease:1%{?dist}}
 Patch: gnutls-3.6.7-no-now-guile.patch
 Patch: gnutls-3.2.7-rpath.patch
-Patch: gnutls-3.7.7-fix-ktls.patch
 
 %bcond_without bootstrap
 %bcond_without dane
