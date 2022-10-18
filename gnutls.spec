@@ -253,10 +253,10 @@ export FIPS_MODULE_NAME="$OS_NAME ${OS_VERSION_ID%%.*} %name"
            --disable-rpath \
            --with-default-priority-string="@SYSTEM"
 
-make %{?_smp_mflags} V=1
+%make_build
 
 %install
-make install DESTDIR=$RPM_BUILD_ROOT
+%make_install
 make -C doc install-html DESTDIR=$RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
