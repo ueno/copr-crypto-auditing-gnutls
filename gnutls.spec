@@ -12,6 +12,11 @@ sha256sum:close()
 print(string.sub(hash, 0, 16))
 }
 
+%global with_mingw 0
+%if 0%{?fedora}
+%global with_mingw 0%{!?_without_mingw:1}
+%endif 
+
 Version: 3.7.8
 Release: %{?autorelease}%{!?autorelease:1%{?dist}}
 Patch: gnutls-3.6.7-no-now-guile.patch
@@ -74,6 +79,8 @@ BuildRequires: unbound-devel unbound-libs
 BuildRequires: guile22-devel
 %endif
 BuildRequires: make gtk-doc
+
+%if %{with_mingw}
 BuildRequires:  mingw32-filesystem >= 95
 BuildRequires:  mingw32-gcc
 BuildRequires:  mingw32-gcc-c++
@@ -90,6 +97,8 @@ BuildRequires:  mingw64-readline
 BuildRequires:  mingw64-zlib
 BuildRequires:  mingw64-p11-kit >= 0.23.1
 BuildRequires:  mingw64-nettle >= 3.6
+%endif
+
 URL: http://www.gnutls.org/
 %define short_version %(echo %{version} | grep -m1 -o "[0-9]*\.[0-9]*" | head -1)
 Source0: https://www.gnupg.org/ftp/gcrypt/gnutls/v%{short_version}/%{name}-%{version}.tar.xz
@@ -186,7 +195,7 @@ other required structures.
 This package contains Guile bindings for the library.
 %endif
 
-# Win32
+%if %{with_mingw}
 %package -n mingw32-%{name}
 Summary:        MinGW GnuTLS TLS/SSL encryption library
 Requires:       pkgconfig
@@ -196,7 +205,6 @@ Requires:       mingw32-libtasn1 >= 4.3
 GnuTLS TLS/SSL encryption library.  This library is cross-compiled
 for MinGW.
 
-# Win64
 %package -n mingw64-%{name}
 Summary:        MinGW GnuTLS TLS/SSL encryption library
 Requires:       pkgconfig
@@ -207,6 +215,7 @@ GnuTLS TLS/SSL encryption library.  This library is cross-compiled
 for MinGW.
 
 %{?mingw_debug_package}
+%endif
 
 %prep
 %{gpgverify} --keyring='%{SOURCE2}' --signature='%{SOURCE1}' --data='%{SOURCE0}'
@@ -297,6 +306,7 @@ pushd native_build
 %make_build
 popd
 
+%if %{with_mingw}
 # MinGW does not support CCASFLAGS
 export CCASFLAGS=""
 %mingw_configure \
@@ -316,6 +326,7 @@ export CCASFLAGS=""
     --disable-doc \
     --with-default-priority-string="@SYSTEM"
 %mingw_make %{?_smp_mflags}
+%endif
 
 %install
 %make_install -C native_build
@@ -348,6 +359,7 @@ sed -i "s^$RPM_BUILD_ROOT/usr^^" $RPM_BUILD_ROOT%{_libdir}/.gnutls.hmac
 %find_lang gnutls
 popd
 
+%if %{with_mingw}
 %mingw_make_install
 
 # Remove .la files
@@ -374,6 +386,7 @@ rm -f $RPM_BUILD_ROOT%{mingw64_libdir}/crypt32.dll*
 rm -f $RPM_BUILD_ROOT%{mingw64_libdir}/ncrypt.dll*
 
 %mingw_debug_install_post
+%endif
 
 %check
 %if %{with tests}
@@ -433,6 +446,7 @@ popd
 %{_datadir}/guile/site/2.2/gnutls/extra.scm
 %endif
 
+%if %{with_mingw}
 %files -n mingw32-%{name}
 %license LICENSE doc/COPYING doc/COPYING.LESSER
 %{mingw32_bindir}/certtool.exe
@@ -464,6 +478,7 @@ popd
 %{mingw64_libdir}/libgnutls-30.def
 %{mingw64_libdir}/pkgconfig/gnutls.pc
 %{mingw64_includedir}/gnutls/
+%endif
 
 %changelog
 %autochangelog
