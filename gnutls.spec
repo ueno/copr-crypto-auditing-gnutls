@@ -20,8 +20,13 @@ print(string.sub(hash, 0, 16))
 Version: 3.7.8
 Release: %{?autorelease}%{!?autorelease:1%{?dist}}
 Patch: gnutls-3.7.8-gcc_analyzer-suppress_warnings.patch
-Patch: gnutls-3.6.7-no-now-guile.patch
 Patch: gnutls-3.2.7-rpath.patch
+Patch: gnutls-3.6.7-no-now-guile.patch
+
+Patch: gnutls-3.7.8-ktls_key_update.patch
+Patch: gnutls-3.7.8-ktls_add_ciphersuites.patch
+Patch: gnutls-3.7.8-ktls_minor_fixes.patch
+Patch: gnutls-3.7.8-ktls_invalidate_session.patch
 
 %bcond_without bootstrap
 %bcond_without dane

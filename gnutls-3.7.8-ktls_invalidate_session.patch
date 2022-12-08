@@ -1,0 +1,62 @@
+From 9533fcbacdb5532425568e3874cfea9f0a9b55d5 Mon Sep 17 00:00:00 2001
+From: Daiki Ueno <ueno@gnu.org>
+Date: Mon, 28 Nov 2022 11:10:58 +0900
+Subject: [PATCH 1/2] src: fix memory leak in print_rawpk_info
+
+Signed-off-by: Daiki Ueno <ueno@gnu.org>
+---
+ src/common.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/common.c b/src/common.c
+index 6d2056f95..20327b41c 100644
+--- a/src/common.c
++++ b/src/common.c
+@@ -222,7 +222,7 @@ print_rawpk_info(gnutls_session_t session, FILE *out, int flag, int print_cert,
+ 		if (ret < 0) {
+ 			fprintf(stderr, "Encoding error: %s\n",
+ 				gnutls_strerror(ret));
+-			return;
++			goto cleanup;
+ 		}
+ 
+ 		log_msg(out, "\n%s\n", (char*)pem.data);
+@@ -230,6 +230,8 @@ print_rawpk_info(gnutls_session_t session, FILE *out, int flag, int print_cert,
+ 		gnutls_free(pem.data);
+ 	}
+ 
++ cleanup:
++	gnutls_pcert_deinit(&pk_cert);
+ }
+ 
+ /* returns false (0) if not verified, or true (1) otherwise 
+-- 
+2.38.1
+
+
+From ceac5211c073ba8dc86fe7cfb25504db33729fa9 Mon Sep 17 00:00:00 2001
+From: Daiki Ueno <ueno@gnu.org>
+Date: Mon, 28 Nov 2022 11:14:53 +0900
+Subject: [PATCH 2/2] tests: fix memory leak in resume-with-previous-stek
+
+Signed-off-by: Daiki Ueno <ueno@gnu.org>
+---
+ tests/resume-with-previous-stek.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/tests/resume-with-previous-stek.c b/tests/resume-with-previous-stek.c
+index 94f165627..98aba8d84 100644
+--- a/tests/resume-with-previous-stek.c
++++ b/tests/resume-with-previous-stek.c
+@@ -127,6 +127,8 @@ static void client(int fd, int *resume, unsigned rounds, const char *prio)
+ 
+ 		gnutls_deinit(session);
+ 	}
++
++	gnutls_free(session_data.data);
+ }
+ 
+ typedef void (* gnutls_stek_rotation_callback_t) (const gnutls_datum_t *prev_key,
+-- 
+2.38.1
+
