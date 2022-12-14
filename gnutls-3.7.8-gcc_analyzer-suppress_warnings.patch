@@ -1,0 +1,132 @@
+From 7fa942e08e64b761b19753ae74503de43cc1ff91 Mon Sep 17 00:00:00 2001
+From: Daiki Ueno <ueno@gnu.org>
+Date: Thu, 6 Oct 2022 18:44:48 +0900
+Subject: build: suppress GCC analyzer warnings
+
+Signed-off-by: Daiki Ueno <ueno@gnu.org>
+
+diff --git a/lib/auth/cert.c b/lib/auth/cert.c
+index 228d98468..f122049e1 100644
+--- a/lib/auth/cert.c
++++ b/lib/auth/cert.c
+@@ -1636,6 +1636,10 @@ _gnutls_select_server_cert(gnutls_session_t session, const gnutls_cipher_suite_e
+ 			if (session->internals.selected_cert_list_length == 0)
+ 				return gnutls_assert_val(GNUTLS_E_INSUFFICIENT_CREDENTIALS);
+ 
++			if (unlikely(session->internals.selected_cert_list == NULL)) {
++				return gnutls_assert_val(GNUTLS_E_INTERNAL_ERROR);
++			}
++
+ 			_gnutls_debug_log("Selected (%s) cert\n",
+ 					  gnutls_pk_get_name(session->internals.selected_cert_list[0].pubkey->params.algo));
+ 		}
+diff --git a/lib/nettle/int/provable-prime.c b/lib/nettle/int/provable-prime.c
+index 585cd031e..3a626a2c8 100644
+--- a/lib/nettle/int/provable-prime.c
++++ b/lib/nettle/int/provable-prime.c
+@@ -1173,7 +1173,7 @@ st_provable_prime(mpz_t p,
+ 	if (iterations > 0) {
+ 		storage_length = iterations * DIGEST_SIZE;
+ 
+-		storage = malloc(storage_length);
++		storage = gnutls_malloc(storage_length);
+ 		if (storage == NULL)
+ 			goto fail;
+ 
+@@ -1307,7 +1307,7 @@ st_provable_prime(mpz_t p,
+ 	mpz_clear(t);
+ 	mpz_clear(tmp);
+ 	mpz_clear(c);
+-	free(pseed);
+-	free(storage);
++	gnutls_free(pseed);
++	gnutls_free(storage);
+ 	return ret;
+ }
+diff --git a/lib/pk.c b/lib/pk.c
+index c5600a32a..753cecd18 100644
+--- a/lib/pk.c
++++ b/lib/pk.c
+@@ -93,6 +93,7 @@ _gnutls_encode_ber_rs_raw(gnutls_datum_t * sig_value,
+ 	}
+ 
+ 	if (r->data[0] >= 0x80) {
++		assert(tmp);
+ 		tmp[0] = 0;
+ 		memcpy(&tmp[1], r->data, r->size);
+ 		result = asn1_write_value(sig, "r", tmp, 1+r->size);
+@@ -108,6 +109,7 @@ _gnutls_encode_ber_rs_raw(gnutls_datum_t * sig_value,
+ 
+ 
+ 	if (s->data[0] >= 0x80) {
++		assert(tmp);
+ 		tmp[0] = 0;
+ 		memcpy(&tmp[1], s->data, s->size);
+ 		result = asn1_write_value(sig, "s", tmp, 1+s->size);
+@@ -598,6 +600,10 @@ encode_ber_digest_info(const mac_entry_st * e,
+ 	uint8_t *tmp_output;
+ 	int tmp_output_size;
+ 
++	if (unlikely(e == NULL)) {
++		return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
++	}
++
+ 	/* prevent asn1_write_value() treating input as string */
+ 	if (digest->size == 0)
+ 		return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
+diff --git a/lib/x509/pkcs7-crypt.c b/lib/x509/pkcs7-crypt.c
+index 59eddcd2a..6f528a911 100644
+--- a/lib/x509/pkcs7-crypt.c
++++ b/lib/x509/pkcs7-crypt.c
+@@ -1211,6 +1211,10 @@ _gnutls_pkcs_raw_decrypt_data(schema_id schema, asn1_node pkcs8_asn,
+ 	}
+ 
+ 	ce = cipher_to_entry(enc_params->cipher);
++	if (unlikely(ce == NULL)) {
++		ret = gnutls_assert_val(GNUTLS_E_UNKNOWN_CIPHER_TYPE);
++		goto error;
++	}
+ 	block_size = _gnutls_cipher_get_block_size(ce);
+ 
+ 	if (ce->type == CIPHER_BLOCK) {
+diff --git a/src/tests.c b/src/tests.c
+index 85c4b6699..8526b6943 100644
+--- a/src/tests.c
++++ b/src/tests.c
+@@ -1613,7 +1613,9 @@ test_code_t test_chain_order(gnutls_session_t session)
+ 
+ 		gnutls_free(t.data);
+ 	}
+-	*pos = 0;
++	if (pos) {
++		*pos = 0;
++	}
+ 
+ 	t.size = p_size;
+ 	t.data = (void*)p;
+diff --git a/src/tpmtool.c b/src/tpmtool.c
+index 171b7fd41..1b230c2ff 100644
+--- a/src/tpmtool.c
++++ b/src/tpmtool.c
+@@ -263,15 +263,15 @@ static void tpm_generate(FILE * out, unsigned int key_type,
+ 	gnutls_datum_t privkey, pubkey;
+ 
+ 	if (!srk_well_known) {
+-		srk_pass = getpass("Enter SRK password: ");
+-		if (srk_pass != NULL)
+-			srk_pass = strdup(srk_pass);
++		char *pass = getpass("Enter SRK password: ");
++		if (pass != NULL)
++			srk_pass = strdup(pass);
+ 	}
+ 
+ 	if (!(flags & GNUTLS_TPM_REGISTER_KEY)) {
+-		key_pass = getpass("Enter key password: ");
+-		if (key_pass != NULL)
+-			key_pass = strdup(key_pass);
++		char *pass = getpass("Enter key password: ");
++		if (pass != NULL)
++			key_pass = strdup(pass);
+ 	}
+ 
+ 	ret =
