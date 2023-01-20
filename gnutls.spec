@@ -28,6 +28,12 @@ Patch: gnutls-3.7.8-ktls_add_ciphersuites.patch
 Patch: gnutls-3.7.8-ktls_minor_fixes.patch
 Patch: gnutls-3.7.8-ktls_invalidate_session.patch
 
+# Delete only after the kernel has been patched for thested systems
+Patch: gnutls-3.7.8-ktls_disable_keyupdate_test.patch
+
+# follow https://gitlab.com/gnutls/gnutls/-/issues/1443
+Patch: gnutls-3.7.8-ktls_skip_tls12_chachapoly_test.patch
+
 %bcond_without bootstrap
 %bcond_without dane
 %if 0%{?rhel}
