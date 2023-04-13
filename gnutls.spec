@@ -88,7 +88,7 @@ BuildRequires: unbound-devel unbound-libs
 %endif
 BuildRequires: make gtk-doc
 
-%if %{with_mingw}
+%if %{with mingw}
 BuildRequires:  mingw32-filesystem >= 95
 BuildRequires:  mingw32-gcc
 BuildRequires:  mingw32-gcc-c++
@@ -186,7 +186,7 @@ This package contains library that implements the DANE protocol for verifying
 TLS certificates through DNSSEC.
 %endif
 
-%if %{with_mingw}
+%if %{with mingw}
 %package -n mingw32-%{name}
 Summary:        MinGW GnuTLS TLS/SSL encryption library
 Requires:       pkgconfig
