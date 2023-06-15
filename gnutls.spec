@@ -13,7 +13,7 @@ print(string.sub(hash, 0, 16))
 }
 
 Version: 3.8.0
-Release: %{?autorelease}%{!?autorelease:1%{?dist}}
+Release: %{?autorelease}%{!?autorelease:1%{?dist}}.1
 Patch: gnutls-3.2.7-rpath.patch
 
 # Delete only after the kernel has been patched for thested systems
