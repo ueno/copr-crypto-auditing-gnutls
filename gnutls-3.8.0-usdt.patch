@@ -1,0 +1,1768 @@
+From 5cf925678e0971fbc6ed58ec57a8f3299fea23e1 Mon Sep 17 00:00:00 2001
+From: Daiki Ueno <ueno@gnu.org>
+Date: Tue, 25 Oct 2022 16:27:16 +0900
+Subject: [PATCH 1/8] audit: add macros to define USDT probes for
+ crypto-auditing
+
+Signed-off-by: Daiki Ueno <ueno@gnu.org>
+Co-authored-by: Zoltan Fridrich <zfridric@redhat.com>
+---
+ configure.ac    |   1 +
+ lib/Makefile.am |   6 ++-
+ lib/audit.c     | 107 ++++++++++++++++++++++++++++++++++++++++++++++++
+ lib/audit.h     |  43 +++++++++++++++++++
+ lib/audit_int.h |  50 ++++++++++++++++++++++
+ lib/global.c    |   5 +++
+ m4/hooks.m4     |  16 ++++++++
+ 7 files changed, 226 insertions(+), 2 deletions(-)
+ create mode 100644 lib/audit.c
+ create mode 100644 lib/audit.h
+ create mode 100644 lib/audit_int.h
+
+diff --git a/configure.ac b/configure.ac
+index b25ba1483f..a180bca4e6 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1337,6 +1337,7 @@ if features are disabled)
+   Non-SuiteB curves:    $enable_non_suiteb
+   FIPS140 mode:         $enable_fips
+   Strict DER time:	$ac_strict_der_time
++  Audit trace:		$enable_crypto_auditing
+ ])
+ 
+ AC_MSG_NOTICE([Optional libraries:
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index 6d4e8d225a..046aa5fdb5 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -83,7 +83,8 @@ COBJECTS = range.c record.c compress.c debug.c cipher.c gthreads.h handshake-tls
+ 	cert-session.c handshake-checks.c dtls-sw.c dh-primes.c openpgp_compat.c \
+ 	crypto-selftests.c crypto-selftests-pk.c secrets.c extv.c extv.h \
+ 	hello_ext_lib.c hello_ext_lib.h ocsp-api.c stek.c cert-cred-rawpk.c \
+-	iov.c iov.h system/ktls.c system/ktls.h pathbuf.c pathbuf.h
++	iov.c iov.h system/ktls.c system/ktls.h pathbuf.c pathbuf.h \
++	audit.c
+ 
+ if ENABLE_GOST
+ COBJECTS += vko.c
+@@ -135,7 +136,8 @@ HFILES = abstract_int.h debug.h compress.h cipher.h	 \
+ 	srp.h auth/srp_kx.h auth/srp_passwd.h	\
+ 	file.h supplemental.h crypto.h random.h system.h\
+ 	locks.h mbuffers.h ecc.h pin.h fips.h \
+-	priority_options.h secrets.h stek.h cert-cred.h
++	priority_options.h secrets.h stek.h cert-cred.h \
++	audit.h audit_int.h
+ 
+ if ENABLE_PKCS11
+ HFILES += pkcs11_int.h pkcs11x.h
+diff --git a/lib/audit.c b/lib/audit.c
+new file mode 100644
+index 0000000000..520035587b
+--- /dev/null
++++ b/lib/audit.c
+@@ -0,0 +1,107 @@
++/*
++ * Copyright (C) 2001-2012 Free Software Foundation, Inc.
++ * Copyright (C) 2022 Red Hat, Inc.
++ *
++ * This file is part of GnuTLS.
++ *
++ * The GnuTLS is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public License
++ * as published by the Free Software Foundation; either version 2.1 of
++ * the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <https://www.gnu.org/licenses/>
++ *
++ */
++
++#include "gnutls_int.h"
++#include "audit_int.h"
++
++#ifdef ENABLE_CRYPTO_AUDITING
++
++gnutls_audit_context_t _gnutls_audit_lib_context;
++
++void _gnutls_audit_init(void)
++{
++	_gnutls_audit_lib_context = (gnutls_audit_context_t) _gnutls_audit_init;
++}
++
++int
++_gnutls_audit_push_context(struct gnutls_audit_context_stack_st *stack,
++			   gnutls_audit_context_t data)
++{
++	struct gnutls_audit_context_stack_head_st *head;
++	gnutls_audit_context_t parent = stack->head ?
++	    stack->head->context : _gnutls_audit_lib_context;
++
++	head = gnutls_malloc(sizeof(struct gnutls_audit_context_stack_head_st));
++	if (!head)
++		return GNUTLS_E_MEMORY_ERROR;
++
++	head->context = data;
++	head->next = stack->head;
++	stack->head = head;
++
++	CRYPTO_AUDITING_NEW_CONTEXT(head->context, parent);
++
++	return 0;
++}
++
++int _gnutls_audit_pop_context(struct gnutls_audit_context_stack_st *stack)
++{
++	struct gnutls_audit_context_stack_head_st *head = stack->head;
++
++	if (!head)
++		return GNUTLS_E_INVALID_REQUEST;
++
++	stack->head = head->next;
++	gnutls_free(head);
++
++	return 0;
++}
++
++void _gnutls_audit_clear_context(struct gnutls_audit_context_stack_st *stack)
++{
++	struct gnutls_audit_context_stack_head_st *prev;
++	struct gnutls_audit_context_stack_head_st *head = stack->head;
++
++	while (head) {
++		prev = head;
++		head = head->next;
++		gnutls_free(prev);
++	}
++}
++
++#else
++
++void _gnutls_audit_init(void)
++{
++}
++
++int
++_gnutls_audit_push_context(struct gnutls_audit_context_stack_st *stack
++			   MAYBE_UNUSED,
++			   gnutls_audit_context_t data MAYBE_UNUSED)
++{
++	return 0;
++}
++
++int
++_gnutls_audit_pop_context(struct gnutls_audit_context_stack_st *stack
++			  MAYBE_UNUSED)
++{
++	return 0;
++}
++
++void
++_gnutls_audit_clear_context(struct gnutls_audit_context_stack_st *stack
++			    MAYBE_UNUSED)
++{
++}
++
++#endif				/* ENABLE_CRYPTO_AUDITING */
+diff --git a/lib/audit.h b/lib/audit.h
+new file mode 100644
+index 0000000000..e71a5fc74e
+--- /dev/null
++++ b/lib/audit.h
+@@ -0,0 +1,43 @@
++/* SPDX-License-Identifier: MIT */
++/* Copyright (C) 2022-2023 The crypto-auditing developers. */
++
++/* This file defines probe points used by crypto-auditing. */
++
++#ifdef ENABLE_CRYPTO_AUDITING
++
++# ifdef HAVE_SYS_SDT_H
++#  include <sys/sdt.h>
++# endif
++
++/* Introduce a new context CONTEXT, derived from PARENT */
++# define CRYPTO_AUDITING_NEW_CONTEXT(context, parent)				\
++	DTRACE_PROBE2(crypto_auditing, new_context, context, parent)
++
++/* Assert an event with KEY and VALUE. The key is treated as a
++ * NUL-terminated string, while the value is in the size of machine
++ * word
++ */
++# define CRYPTO_AUDITING_WORD_DATA(context, key_ptr, value_ptr)			\
++	DTRACE_PROBE3(crypto_auditing, word_data, context, key_ptr, value_ptr)
++
++/* Assert an event with KEY and VALUE. Both the key and value are
++ * treated as a NUL-terminated string
++ */
++# define CRYPTO_AUDITING_STRING_DATA(context, key_ptr, value_ptr)			\
++	DTRACE_PROBE3(crypto_auditing, string_data, context, key_ptr, value_ptr)
++
++/* Assert an event with KEY and VALUE. The key is treated as a
++ * NUL-terminated string, while the value is explicitly sized with
++ * VALUE_SIZE
++ */
++# define CRYPTO_AUDITING_BLOB_DATA(key_ptr, context, value_ptr, value_size)	\
++	DTRACE_PROBE4(crypto_auditing, blob_data, context, key_ptr, value_ptr, value_size)
++
++#else
++
++# define CRYPTO_AUDITING_NEW_CONTEXT(context, parent)
++# define CRYPTO_AUDITING_WORD_DATA(context, key_ptr, value_ptr)
++# define CRYPTO_AUDITING_STRING_DATA(context, key_ptr, value_ptr)
++# define CRYPTO_AUDITING_BLOB_DATA(context, key_ptr, value_ptr, value_size)
++
++#endif				/* ENABLE_CRYPTO_AUDITING */
+diff --git a/lib/audit_int.h b/lib/audit_int.h
+new file mode 100644
+index 0000000000..19fde02785
+--- /dev/null
++++ b/lib/audit_int.h
+@@ -0,0 +1,50 @@
++/*
++ * Copyright (C) 2022 Red Hat, Inc.
++ *
++ * This file is part of GnuTLS.
++ *
++ * The GnuTLS is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public License
++ * as published by the Free Software Foundation; either version 2.1 of
++ * the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <https://www.gnu.org/licenses/>
++ *
++ */
++
++#ifndef GNUTLS_LIB_AUDIT_INT_H
++# define GNUTLS_LIB_AUDIT_INT_H
++
++# ifdef HAVE_CONFIG_H
++#  include <config.h>
++# endif
++
++# include "audit.h"
++# include <stdint.h>
++
++typedef uint64_t gnutls_audit_context_t;
++
++extern gnutls_audit_context_t _gnutls_audit_lib_context;
++
++struct gnutls_audit_context_stack_head_st {
++	gnutls_audit_context_t context;
++	struct gnutls_audit_context_stack_head_st *next;
++};
++
++struct gnutls_audit_context_stack_st {
++	struct gnutls_audit_context_stack_head_st *head;
++};
++
++void _gnutls_audit_init(void);
++int _gnutls_audit_push_context(struct gnutls_audit_context_stack_st *stack,
++			       gnutls_audit_context_t data);
++int _gnutls_audit_pop_context(struct gnutls_audit_context_stack_st *stack);
++void _gnutls_audit_clear_context(struct gnutls_audit_context_stack_st *stack);
++
++#endif				/* GNUTLS_LIB_AUDIT_INT_H */
+diff --git a/lib/global.c b/lib/global.c
+index 0ae68099cd..54fe72e40c 100644
+--- a/lib/global.c
++++ b/lib/global.c
+@@ -40,6 +40,7 @@
+ #include <system-keys.h>
+ #include "str.h"
+ #include "global.h"
++#include "audit.h"
+ 
+ /* Minimum library versions we accept. */
+ #define GNUTLS_MIN_LIBTASN1_VERSION "0.3.4"
+@@ -373,8 +374,12 @@ static int _gnutls_global_init(unsigned constructor)
+ 		_gnutls_fips_mode_reset_zombie();
+ 	}
+ #endif
++
+ 	_gnutls_prepare_to_load_system_priorities();
+ 	_gnutls_switch_lib_state(LIB_STATE_OPERATIONAL);
++
++	_gnutls_audit_init();
++
+ 	ret = 0;
+ 
+  out:
+diff --git a/m4/hooks.m4 b/m4/hooks.m4
+index 480ec77709..b53d374f1b 100644
+--- a/m4/hooks.m4
++++ b/m4/hooks.m4
+@@ -392,6 +392,22 @@ LIBTASN1_MINIMUM=4.9
+   fi
+   AM_CONDITIONAL(ENABLE_OCSP, test "$ac_enable_ocsp" != "no")
+ 
++  # For crypto-auditing trace
++  AC_MSG_CHECKING([whether to disable crypto-auditing trace support])
++  AC_ARG_ENABLE([crypto-auditing],
++    [AS_HELP_STRING([--disable-crypto-auditing],
++                   [disable crypto-auditing trace support])],
++    [enable_crypto_auditing=$enableval], [enable_crypto_auditing=auto])
++  AC_MSG_RESULT([$enable_crypto_auditing])
++  AS_IF([test "$enable_crypto_auditing" != "no"],
++    [AC_CHECK_HEADERS([sys/sdt.h], [enable_crypto_auditing=yes],
++      [AS_CASE([$enable_crypto_auditing],
++        [yes], [AC_MSG_ERROR([<sys/sdt.h> not found])],
++        [*], [enable_crypto_auditing=no])])])
++  AS_IF([test "$enable_crypto_auditing" = "yes"],
++        [AC_DEFINE([ENABLE_CRYPTO_AUDITING], [1], [enable crypto-auditing trace])])
++  AM_CONDITIONAL([ENABLE_CRYPTO_AUDITING], [test "$enable_crypto_auditing" = "yes"])
++
+   # For storing integers in pointers without warnings
+   # https://developer.gnome.org/doc/API/2.0/glib/glib-Type-Conversion-Macros.html#desc
+   AC_CHECK_SIZEOF(void *)
+-- 
+2.40.1
+
+
+From 0b07442b751ada51075e03741c53fe2232c598e3 Mon Sep 17 00:00:00 2001
+From: Daiki Ueno <ueno@gnu.org>
+Date: Mon, 7 Nov 2022 16:34:31 +0900
+Subject: [PATCH 2/8] handshake: add audit probes
+
+This adds USDT probes to the TLS handshake, to collect negotiated
+versions, ciphersuites, and digital-signature algorithms when
+certificate authentication is used.
+
+Signed-off-by: Daiki Ueno <ueno@gnu.org>
+Co-authored-by: Zoltan Fridrich <zfridric@redhat.com>
+---
+ lib/gnutls_int.h |   4 +
+ lib/handshake.c  |  42 +++++++++++
+ lib/state.c      |   2 +
+ lib/tls-sig.c    | 190 +++++++++++++++++++++++++++++++++++++----------
+ lib/tls13-sig.c  |  32 ++++++++
+ 5 files changed, 231 insertions(+), 39 deletions(-)
+
+diff --git a/lib/gnutls_int.h b/lib/gnutls_int.h
+index 969454b6a0..07f37dc2b7 100644
+--- a/lib/gnutls_int.h
++++ b/lib/gnutls_int.h
+@@ -1075,6 +1075,8 @@ typedef struct tfo_st {
+ 	socklen_t connect_addrlen;
+ } tfo_st;
+ 
++# include "audit_int.h"
++
+ typedef struct {
+ 	/* holds all the parsed data received by the record layer */
+ 	mbuffer_head_st record_buffer;
+@@ -1506,6 +1508,8 @@ typedef struct {
+ 	/* Compression method for certificate compression */
+ 	gnutls_compression_method_t compress_certificate_method;
+ 
++	struct gnutls_audit_context_stack_st audit_context_stack;
++
+ 	/* If you add anything here, check _gnutls_handshake_internal_state_clear().
+ 	 */
+ } internals_st;
+diff --git a/lib/handshake.c b/lib/handshake.c
+index 02da5117f5..2143bc7388 100644
+--- a/lib/handshake.c
++++ b/lib/handshake.c
+@@ -59,6 +59,7 @@
+ #include "tls13/session_ticket.h"
+ #include "locks.h"
+ #include "system/ktls.h"
++#include "audit_int.h"
+ 
+ static int check_if_null_comp_present(gnutls_session_t session,
+ 				      uint8_t * data, int datalen);
+@@ -688,6 +689,18 @@ read_client_hello(gnutls_session_t session, uint8_t * data, int datalen)
+ 	if (ret < 0)
+ 		return gnutls_assert_val(ret);
+ 
++	ret =
++	    _gnutls_audit_push_context(&session->internals.audit_context_stack,
++				       (gnutls_audit_context_t)
++				       read_client_hello);
++	if (ret < 0) {
++		return gnutls_assert_val(ret);
++	}
++
++	CRYPTO_AUDITING_STRING_DATA(session->internals.
++				    audit_context_stack.head->context, "name",
++				    "tls::handshake_server");
++
+ 	session->security_parameters.timestamp = gnutls_time(NULL);
+ 
+ 	DECR_LEN(len, 1);
+@@ -915,6 +928,10 @@ read_client_hello(gnutls_session_t session, uint8_t * data, int datalen)
+ 	_gnutls_handshake_log("HSK[%p]: Selected version %s\n", session,
+ 			      vers->name);
+ 
++	CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++				  head->context, "tls::protocol_version",
++				  vers->major << 8 | vers->minor);
++
+ 	/* select appropriate compression method */
+ 	ret = check_if_null_comp_present(session, comp_ptr, comp_size);
+ 	if (ret < 0) {
+@@ -1204,6 +1221,10 @@ _gnutls_server_select_suite(gnutls_session_t session, uint8_t * data,
+ 		return ret;
+ 	}
+ 
++	CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++				  head->context, "tls::ciphersuite",
++				  selected->id[0] << 8 | selected->id[1]);
++
+ 	if (!vers->tls13_sem) {
+ 		/* check if the credentials (username, public key etc.) are ok
+ 		 */
+@@ -1848,6 +1869,10 @@ static int set_client_ciphersuite(gnutls_session_t session, uint8_t suite[2])
+ 	_gnutls_handshake_log("HSK[%p]: Selected cipher suite: %s\n",
+ 			      session, selected->name);
+ 
++	CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++				  head->context, "tls::ciphersuite",
++				  selected->id[0] << 8 | selected->id[1]);
++
+ 	/* check if the credentials (username, public key etc.) are ok.
+ 	 * Actually checks if they exist.
+ 	 */
+@@ -2037,6 +2062,10 @@ read_server_hello(gnutls_session_t session, uint8_t * data, int datalen)
+ 	    0)
+ 		return gnutls_assert_val(GNUTLS_E_UNSUPPORTED_VERSION_PACKET);
+ 
++	CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++				  head->context, "tls::protocol_version",
++				  vers->major << 8 | vers->minor);
++
+ 	/* set server random - done after final version is selected */
+ 	ret = _gnutls_set_server_random(session, vers, srandom_pos);
+ 	if (ret < 0)
+@@ -2416,6 +2445,18 @@ static int send_client_hello(gnutls_session_t session, int again)
+ 		bufel = _gnutls_buffer_to_mbuffer(&extdata);
+ 	}
+ 
++	ret =
++	    _gnutls_audit_push_context(&session->internals.audit_context_stack,
++				       (gnutls_audit_context_t)
++				       send_client_hello);
++	if (ret < 0) {
++		return gnutls_assert_val(ret);
++	}
++
++	CRYPTO_AUDITING_STRING_DATA(session->internals.
++				    audit_context_stack.head->context, "name",
++				    "tls::handshake_client");
++
+ 	ret = _gnutls_send_handshake(session, bufel,
+ 				     GNUTLS_HANDSHAKE_CLIENT_HELLO);
+ 
+@@ -2954,6 +2995,7 @@ int gnutls_handshake(gnutls_session_t session)
+ 	} else {
+ 		ret = handshake_server(session);
+ 	}
++	_gnutls_audit_pop_context(&session->internals.audit_context_stack);
+ 
+ 	if (ret < 0) {
+ 		return _gnutls_abort_handshake(session, ret);
+diff --git a/lib/state.c b/lib/state.c
+index 631299846b..bdea5a4e82 100644
+--- a/lib/state.c
++++ b/lib/state.c
+@@ -832,6 +832,8 @@ void gnutls_deinit(gnutls_session_t session)
+ 	gnutls_mutex_deinit(&session->internals.post_negotiation_lock);
+ 	gnutls_mutex_deinit(&session->internals.epoch_lock);
+ 
++	_gnutls_audit_clear_context(&session->internals.audit_context_stack);
++
+ 	gnutls_free(session);
+ }
+ 
+diff --git a/lib/tls-sig.c b/lib/tls-sig.c
+index 45869fd802..19e00ee84f 100644
+--- a/lib/tls-sig.c
++++ b/lib/tls-sig.c
+@@ -86,6 +86,7 @@ _gnutls_handshake_sign_data12(gnutls_session_t session,
+ 			      gnutls_sign_algorithm_t sign_algo)
+ {
+ 	gnutls_datum_t dconcat;
++	const gnutls_sign_entry_st *se;
+ 	int ret;
+ 
+ 	_gnutls_handshake_log
+@@ -97,6 +98,17 @@ _gnutls_handshake_sign_data12(gnutls_session_t session,
+ 	     0))
+ 		return gnutls_assert_val(GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
+ 
++	CRYPTO_AUDITING_STRING_DATA(session->internals.
++				    audit_context_stack.head->context, "name",
++				    "tls::certificate_verify");
++	se = _gnutls_sign_to_entry(sign_algo);
++	if (likely(se != NULL)) {
++		CRYPTO_AUDITING_WORD_DATA(session->
++					  internals.audit_context_stack.head->
++					  context, "tls::signature_algorithm",
++					  se->aid.id[0] << 8 | se->aid.id[1]);
++	}
++
+ 	dconcat.size = GNUTLS_RANDOM_SIZE * 2 + params->size;
+ 	dconcat.data = gnutls_malloc(dconcat.size);
+ 	if (dconcat.data == NULL)
+@@ -132,6 +144,7 @@ _gnutls_handshake_sign_data10(gnutls_session_t session,
+ 	digest_hd_st td_sha;
+ 	uint8_t concat[MAX_SIG_SIZE];
+ 	const mac_entry_st *me;
++	const gnutls_sign_entry_st *se;
+ 	gnutls_pk_algorithm_t pk_algo;
+ 
+ 	pk_algo = gnutls_privkey_get_pk_algorithm(pkey, NULL);
+@@ -154,6 +167,17 @@ _gnutls_handshake_sign_data10(gnutls_session_t session,
+ 	    ("HSK[%p]: signing handshake data: using %s\n", session,
+ 	     gnutls_sign_algorithm_get_name(sign_algo));
+ 
++	CRYPTO_AUDITING_STRING_DATA(session->internals.
++				    audit_context_stack.head->context, "name",
++				    "tls::certificate_verify");
++	se = _gnutls_sign_to_entry(sign_algo);
++	if (likely(se != NULL)) {
++		CRYPTO_AUDITING_WORD_DATA(session->
++					  internals.audit_context_stack.head->
++					  context, "tls::signature_algorithm",
++					  se->aid.id[0] << 8 | se->aid.id[1]);
++	}
++
+ 	ret = _gnutls_hash_init(&td_sha, me);
+ 	if (ret < 0) {
+ 		gnutls_assert();
+@@ -208,14 +232,25 @@ _gnutls_handshake_sign_data(gnutls_session_t session,
+ 	if (ret < 0)
+ 		return gnutls_assert_val(ret);
+ 
+-	if (_gnutls_version_has_selectable_sighash(ver))
+-		return _gnutls_handshake_sign_data12(session, cert, pkey,
+-						     params, signature,
+-						     *sign_algo);
+-	else
+-		return _gnutls_handshake_sign_data10(session, cert, pkey,
+-						     params, signature,
+-						     *sign_algo);
++	ret =
++	    _gnutls_audit_push_context(&session->internals.audit_context_stack,
++				       (gnutls_audit_context_t)
++				       _gnutls_handshake_sign_data);
++	if (ret < 0) {
++		return ret;
++	}
++
++	if (_gnutls_version_has_selectable_sighash(ver)) {
++		ret =
++		    _gnutls_handshake_sign_data12(session, cert, pkey, params,
++						  signature, *sign_algo);
++	} else {
++		ret =
++		    _gnutls_handshake_sign_data10(session, cert, pkey, params,
++						  signature, *sign_algo);
++	}
++	_gnutls_audit_pop_context(&session->internals.audit_context_stack);
++	return ret;
+ }
+ 
+ /* Generates a signature of all the random data and the parameters.
+@@ -235,8 +270,20 @@ _gnutls_handshake_verify_data10(gnutls_session_t session,
+ 	uint8_t concat[MAX_SIG_SIZE];
+ 	gnutls_digest_algorithm_t hash_algo;
+ 	const mac_entry_st *me;
++	const gnutls_sign_entry_st *se;
+ 	gnutls_pk_algorithm_t pk_algo;
+ 
++	CRYPTO_AUDITING_STRING_DATA(session->internals.
++				    audit_context_stack.head->context, "name",
++				    "tls::certificate_verify");
++	se = _gnutls_sign_to_entry(sign_algo);
++	if (likely(se != NULL)) {
++		CRYPTO_AUDITING_WORD_DATA(session->
++					  internals.audit_context_stack.head->
++					  context, "tls::signature_algorithm",
++					  se->aid.id[0] << 8 | se->aid.id[1]);
++	}
++
+ 	pk_algo = gnutls_pubkey_get_pk_algorithm(cert->pubkey, NULL);
+ 	if (pk_algo == GNUTLS_PK_RSA) {
+ 		hash_algo = GNUTLS_DIG_MD5_SHA1;
+@@ -293,6 +340,13 @@ _gnutls_handshake_verify_data12(gnutls_session_t session,
+ 	    ("HSK[%p]: verify TLS 1.2 handshake data: using %s\n", session,
+ 	     se->name);
+ 
++	CRYPTO_AUDITING_STRING_DATA(session->internals.
++				    audit_context_stack.head->context, "name",
++				    "tls::certificate_verify");
++	CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++				  head->context, "tls::signature_algorithm",
++				  se->aid.id[0] << 8 | se->aid.id[1]);
++
+ 	ret =
+ 	    _gnutls_pubkey_compatible_with_sig(session,
+ 					       cert->pubkey, ver, sign_algo);
+@@ -358,16 +412,29 @@ _gnutls_handshake_verify_data(gnutls_session_t session,
+ 	if (ret < 0)
+ 		return gnutls_assert_val(ret);
+ 
++	ret =
++	    _gnutls_audit_push_context(&session->internals.audit_context_stack,
++				       (gnutls_audit_context_t)
++				       _gnutls_handshake_verify_data);
++	if (ret < 0) {
++		return ret;
++	}
++
+ 	gnutls_sign_algorithm_set_server(session, sign_algo);
+ 
+-	if (_gnutls_version_has_selectable_sighash(ver))
+-		return _gnutls_handshake_verify_data12(session, verify_flags,
+-						       cert, params, signature,
+-						       sign_algo);
+-	else
+-		return _gnutls_handshake_verify_data10(session, verify_flags,
+-						       cert, params, signature,
+-						       sign_algo);
++	if (_gnutls_version_has_selectable_sighash(ver)) {
++		ret =
++		    _gnutls_handshake_verify_data12(session, verify_flags, cert,
++						    params, signature,
++						    sign_algo);
++	} else {
++		ret =
++		    _gnutls_handshake_verify_data10(session, verify_flags, cert,
++						    params, signature,
++						    sign_algo);
++	}
++	_gnutls_audit_pop_context(&session->internals.audit_context_stack);
++	return ret;
+ }
+ 
+ /* Client certificate verify calculations
+@@ -594,6 +661,7 @@ _gnutls_handshake_verify_crt_vrfy(gnutls_session_t session,
+ 	int ret;
+ 	const version_entry_st *ver = get_version(session);
+ 	unsigned key_usage;
++	const gnutls_sign_entry_st *se;
+ 
+ 	if (cert == NULL) {
+ 		gnutls_assert();
+@@ -610,30 +678,54 @@ _gnutls_handshake_verify_crt_vrfy(gnutls_session_t session,
+ 			      session,
+ 			      gnutls_sign_algorithm_get_name(sign_algo));
+ 
++	ret =
++	    _gnutls_audit_push_context(&session->internals.audit_context_stack,
++				       (gnutls_audit_context_t)
++				       _gnutls_handshake_verify_crt_vrfy);
++	if (ret < 0) {
++		return ret;
++	}
++
++	CRYPTO_AUDITING_STRING_DATA(session->internals.
++				    audit_context_stack.head->context, "name",
++				    "tls::certificate_verify");
++	se = _gnutls_sign_to_entry(sign_algo);
++	if (likely(se != NULL)) {
++		CRYPTO_AUDITING_WORD_DATA(session->
++					  internals.audit_context_stack.head->
++					  context, "tls::signature_algorithm",
++					  se->aid.id[0] << 8 | se->aid.id[1]);
++	}
++
+ 	if (unlikely(ver == NULL))
+ 		return gnutls_assert_val(GNUTLS_E_INTERNAL_ERROR);
+ 
+ 	gnutls_sign_algorithm_set_client(session, sign_algo);
+ 
+ 	/* TLS 1.2 */
+-	if (_gnutls_version_has_selectable_sighash(ver))
+-		return _gnutls_handshake_verify_crt_vrfy12(session,
+-							   verify_flags,
+-							   cert,
+-							   signature,
+-							   sign_algo);
+-#ifdef ENABLE_SSL3
+-	if (ver->id == GNUTLS_SSL3)
+-		return _gnutls_handshake_verify_crt_vrfy3(session,
++	if (_gnutls_version_has_selectable_sighash(ver)) {
++		ret = _gnutls_handshake_verify_crt_vrfy12(session,
+ 							  verify_flags,
+ 							  cert,
+ 							  signature, sign_algo);
++	}
++#ifdef ENABLE_SSL3
++	else if (ver->id == GNUTLS_SSL3) {
++		ret = _gnutls_handshake_verify_crt_vrfy3(session,
++							 verify_flags,
++							 cert,
++							 signature, sign_algo);
++	}
+ #endif
+-
+-	/* TLS 1.0 and TLS 1.1 */
+-	return _gnutls_handshake_verify_crt_vrfy10(session,
+-						   verify_flags,
+-						   cert, signature, sign_algo);
++	else {
++		/* TLS 1.0 and TLS 1.1 */
++		ret = _gnutls_handshake_verify_crt_vrfy10(session,
++							  verify_flags,
++							  cert,
++							  signature, sign_algo);
++	}
++	_gnutls_audit_pop_context(&session->internals.audit_context_stack);
++	return ret;
+ }
+ 
+ /* the same as _gnutls_handshake_sign_crt_vrfy except that it is made for TLS 1.2.
+@@ -662,6 +754,10 @@ _gnutls_handshake_sign_crt_vrfy12(gnutls_session_t session,
+ 	if (se == NULL)
+ 		return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
+ 
++	CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++				  head->context, "tls::signature_algorithm",
++				  se->aid.id[0] << 8 | se->aid.id[1]);
++
+ 	gnutls_sign_algorithm_set_client(session, sign_algo);
+ 
+ 	if (unlikely
+@@ -851,18 +947,34 @@ _gnutls_handshake_sign_crt_vrfy(gnutls_session_t session,
+ 	if (ret < 0)
+ 		return gnutls_assert_val(ret);
+ 
++	ret =
++	    _gnutls_audit_push_context(&session->internals.audit_context_stack,
++				       (gnutls_audit_context_t)
++				       _gnutls_handshake_sign_crt_vrfy);
++	if (ret < 0) {
++		return ret;
++	}
++
++	CRYPTO_AUDITING_STRING_DATA(session->internals.
++				    audit_context_stack.head->context, "name",
++				    "tls::certificate_verify");
+ 	/* TLS 1.2 */
+-	if (_gnutls_version_has_selectable_sighash(ver))
+-		return _gnutls_handshake_sign_crt_vrfy12(session, cert,
+-							 pkey, signature);
++	if (_gnutls_version_has_selectable_sighash(ver)) {
++		ret = _gnutls_handshake_sign_crt_vrfy12(session, cert,
++							pkey, signature);
++	}
+ 
+ 	/* TLS 1.1 or earlier */
+ #ifdef ENABLE_SSL3
+-	if (ver->id == GNUTLS_SSL3)
+-		return _gnutls_handshake_sign_crt_vrfy3(session, cert, ver,
+-							pkey, signature);
++	else if (ver->id == GNUTLS_SSL3) {
++		ret = _gnutls_handshake_sign_crt_vrfy3(session, cert, ver,
++						       pkey, signature);
++	}
+ #endif
+-
+-	return _gnutls_handshake_sign_crt_vrfy10(session, cert, ver,
+-						 pkey, signature);
++	else {
++		ret = _gnutls_handshake_sign_crt_vrfy10(session, cert, ver,
++							pkey, signature);
++	}
++	_gnutls_audit_pop_context(&session->internals.audit_context_stack);
++	return ret;
+ }
+diff --git a/lib/tls13-sig.c b/lib/tls13-sig.c
+index c80b69e48e..3f60e2e12b 100644
+--- a/lib/tls13-sig.c
++++ b/lib/tls13-sig.c
+@@ -87,6 +87,21 @@ _gnutls13_handshake_verify_data(gnutls_session_t session,
+ 
+ 	_gnutls_buffer_init(&buf);
+ 
++	ret =
++	    _gnutls_audit_push_context(&session->internals.audit_context_stack,
++				       (gnutls_audit_context_t)
++				       _gnutls13_handshake_verify_data);
++	if (ret < 0) {
++		return ret;
++	}
++
++	CRYPTO_AUDITING_STRING_DATA(session->internals.
++				    audit_context_stack.head->context, "name",
++				    "tls::certificate_verify");
++	CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++				  head->context, "tls::signature_algorithm",
++				  se->aid.id[0] << 8 | se->aid.id[1]);
++
+ 	memset(prefix, 0x20, sizeof(prefix));
+ 	ret = _gnutls_buffer_append_data(&buf, prefix, sizeof(prefix));
+ 	if (ret < 0) {
+@@ -138,6 +153,7 @@ _gnutls13_handshake_verify_data(gnutls_session_t session,
+ 
+ 	ret = 0;
+  cleanup:
++	_gnutls_audit_pop_context(&session->internals.audit_context_stack);
+ 	_gnutls_buffer_clear(&buf);
+ 
+ 	return ret;
+@@ -170,6 +186,21 @@ _gnutls13_handshake_sign_data(gnutls_session_t session,
+ 
+ 	_gnutls_buffer_init(&buf);
+ 
++	ret =
++	    _gnutls_audit_push_context(&session->internals.audit_context_stack,
++				       (gnutls_audit_context_t)
++				       _gnutls13_handshake_sign_data);
++	if (ret < 0) {
++		return ret;
++	}
++
++	CRYPTO_AUDITING_STRING_DATA(session->internals.
++				    audit_context_stack.head->context, "name",
++				    "tls::certificate_verify");
++	CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++				  head->context, "tls::signature_algorithm",
++				  se->aid.id[0] << 8 | se->aid.id[1]);
++
+ 	ret = _gnutls_buffer_resize(&buf, PREFIX_SIZE);
+ 	if (ret < 0) {
+ 		gnutls_assert();
+@@ -222,6 +253,7 @@ _gnutls13_handshake_sign_data(gnutls_session_t session,
+ 
+ 	ret = 0;
+  cleanup:
++	_gnutls_audit_pop_context(&session->internals.audit_context_stack);
+ 	_gnutls_buffer_clear(&buf);
+ 
+ 	return ret;
+-- 
+2.40.1
+
+
+From 0309e11d668dff1a1d680ba6b7cf30b7f4247676 Mon Sep 17 00:00:00 2001
+From: Daiki Ueno <ueno@gnu.org>
+Date: Tue, 28 Mar 2023 14:45:38 +0900
+Subject: [PATCH 3/8] audit: differentiate signature creation and verification
+ in TLS
+
+Signed-off-by: Daiki Ueno <ueno@gnu.org>
+---
+ lib/tls-sig.c   | 6 +++---
+ lib/tls13-sig.c | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/lib/tls-sig.c b/lib/tls-sig.c
+index 19e00ee84f..c9528736b5 100644
+--- a/lib/tls-sig.c
++++ b/lib/tls-sig.c
+@@ -100,7 +100,7 @@ _gnutls_handshake_sign_data12(gnutls_session_t session,
+ 
+ 	CRYPTO_AUDITING_STRING_DATA(session->internals.
+ 				    audit_context_stack.head->context, "name",
+-				    "tls::certificate_verify");
++				    "tls::certificate_sign");
+ 	se = _gnutls_sign_to_entry(sign_algo);
+ 	if (likely(se != NULL)) {
+ 		CRYPTO_AUDITING_WORD_DATA(session->
+@@ -169,7 +169,7 @@ _gnutls_handshake_sign_data10(gnutls_session_t session,
+ 
+ 	CRYPTO_AUDITING_STRING_DATA(session->internals.
+ 				    audit_context_stack.head->context, "name",
+-				    "tls::certificate_verify");
++				    "tls::certificate_sign");
+ 	se = _gnutls_sign_to_entry(sign_algo);
+ 	if (likely(se != NULL)) {
+ 		CRYPTO_AUDITING_WORD_DATA(session->
+@@ -957,7 +957,7 @@ _gnutls_handshake_sign_crt_vrfy(gnutls_session_t session,
+ 
+ 	CRYPTO_AUDITING_STRING_DATA(session->internals.
+ 				    audit_context_stack.head->context, "name",
+-				    "tls::certificate_verify");
++				    "tls::certificate_sign");
+ 	/* TLS 1.2 */
+ 	if (_gnutls_version_has_selectable_sighash(ver)) {
+ 		ret = _gnutls_handshake_sign_crt_vrfy12(session, cert,
+diff --git a/lib/tls13-sig.c b/lib/tls13-sig.c
+index 3f60e2e12b..e2030f97af 100644
+--- a/lib/tls13-sig.c
++++ b/lib/tls13-sig.c
+@@ -196,7 +196,7 @@ _gnutls13_handshake_sign_data(gnutls_session_t session,
+ 
+ 	CRYPTO_AUDITING_STRING_DATA(session->internals.
+ 				    audit_context_stack.head->context, "name",
+-				    "tls::certificate_verify");
++				    "tls::certificate_sign");
+ 	CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
+ 				  head->context, "tls::signature_algorithm",
+ 				  se->aid.id[0] << 8 | se->aid.id[1]);
+-- 
+2.40.1
+
+
+From 3ee79a2909a27de381655b00aec96a1b53eb262e Mon Sep 17 00:00:00 2001
+From: Daiki Ueno <ueno@gnu.org>
+Date: Wed, 29 Mar 2023 15:03:06 +0900
+Subject: [PATCH 4/8] audit: fix memleaks in TLS 1.3 certificate sign/verify
+ events
+
+Signed-off-by: Daiki Ueno <ueno@gnu.org>
+---
+ lib/tls13-sig.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/lib/tls13-sig.c b/lib/tls13-sig.c
+index e2030f97af..27eab497e5 100644
+--- a/lib/tls13-sig.c
++++ b/lib/tls13-sig.c
+@@ -85,8 +85,6 @@ _gnutls13_handshake_verify_data(gnutls_session_t session,
+ 	if (ret < 0)
+ 		return gnutls_assert_val(ret);
+ 
+-	_gnutls_buffer_init(&buf);
+-
+ 	ret =
+ 	    _gnutls_audit_push_context(&session->internals.audit_context_stack,
+ 				       (gnutls_audit_context_t)
+@@ -102,6 +100,8 @@ _gnutls13_handshake_verify_data(gnutls_session_t session,
+ 				  head->context, "tls::signature_algorithm",
+ 				  se->aid.id[0] << 8 | se->aid.id[1]);
+ 
++	_gnutls_buffer_init(&buf);
++
+ 	memset(prefix, 0x20, sizeof(prefix));
+ 	ret = _gnutls_buffer_append_data(&buf, prefix, sizeof(prefix));
+ 	if (ret < 0) {
+@@ -184,8 +184,6 @@ _gnutls13_handshake_sign_data(gnutls_session_t session,
+ 	    ("HSK[%p]: signing TLS 1.3 handshake data: using %s and PRF: %s\n",
+ 	     session, se->name, session->security_parameters.prf->name);
+ 
+-	_gnutls_buffer_init(&buf);
+-
+ 	ret =
+ 	    _gnutls_audit_push_context(&session->internals.audit_context_stack,
+ 				       (gnutls_audit_context_t)
+@@ -201,6 +199,8 @@ _gnutls13_handshake_sign_data(gnutls_session_t session,
+ 				  head->context, "tls::signature_algorithm",
+ 				  se->aid.id[0] << 8 | se->aid.id[1]);
+ 
++	_gnutls_buffer_init(&buf);
++
+ 	ret = _gnutls_buffer_resize(&buf, PREFIX_SIZE);
+ 	if (ret < 0) {
+ 		gnutls_assert();
+-- 
+2.40.1
+
+
+From 3c6dd82fc48cd11ba5c89d5f83358db9a1ee47bc Mon Sep 17 00:00:00 2001
+From: Daiki Ueno <ueno@gnu.org>
+Date: Tue, 28 Mar 2023 15:36:24 +0900
+Subject: [PATCH 5/8] audit: emit SSL 3.0 and TLS 1.0 signature algorithms
+
+Signed-off-by: Daiki Ueno <ueno@gnu.org>
+---
+ lib/tls-sig.c | 86 +++++++++++++++++++++++++--------------------------
+ 1 file changed, 43 insertions(+), 43 deletions(-)
+
+diff --git a/lib/tls-sig.c b/lib/tls-sig.c
+index c9528736b5..0db5127a3f 100644
+--- a/lib/tls-sig.c
++++ b/lib/tls-sig.c
+@@ -86,7 +86,6 @@ _gnutls_handshake_sign_data12(gnutls_session_t session,
+ 			      gnutls_sign_algorithm_t sign_algo)
+ {
+ 	gnutls_datum_t dconcat;
+-	const gnutls_sign_entry_st *se;
+ 	int ret;
+ 
+ 	_gnutls_handshake_log
+@@ -98,17 +97,6 @@ _gnutls_handshake_sign_data12(gnutls_session_t session,
+ 	     0))
+ 		return gnutls_assert_val(GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
+ 
+-	CRYPTO_AUDITING_STRING_DATA(session->internals.
+-				    audit_context_stack.head->context, "name",
+-				    "tls::certificate_sign");
+-	se = _gnutls_sign_to_entry(sign_algo);
+-	if (likely(se != NULL)) {
+-		CRYPTO_AUDITING_WORD_DATA(session->
+-					  internals.audit_context_stack.head->
+-					  context, "tls::signature_algorithm",
+-					  se->aid.id[0] << 8 | se->aid.id[1]);
+-	}
+-
+ 	dconcat.size = GNUTLS_RANDOM_SIZE * 2 + params->size;
+ 	dconcat.data = gnutls_malloc(dconcat.size);
+ 	if (dconcat.data == NULL)
+@@ -144,7 +132,6 @@ _gnutls_handshake_sign_data10(gnutls_session_t session,
+ 	digest_hd_st td_sha;
+ 	uint8_t concat[MAX_SIG_SIZE];
+ 	const mac_entry_st *me;
+-	const gnutls_sign_entry_st *se;
+ 	gnutls_pk_algorithm_t pk_algo;
+ 
+ 	pk_algo = gnutls_privkey_get_pk_algorithm(pkey, NULL);
+@@ -167,17 +154,6 @@ _gnutls_handshake_sign_data10(gnutls_session_t session,
+ 	    ("HSK[%p]: signing handshake data: using %s\n", session,
+ 	     gnutls_sign_algorithm_get_name(sign_algo));
+ 
+-	CRYPTO_AUDITING_STRING_DATA(session->internals.
+-				    audit_context_stack.head->context, "name",
+-				    "tls::certificate_sign");
+-	se = _gnutls_sign_to_entry(sign_algo);
+-	if (likely(se != NULL)) {
+-		CRYPTO_AUDITING_WORD_DATA(session->
+-					  internals.audit_context_stack.head->
+-					  context, "tls::signature_algorithm",
+-					  se->aid.id[0] << 8 | se->aid.id[1]);
+-	}
+-
+ 	ret = _gnutls_hash_init(&td_sha, me);
+ 	if (ret < 0) {
+ 		gnutls_assert();
+@@ -217,6 +193,7 @@ _gnutls_handshake_sign_data(gnutls_session_t session,
+ 			    gnutls_sign_algorithm_t * sign_algo)
+ {
+ 	const version_entry_st *ver = get_version(session);
++	const gnutls_sign_entry_st *se;
+ 	unsigned key_usage = 0;
+ 	int ret;
+ 
+@@ -240,6 +217,18 @@ _gnutls_handshake_sign_data(gnutls_session_t session,
+ 		return ret;
+ 	}
+ 
++	CRYPTO_AUDITING_STRING_DATA(session->internals.
++				    audit_context_stack.head->context, "name",
++				    "tls::certificate_sign");
++
++	se = _gnutls_sign_to_entry(*sign_algo);
++	if (likely(se != NULL)) {
++		CRYPTO_AUDITING_WORD_DATA(session->
++					  internals.audit_context_stack.head->
++					  context, "tls::signature_algorithm",
++					  se->aid.id[0] << 8 | se->aid.id[1]);
++	}
++
+ 	if (_gnutls_version_has_selectable_sighash(ver)) {
+ 		ret =
+ 		    _gnutls_handshake_sign_data12(session, cert, pkey, params,
+@@ -270,20 +259,8 @@ _gnutls_handshake_verify_data10(gnutls_session_t session,
+ 	uint8_t concat[MAX_SIG_SIZE];
+ 	gnutls_digest_algorithm_t hash_algo;
+ 	const mac_entry_st *me;
+-	const gnutls_sign_entry_st *se;
+ 	gnutls_pk_algorithm_t pk_algo;
+ 
+-	CRYPTO_AUDITING_STRING_DATA(session->internals.
+-				    audit_context_stack.head->context, "name",
+-				    "tls::certificate_verify");
+-	se = _gnutls_sign_to_entry(sign_algo);
+-	if (likely(se != NULL)) {
+-		CRYPTO_AUDITING_WORD_DATA(session->
+-					  internals.audit_context_stack.head->
+-					  context, "tls::signature_algorithm",
+-					  se->aid.id[0] << 8 | se->aid.id[1]);
+-	}
+-
+ 	pk_algo = gnutls_pubkey_get_pk_algorithm(cert->pubkey, NULL);
+ 	if (pk_algo == GNUTLS_PK_RSA) {
+ 		hash_algo = GNUTLS_DIG_MD5_SHA1;
+@@ -340,13 +317,6 @@ _gnutls_handshake_verify_data12(gnutls_session_t session,
+ 	    ("HSK[%p]: verify TLS 1.2 handshake data: using %s\n", session,
+ 	     se->name);
+ 
+-	CRYPTO_AUDITING_STRING_DATA(session->internals.
+-				    audit_context_stack.head->context, "name",
+-				    "tls::certificate_verify");
+-	CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
+-				  head->context, "tls::signature_algorithm",
+-				  se->aid.id[0] << 8 | se->aid.id[1]);
+-
+ 	ret =
+ 	    _gnutls_pubkey_compatible_with_sig(session,
+ 					       cert->pubkey, ver, sign_algo);
+@@ -400,6 +370,7 @@ _gnutls_handshake_verify_data(gnutls_session_t session,
+ 	unsigned key_usage;
+ 	int ret;
+ 	const version_entry_st *ver = get_version(session);
++	const gnutls_sign_entry_st *se;
+ 
+ 	if (cert == NULL) {
+ 		gnutls_assert();
+@@ -420,6 +391,18 @@ _gnutls_handshake_verify_data(gnutls_session_t session,
+ 		return ret;
+ 	}
+ 
++	CRYPTO_AUDITING_STRING_DATA(session->internals.
++				    audit_context_stack.head->context, "name",
++				    "tls::certificate_verify");
++
++	se = _gnutls_sign_to_entry(sign_algo);
++	if (likely(se != NULL)) {
++		CRYPTO_AUDITING_WORD_DATA(session->
++					  internals.audit_context_stack.head->
++					  context, "tls::signature_algorithm",
++					  se->aid.id[0] << 8 | se->aid.id[1]);
++	}
++
+ 	gnutls_sign_algorithm_set_server(session, sign_algo);
+ 
+ 	if (_gnutls_version_has_selectable_sighash(ver)) {
+@@ -689,6 +672,7 @@ _gnutls_handshake_verify_crt_vrfy(gnutls_session_t session,
+ 	CRYPTO_AUDITING_STRING_DATA(session->internals.
+ 				    audit_context_stack.head->context, "name",
+ 				    "tls::certificate_verify");
++
+ 	se = _gnutls_sign_to_entry(sign_algo);
+ 	if (likely(se != NULL)) {
+ 		CRYPTO_AUDITING_WORD_DATA(session->
+@@ -797,6 +781,7 @@ _gnutls_handshake_sign_crt_vrfy3(gnutls_session_t session,
+ 	uint8_t concat[MAX_SIG_SIZE];
+ 	digest_hd_st td_sha;
+ 	gnutls_pk_algorithm_t pk = gnutls_privkey_get_pk_algorithm(pkey, NULL);
++	const gnutls_sign_entry_st *se;
+ 
+ 	/* ensure 1024 bit DSA keys are used */
+ 	ret =
+@@ -855,6 +840,13 @@ _gnutls_handshake_sign_crt_vrfy3(gnutls_session_t session,
+ 
+ 	dconcat.size += 20;
+ 
++	se = _gnutls_pk_to_sign_entry(pk, GNUTLS_DIG_SHA1);
++	if (likely(se != NULL)) {
++		CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++					  head->context, "tls::signature_algorithm",
++					  se->aid.id[0] << 8 | se->aid.id[1]);
++	}
++
+ 	ret = gnutls_privkey_sign_hash(pkey, GNUTLS_DIG_SHA1,
+ 				       GNUTLS_PRIVKEY_SIGN_FLAG_TLS1_RSA,
+ 				       &dconcat, signature);
+@@ -878,6 +870,7 @@ _gnutls_handshake_sign_crt_vrfy10(gnutls_session_t session,
+ 	digest_hd_st td_sha;
+ 	gnutls_pk_algorithm_t pk = gnutls_privkey_get_pk_algorithm(pkey, NULL);
+ 	const mac_entry_st *me;
++	const gnutls_sign_entry_st *se;
+ 
+ 	/* ensure 1024 bit DSA keys are used */
+ 	ret =
+@@ -906,6 +899,13 @@ _gnutls_handshake_sign_crt_vrfy10(gnutls_session_t session,
+ 	dconcat.data = concat;
+ 	dconcat.size = _gnutls_hash_get_algo_len(me);
+ 
++	se = _gnutls_pk_to_sign_entry(pk, MAC_TO_DIG(me->id));
++	if (likely(se != NULL)) {
++		CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++					  head->context, "tls::signature_algorithm",
++					  se->aid.id[0] << 8 | se->aid.id[1]);
++	}
++
+ 	ret =
+ 	    gnutls_privkey_sign_hash(pkey, MAC_TO_DIG(me->id),
+ 				     GNUTLS_PRIVKEY_SIGN_FLAG_TLS1_RSA,
+-- 
+2.40.1
+
+
+From c1d0b1efdecd9e8bc91f0022f418c54345b76105 Mon Sep 17 00:00:00 2001
+From: Daiki Ueno <ueno@gnu.org>
+Date: Wed, 29 Mar 2023 14:39:45 +0900
+Subject: [PATCH 6/8] audit: emit TLS 1.3 key exchange events
+
+Signed-off-by: Daiki Ueno <ueno@gnu.org>
+---
+ lib/audit_int.h     |   8 ++
+ lib/ext/key_share.c | 205 +++++++++++++++++++++++++++++++++-----------
+ 2 files changed, 165 insertions(+), 48 deletions(-)
+
+diff --git a/lib/audit_int.h b/lib/audit_int.h
+index 19fde02785..ace2b05314 100644
+--- a/lib/audit_int.h
++++ b/lib/audit_int.h
+@@ -28,6 +28,14 @@
+ # include "audit.h"
+ # include <stdint.h>
+ 
++typedef enum {
++	GNUTLS_AUDIT_KX_ECDHE = 0,
++	GNUTLS_AUDIT_KX_DHE = 1,
++	GNUTLS_AUDIT_KX_PSK = 2,
++	GNUTLS_AUDIT_KX_ECDHE_PSK = 3,
++	GNUTLS_AUDIT_KX_DHE_PSK = 4
++} gnutls_audit_key_exchange_algorithm_t;
++
+ typedef uint64_t gnutls_audit_context_t;
+ 
+ extern gnutls_audit_context_t _gnutls_audit_lib_context;
+diff --git a/lib/ext/key_share.c b/lib/ext/key_share.c
+index 2fc543cc9b..6f9affdfe6 100644
+--- a/lib/ext/key_share.c
++++ b/lib/ext/key_share.c
+@@ -315,9 +315,29 @@ server_use_key_share(gnutls_session_t session,
+ 	const gnutls_ecc_curve_entry_st *curve;
+ 	int ret;
+ 
++	ret =
++	    _gnutls_audit_push_context(&session->internals.audit_context_stack,
++				       (gnutls_audit_context_t)
++				       server_use_key_share);
++	if (ret < 0) {
++		return ret;
++	}
++
++	CRYPTO_AUDITING_STRING_DATA(session->internals.
++				    audit_context_stack.head->context, "name",
++				    "tls::key_exchange");
++
++	CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++				  head->context, "tls::group",
++				  group->tls_id);
++
+ 	if (group->pk == GNUTLS_PK_EC) {
+ 		gnutls_pk_params_st pub;
+ 
++		CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++					  head->context, "tls::key_exchange_algorithm",
++					  GNUTLS_AUDIT_KX_ECDHE);
++
+ 		gnutls_pk_params_release(&session->key.kshare.ecdh_params);
+ 		gnutls_pk_params_init(&session->key.kshare.ecdh_params);
+ 
+@@ -325,25 +345,31 @@ server_use_key_share(gnutls_session_t session,
+ 
+ 		gnutls_pk_params_init(&pub);
+ 
+-		if (curve->size * 2 + 1 != data_size)
+-			return
++		if (curve->size * 2 + 1 != data_size) {
++			ret =
+ 			    gnutls_assert_val
+ 			    (GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++			goto cleanup;
++		}
+ 
+ 		/* generate our key */
+ 		ret =
+ 		    _gnutls_pk_generate_keys(curve->pk, curve->id,
+ 					     &session->key.kshare.ecdh_params,
+ 					     1);
+-		if (ret < 0)
+-			return gnutls_assert_val(ret);
++		if (ret < 0) {
++			gnutls_assert();
++			goto cleanup;
++		}
+ 
+ 		/* read the public key */
+ 		ret = _gnutls_ecc_ansi_x962_import(data, data_size,
+ 						   &pub.params[ECC_X],
+ 						   &pub.params[ECC_Y]);
+-		if (ret < 0)
+-			return gnutls_assert_val(ret);
++		if (ret < 0) {
++			gnutls_assert();
++			goto cleanup;
++		}
+ 
+ 		pub.algo = group->pk;
+ 		pub.curve = curve->id;
+@@ -356,7 +382,8 @@ server_use_key_share(gnutls_session_t session,
+ 					    &pub);
+ 		gnutls_pk_params_release(&pub);
+ 		if (ret < 0) {
+-			return gnutls_assert_val(ret);
++			gnutls_assert();
++			goto cleanup;
+ 		}
+ 
+ 		ret = 0;
+@@ -365,23 +392,31 @@ server_use_key_share(gnutls_session_t session,
+ 		   group->pk == GNUTLS_PK_ECDH_X448) {
+ 		gnutls_pk_params_st pub;
+ 
++		CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++					  head->context, "tls::key_exchange_algorithm",
++					  GNUTLS_AUDIT_KX_ECDHE);
++
+ 		gnutls_pk_params_release(&session->key.kshare.ecdhx_params);
+ 		gnutls_pk_params_init(&session->key.kshare.ecdhx_params);
+ 
+ 		curve = _gnutls_ecc_curve_get_params(group->curve);
+ 
+-		if (curve->size != data_size)
+-			return
++		if (curve->size != data_size) {
++			ret =
+ 			    gnutls_assert_val
+ 			    (GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++			goto cleanup;
++		}
+ 
+ 		/* generate our key */
+ 		ret =
+ 		    _gnutls_pk_generate_keys(curve->pk, curve->id,
+ 					     &session->key.kshare.ecdhx_params,
+ 					     1);
+-		if (ret < 0)
+-			return gnutls_assert_val(ret);
++		if (ret < 0) {
++			gnutls_assert();
++			goto cleanup;
++		}
+ 
+ 		/* read the public key and generate shared */
+ 		gnutls_pk_params_init(&pub);
+@@ -400,7 +435,8 @@ server_use_key_share(gnutls_session_t session,
+ 					    &session->key.kshare.ecdhx_params,
+ 					    &pub);
+ 		if (ret < 0) {
+-			return gnutls_assert_val(ret);
++			gnutls_assert();
++			goto cleanup;
+ 		}
+ 
+ 		ret = 0;
+@@ -408,14 +444,20 @@ server_use_key_share(gnutls_session_t session,
+ 	} else if (group->pk == GNUTLS_PK_DH) {
+ 		gnutls_pk_params_st pub;
+ 
++		CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++					  head->context, "tls::key_exchange_algorithm",
++					  GNUTLS_AUDIT_KX_DHE);
++
+ 		/* we need to initialize the group parameters first */
+ 		gnutls_pk_params_release(&session->key.kshare.dh_params);
+ 		gnutls_pk_params_init(&session->key.kshare.dh_params);
+ 
+-		if (data_size != group->prime->size)
+-			return
++		if (data_size != group->prime->size) {
++			ret =
+ 			    gnutls_assert_val
+ 			    (GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++			goto cleanup;
++		}
+ 
+ 		/* set group params */
+ 		ret =
+@@ -423,29 +465,35 @@ server_use_key_share(gnutls_session_t session,
+ 					     dh_params.params[DH_G],
+ 					     group->generator->data,
+ 					     group->generator->size);
+-		if (ret < 0)
+-			return
++		if (ret < 0) {
++			ret =
+ 			    gnutls_assert_val
+ 			    (GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++			goto cleanup;
++		}
+ 
+ 		ret =
+ 		    _gnutls_mpi_init_scan_nz(&session->key.kshare.
+ 					     dh_params.params[DH_P],
+ 					     group->prime->data,
+ 					     group->prime->size);
+-		if (ret < 0)
+-			return
++		if (ret < 0) {
++			ret =
+ 			    gnutls_assert_val
+ 			    (GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++			goto cleanup;
++		}
+ 
+ 		ret =
+ 		    _gnutls_mpi_init_scan_nz(&session->key.kshare.
+ 					     dh_params.params[DH_Q],
+ 					     group->q->data, group->q->size);
+-		if (ret < 0)
+-			return
++		if (ret < 0) {
++			ret =
+ 			    gnutls_assert_val
+ 			    (GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++			goto cleanup;
++		}
+ 
+ 		session->key.kshare.dh_params.algo = GNUTLS_PK_DH;
+ 		session->key.kshare.dh_params.qbits = *group->q_bits;
+@@ -455,18 +503,22 @@ server_use_key_share(gnutls_session_t session,
+ 		ret =
+ 		    _gnutls_pk_generate_keys(group->pk, 0,
+ 					     &session->key.kshare.dh_params, 1);
+-		if (ret < 0)
+-			return gnutls_assert_val(ret);
++		if (ret < 0) {
++			gnutls_assert();
++			goto cleanup;
++		}
+ 
+ 		/* read the public key and generate shared */
+ 		gnutls_pk_params_init(&pub);
+ 
+ 		ret = _gnutls_mpi_init_scan_nz(&pub.params[DH_Y],
+ 					       data, data_size);
+-		if (ret < 0)
+-			return
++		if (ret < 0) {
++			ret =
+ 			    gnutls_assert_val
+ 			    (GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++			goto cleanup;
++		}
+ 
+ 		pub.algo = group->pk;
+ 
+@@ -476,17 +528,23 @@ server_use_key_share(gnutls_session_t session,
+ 					    &session->key.kshare.dh_params,
+ 					    &pub);
+ 		_gnutls_mpi_release(&pub.params[DH_Y]);
+-		if (ret < 0)
+-			return gnutls_assert_val(ret);
++		if (ret < 0) {
++			gnutls_assert();
++			goto cleanup;
++		}
+ 
+ 		ret = 0;
+ 	} else {
+-		return gnutls_assert_val(GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++		ret = gnutls_assert_val(GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++		goto cleanup;
+ 	}
+ 
+ 	_gnutls_debug_log("EXT[%p]: server generated %s shared key\n", session,
+ 			  group->name);
+ 
++ cleanup:
++	_gnutls_audit_pop_context(&session->internals.audit_context_stack);
++
+ 	return ret;
+ }
+ 
+@@ -500,30 +558,56 @@ client_use_key_share(gnutls_session_t session,
+ 	const gnutls_ecc_curve_entry_st *curve;
+ 	int ret;
+ 
++	ret =
++	    _gnutls_audit_push_context(&session->internals.audit_context_stack,
++				       (gnutls_audit_context_t)
++				       client_use_key_share);
++	if (ret < 0) {
++		return ret;
++	}
++
++	CRYPTO_AUDITING_STRING_DATA(session->internals.
++				    audit_context_stack.head->context, "name",
++				    "tls::key_exchange");
++
++	CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++				  head->context, "tls::group",
++				  group->tls_id);
++
+ 	if (group->pk == GNUTLS_PK_EC) {
+ 		gnutls_pk_params_st pub;
+ 
++		CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++					  head->context, "tls::key_exchange_algorithm",
++					  GNUTLS_AUDIT_KX_ECDHE);
++
+ 		curve = _gnutls_ecc_curve_get_params(group->curve);
+ 
+ 		gnutls_pk_params_init(&pub);
+ 
+ 		if (session->key.kshare.ecdh_params.algo != group->pk
+-		    || session->key.kshare.ecdh_params.curve != curve->id)
+-			return
++		    || session->key.kshare.ecdh_params.curve != curve->id) {
++			ret =
+ 			    gnutls_assert_val
+ 			    (GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++			goto cleanup;
++		}
+ 
+-		if (curve->size * 2 + 1 != data_size)
+-			return
++		if (curve->size * 2 + 1 != data_size) {
++			ret =
+ 			    gnutls_assert_val
+ 			    (GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++			goto cleanup;
++		}
+ 
+ 		/* read the server's public key */
+ 		ret = _gnutls_ecc_ansi_x962_import(data, data_size,
+ 						   &pub.params[ECC_X],
+ 						   &pub.params[ECC_Y]);
+-		if (ret < 0)
+-			return gnutls_assert_val(ret);
++		if (ret < 0) {
++			gnutls_assert();
++			goto cleanup;
++		}
+ 
+ 		pub.algo = group->pk;
+ 		pub.curve = curve->id;
+@@ -536,7 +620,8 @@ client_use_key_share(gnutls_session_t session,
+ 					    &pub);
+ 		gnutls_pk_params_release(&pub);
+ 		if (ret < 0) {
+-			return gnutls_assert_val(ret);
++			gnutls_assert();
++			goto cleanup;
+ 		}
+ 
+ 		ret = 0;
+@@ -545,18 +630,26 @@ client_use_key_share(gnutls_session_t session,
+ 		   group->pk == GNUTLS_PK_ECDH_X448) {
+ 		gnutls_pk_params_st pub;
+ 
++		CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++					  head->context, "tls::key_exchange_algorithm",
++					  GNUTLS_AUDIT_KX_ECDHE);
++
+ 		curve = _gnutls_ecc_curve_get_params(group->curve);
+ 
+ 		if (session->key.kshare.ecdhx_params.algo != group->pk
+-		    || session->key.kshare.ecdhx_params.curve != curve->id)
+-			return
++		    || session->key.kshare.ecdhx_params.curve != curve->id) {
++			ret =
+ 			    gnutls_assert_val
+ 			    (GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++			goto cleanup;
++		}
+ 
+-		if (curve->size != data_size)
+-			return
++		if (curve->size != data_size) {
++			ret =
+ 			    gnutls_assert_val
+ 			    (GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++			goto cleanup;
++		}
+ 
+ 		/* read the public key and generate shared */
+ 		gnutls_pk_params_init(&pub);
+@@ -575,7 +668,8 @@ client_use_key_share(gnutls_session_t session,
+ 					    &session->key.kshare.ecdhx_params,
+ 					    &pub);
+ 		if (ret < 0) {
+-			return gnutls_assert_val(ret);
++			gnutls_assert();
++			goto cleanup;
+ 		}
+ 
+ 		ret = 0;
+@@ -583,26 +677,36 @@ client_use_key_share(gnutls_session_t session,
+ 	} else if (group->pk == GNUTLS_PK_DH) {
+ 		gnutls_pk_params_st pub;
+ 
++		CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++					  head->context, "tls::key_exchange_algorithm",
++					  GNUTLS_AUDIT_KX_DHE);
++
+ 		if (session->key.kshare.dh_params.algo != group->pk
+-		    || session->key.kshare.dh_params.dh_group != group->id)
+-			return
++		    || session->key.kshare.dh_params.dh_group != group->id) {
++			ret =
+ 			    gnutls_assert_val
+ 			    (GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++			goto cleanup;
++		}
+ 
+-		if (data_size != group->prime->size)
+-			return
++		if (data_size != group->prime->size) {
++			ret =
+ 			    gnutls_assert_val
+ 			    (GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++			goto cleanup;
++		}
+ 
+ 		/* read the public key and generate shared */
+ 		gnutls_pk_params_init(&pub);
+ 
+ 		ret = _gnutls_mpi_init_scan_nz(&pub.params[DH_Y],
+ 					       data, data_size);
+-		if (ret < 0)
+-			return
++		if (ret < 0) {
++			ret =
+ 			    gnutls_assert_val
+ 			    (GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++			goto cleanup;
++		}
+ 
+ 		pub.algo = group->pk;
+ 
+@@ -612,17 +716,22 @@ client_use_key_share(gnutls_session_t session,
+ 					    &session->key.kshare.dh_params,
+ 					    &pub);
+ 		_gnutls_mpi_release(&pub.params[DH_Y]);
+-		if (ret < 0)
+-			return gnutls_assert_val(ret);
++		if (ret < 0) {
++			gnutls_assert();
++			goto cleanup;
++		}
+ 
+ 		ret = 0;
+ 	} else {
+-		return gnutls_assert_val(GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++		ret = gnutls_assert_val(GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER);
++		goto cleanup;
+ 	}
+ 
+ 	_gnutls_debug_log("EXT[%p]: client generated %s shared key\n", session,
+ 			  group->name);
+ 
++ cleanup:
++	_gnutls_audit_pop_context(&session->internals.audit_context_stack);
+ 	return ret;
+ }
+ 
+-- 
+2.40.1
+
+
+From 0095f6e668d3120acb1fb71e5d61ea3258d9ca5b Mon Sep 17 00:00:00 2001
+From: Daiki Ueno <ueno@gnu.org>
+Date: Wed, 29 Mar 2023 14:54:39 +0900
+Subject: [PATCH 7/8] audit: emit TLS 1.2 ECDHE key exchange events
+
+Signed-off-by: Daiki Ueno <ueno@gnu.org>
+---
+ lib/auth/ecdhe.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff --git a/lib/auth/ecdhe.c b/lib/auth/ecdhe.c
+index 350cb27da7..ddd7bc301e 100644
+--- a/lib/auth/ecdhe.c
++++ b/lib/auth/ecdhe.c
+@@ -93,6 +93,29 @@ static int calc_ecdh_key(gnutls_session_t session,
+ 	gnutls_pk_params_st pub;
+ 	int ret;
+ 	gnutls_datum_t tmp_dh_key;
++	const gnutls_group_entry_st *group;
++
++	group = _gnutls_id_to_group(ecurve->group);
++
++	ret =
++	    _gnutls_audit_push_context(&session->internals.audit_context_stack,
++				       (gnutls_audit_context_t)
++				       calc_ecdh_key);
++	if (ret < 0) {
++		return ret;
++	}
++
++	CRYPTO_AUDITING_STRING_DATA(session->internals.
++				    audit_context_stack.head->context, "name",
++				    "tls::key_exchange");
++
++	CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++				  head->context, "tls::group",
++				  group->tls_id);
++
++	CRYPTO_AUDITING_WORD_DATA(session->internals.audit_context_stack.
++				  head->context, "tls::key_exchange_algorithm",
++				  GNUTLS_AUDIT_KX_ECDHE);
+ 
+ 	gnutls_pk_params_init(&pub);
+ 	pub.params[ECC_X] = session->key.proto.tls12.ecdh.x;
+@@ -131,6 +154,7 @@ static int calc_ecdh_key(gnutls_session_t session,
+ 	_gnutls_mpi_release(&session->key.proto.tls12.ecdh.y);
+ 	_gnutls_free_datum(&session->key.proto.tls12.ecdh.raw);
+ 	gnutls_pk_params_release(&session->key.proto.tls12.ecdh.params);
++	_gnutls_audit_pop_context(&session->internals.audit_context_stack);
+ 	return ret;
+ }
+ 
+-- 
+2.40.1
+
+
+From 7bded8e0f8de63f0fec1157c1d9310edb21f2e28 Mon Sep 17 00:00:00 2001
+From: Daiki Ueno <ueno@gnu.org>
+Date: Thu, 15 Jun 2023 08:18:22 +0200
+Subject: [PATCH 8/8] audit: fix handling of handshake abort
+
+Signed-off-by: Daiki Ueno <ueno@gnu.org>
+---
+ lib/handshake.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
+
+diff --git a/lib/handshake.c b/lib/handshake.c
+index 2143bc7388..6b4d437f8d 100644
+--- a/lib/handshake.c
++++ b/lib/handshake.c
+@@ -2796,7 +2796,7 @@ inline static int _gnutls_abort_handshake(gnutls_session_t session, int ret)
+ 			if (session->security_parameters.entity ==
+ 			    GNUTLS_SERVER) {
+ 				STATE = STATE0;
+-				return ret;
++				break;
+ 			}
+ 
+ 			/* The client should tolerete a "no_renegotiation" alert only if:
+@@ -2808,18 +2808,25 @@ inline static int _gnutls_abort_handshake(gnutls_session_t session, int ret)
+ 			      internals.hsk_flags & HSK_SERVER_HELLO_RECEIVED))
+ 			{
+ 				STATE = STATE0;
+-				return ret;
++				break;
+ 			}
+ 
+-			return gnutls_assert_val(GNUTLS_E_UNEXPECTED_PACKET);
++			ret = gnutls_assert_val(GNUTLS_E_UNEXPECTED_PACKET);
++			break;
+ 		}
+ 		return ret;
+ 	case GNUTLS_E_GOT_APPLICATION_DATA:
+ 		STATE = STATE0;
+-		return ret;
++		break;
+ 	default:
+-		return ret;
++		if (!gnutls_error_is_fatal(ret)) {
++			return ret;
++		}
++		break;
+ 	}
++
++	_gnutls_audit_pop_context(&session->internals.audit_context_stack);
++	return ret;
+ }
+ 
+ static int _gnutls_send_supplemental(gnutls_session_t session, int again)
+@@ -2995,7 +3002,6 @@ int gnutls_handshake(gnutls_session_t session)
+ 	} else {
+ 		ret = handshake_server(session);
+ 	}
+-	_gnutls_audit_pop_context(&session->internals.audit_context_stack);
+ 
+ 	if (ret < 0) {
+ 		return _gnutls_abort_handshake(session, ret);
+@@ -3050,6 +3056,7 @@ int gnutls_handshake(gnutls_session_t session)
+ 	}
+ #endif
+ 
++	_gnutls_audit_pop_context(&session->internals.audit_context_stack);
+ 	return 0;
+ }
+ 
+-- 
+2.40.1
+

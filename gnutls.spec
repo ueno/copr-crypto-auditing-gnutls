@@ -26,6 +26,9 @@ Patch: gnutls-3.7.8-ktls_skip_tls12_chachapoly_test.patch
 # https://gitlab.com/gnutls/gnutls/-/issues/1470
 Patch: gnutls-3.8.0-ktls-Do-not-return-GNUTLS_E_INTERRUPTED-AGAIN-from-s.patch
 
+# Not upstreamed: adds USDT probe points for crypto-auditing
+Patch: gnutls-3.8.0-usdt.patch
+
 %bcond_without bootstrap
 %bcond_without dane
 %bcond_without fips
@@ -47,6 +50,8 @@ Patch: gnutls-3.8.0-ktls-Do-not-return-GNUTLS_E_INTERRUPTED-AGAIN-from-s.patch
 %bcond_with mingw
 %endif
 
+%bcond_without usdt
+
 
 Summary: A TLS protocol implementation
 Name: gnutls
@@ -66,6 +71,9 @@ BuildRequires: trousers-devel >= 0.3.11.2
 %endif
 %if %{with tpm2}
 BuildRequires: tpm2-tss-devel >= 3.0.3
+%endif
+%if %{with usdt}
+BuildRequires: systemtap-sdt-devel
 %endif
 BuildRequires: libidn2-devel
 BuildRequires: libunistring-devel
@@ -283,6 +291,9 @@ pushd native_build
 	   --with-zlib --with-brotli --with-zstd \
 %else
 	   --without-zlib --without-brotli --without-zstd \
+%endif
+%if %{with usdt}
+	   --enable-crypto-auditing \
 %endif
            --disable-rpath \
            --with-default-priority-string="@SYSTEM"
