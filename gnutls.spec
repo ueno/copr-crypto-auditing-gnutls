@@ -51,7 +51,7 @@ Patch: gnutls-3.8.0-ktls-Do-not-return-GNUTLS_E_INTERRUPTED-AGAIN-from-s.patch
 Summary: A TLS protocol implementation
 Name: gnutls
 # The libraries are LGPLv2.1+, utilities are GPLv3+
-License: GPLv3+ and LGPLv2+
+License: GPL-3.0-or-later AND LGPL-2.1-or-later
 BuildRequires: p11-kit-devel >= 0.21.3, gettext-devel
 BuildRequires: readline-devel, libtasn1-devel >= 4.3
 %if %{with certificate_compression}
@@ -130,7 +130,7 @@ Requires: %{name}-dane%{?_isa} = %{version}-%{release}
 Requires: pkgconfig
 
 %package utils
-License: GPLv3+
+License: GPL-3.0-or-later
 Summary: Command line tools for TLS protocol
 Requires: %{name}%{?_isa} = %{version}-%{release}
 %if %{with dane}
