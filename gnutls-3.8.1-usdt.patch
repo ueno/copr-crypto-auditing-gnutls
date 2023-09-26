@@ -326,7 +326,7 @@ index be73a5011f..15cdcbf5ea 100644
 2.41.0
 
 
-From ac3219d59d9c57d735e0c916ce7a145359bc5193 Mon Sep 17 00:00:00 2001
+From dfd3b023539d6723536fd42118990bf85a8d1ea2 Mon Sep 17 00:00:00 2001
 From: Daiki Ueno <ueno@gnu.org>
 Date: Mon, 7 Nov 2022 16:34:31 +0900
 Subject: [PATCH 2/2] handshake: add audit probes
@@ -410,7 +410,7 @@ index b69323c539..4d63e56d73 100644
  }
  
 diff --git a/lib/ext/ext_master_secret.c b/lib/ext/ext_master_secret.c
-index 226d1c24b2..1ba1075f10 100644
+index 226d1c24b2..43431f7ef6 100644
 --- a/lib/ext/ext_master_secret.c
 +++ b/lib/ext/ext_master_secret.c
 @@ -97,6 +97,13 @@ static int _gnutls_ext_master_secret_recv_params(gnutls_session_t session,
@@ -420,7 +420,7 @@ index 226d1c24b2..1ba1075f10 100644
 +	if (session->security_parameters.ext_master_secret) {
 +		CRYPTO_AUDITING_WORD_DATA(
 +			session->internals.audit_context_stack.head->context,
-+			"tls::extended_master_secret",
++			"tls::extension::extended_master_secret",
 +			1);
 +	}
 +
