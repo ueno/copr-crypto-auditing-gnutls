@@ -12,18 +12,18 @@ sha256sum:close()
 print(string.sub(hash, 0, 16))
 }
 
-Version: 3.8.1
-Release: %{?autorelease}%{!?autorelease:1%{?dist}}.1
+Version: 3.8.2
+Release: %{?autorelease}%{!?autorelease:1%{?dist}}.usdt.1
 Patch: gnutls-3.2.7-rpath.patch
-
-# Delete only after the kernel has been patched for thested systems
-Patch: gnutls-3.7.8-ktls_disable_keyupdate_test.patch
 
 # follow https://gitlab.com/gnutls/gnutls/-/issues/1443
 Patch: gnutls-3.7.8-ktls_skip_tls12_chachapoly_test.patch
 
+# tentatively reverted for https://gitlab.com/gnutls/gnutls/-/issues/1515
+Patch: gnutls-3.8.2-revert-pkcs11-ed448.patch
+
 # Not upstreamed: adds USDT probe points for crypto-auditing
-Patch: gnutls-3.8.1-usdt.patch
+Patch: gnutls-3.8.2-usdt.patch
 
 %bcond_without bootstrap
 %bcond_without dane
@@ -384,7 +384,22 @@ rm -f $RPM_BUILD_ROOT%{mingw64_libdir}/ncrypt.dll*
 %check
 %if %{with tests}
 pushd native_build
-make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null
+
+# KeyUpdate is not yet supported in the kernel.
+xfail_tests=ktls_keyupdate.sh
+
+# The ktls.sh test currently only supports kernel 5.11+.  This needs to
+# be checked at run time, as the koji builder might be using a different
+# version of kernel on the host than the one indicated by the
+# kernel-devel package.
+
+case "$(uname -r)" in
+  4.* | 5.[0-9].* | 5.10.* )
+    xfail_tests="$xfail_tests ktls.sh"
+    ;;
+esac
+
+make check %{?_smp_mflags} GNUTLS_SYSTEM_PRIORITY_FILE=/dev/null XFAIL_TESTS="$xfail_tests"
 popd
 %endif
 

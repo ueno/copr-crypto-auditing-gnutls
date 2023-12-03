@@ -1,12 +1,25 @@
+From 18c555b4d2461ad202996398609552b9c4ecd43b Mon Sep 17 00:00:00 2001
+From: rpm-build <rpm-build>
+Date: Wed, 22 Nov 2023 15:21:49 +0900
+Subject: [PATCH] gnutls-3.7.8-ktls_skip_tls12_chachapoly_test.patch
+
+Signed-off-by: rpm-build <rpm-build>
+---
+ tests/gnutls_ktls.c | 1 -
+ 1 file changed, 1 deletion(-)
+
 diff --git a/tests/gnutls_ktls.c b/tests/gnutls_ktls.c
-index 919270778..778a2f94a 100644
+index ccbe566..049c888 100644
 --- a/tests/gnutls_ktls.c
 +++ b/tests/gnutls_ktls.c
-@@ -351,7 +351,6 @@ void doit(void)
+@@ -347,7 +347,6 @@ void doit(void)
+ {
  	run("NORMAL:-VERS-ALL:+VERS-TLS1.2:-CIPHER-ALL:+AES-128-GCM");
  	run("NORMAL:-VERS-ALL:+VERS-TLS1.2:-CIPHER-ALL:+AES-256-GCM");
- 	run("NORMAL:-VERS-ALL:+VERS-TLS1.2:-CIPHER-ALL:+AES-128-CCM");
 -	run("NORMAL:-VERS-ALL:+VERS-TLS1.2:-CIPHER-ALL:+CHACHA20-POLY1305");
  	run("NORMAL:-VERS-ALL:+VERS-TLS1.3:-CIPHER-ALL:+AES-128-GCM");
  	run("NORMAL:-VERS-ALL:+VERS-TLS1.3:-CIPHER-ALL:+AES-256-GCM");
- 	run("NORMAL:-VERS-ALL:+VERS-TLS1.3:-CIPHER-ALL:+AES-128-CCM");
+ 	run("NORMAL:-VERS-ALL:+VERS-TLS1.3:-CIPHER-ALL:+CHACHA20-POLY1305");
+-- 
+2.41.0
+
