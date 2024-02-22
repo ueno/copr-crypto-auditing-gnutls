@@ -1,0 +1,12 @@
+diff --color -ruNp a/lib/system/sockets.c b/lib/system/sockets.c
+--- a/lib/system/sockets.c	2024-01-16 03:36:04.000000000 +0100
++++ b/lib/system/sockets.c	2024-02-22 16:20:48.900495575 +0100
+@@ -208,7 +208,7 @@ int gnutls_system_recv_timeout(gnutls_tr
+ 	} while (ret == -1 && errno == EINTR);
+ #else
+ 	fd_set rfds;
+-	struct timeval _tv, *tv = NULL;
++	TIMEVAL _tv, *tv = NULL;
+ 
+ 	FD_ZERO(&rfds);
+ 	FD_SET(fd, &rfds);
