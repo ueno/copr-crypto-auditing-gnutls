@@ -40,6 +40,12 @@ Patch: gnutls-3.7.8-ktls_skip_tls12_chachapoly_test.patch
 %bcond_with mingw
 %endif
 
+%if 0%{?rhel} >= 9 && %{with fips}
+%bcond_without bundled_gmp
+%else
+%bcond_with bundled_gmp
+%endif
+
 
 %define fips_requires() %{lua:
 local f = assert(io.popen("rpm -q --queryformat '%{EVR}' --whatprovides "..rpm.expand("'%1%{?_isa}'")))
@@ -114,6 +120,12 @@ Source0: https://www.gnupg.org/ftp/gcrypt/gnutls/v%{short_version}/%{name}-%{ver
 Source1: https://www.gnupg.org/ftp/gcrypt/gnutls/v%{short_version}/%{name}-%{version}.tar.xz.sig
 Source2: https://gnutls.org/gnutls-release-keyring.gpg
 
+%if %{with bundled_gmp}
+Source100:	gmp-6.2.1.tar.xz
+# Taken from the main gmp package
+Source101:	gmp-6.2.1-intel-cet.patch
+%endif
+
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
 
@@ -149,7 +161,9 @@ Requires: %{name}%{?_isa} = %{version}-%{release}
 Summary: Virtual package to install packages required to use %{name} under FIPS mode
 Requires: %{name}%{?_isa} = %{version}-%{release}
 %{fips_requires nettle}
+%if !%{with bundled_gmp}
 %{fips_requires gmp}
+%endif
 %endif
 
 %description
@@ -235,8 +249,27 @@ for MinGW.
 
 %autosetup -p1 -S git
 
+%if %{with bundled_gmp}
+mkdir -p bundled_gmp
+pushd bundled_gmp
+tar --strip-components=1 -xf %{SOURCE100}
+patch -p1 < %{SOURCE101}
+popd
+%endif
+
 %build
 %define _lto_cflags %{nil}
+
+%if %{with bundled_gmp}
+pushd bundled_gmp
+autoreconf -ifv
+%configure --disable-cxx --disable-shared --enable-fat --with-pic
+%make_build
+popd
+
+export GMP_CFLAGS="-I$PWD/bundled_gmp"
+export GMP_LIBS="$PWD/bundled_gmp/.libs/libgmp.a"
+%endif
 
 %if %{with bootstrap}
 autoreconf -fi
