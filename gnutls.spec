@@ -25,7 +25,7 @@ Patch: gnutls-3.7.8-ktls_skip_tls12_chachapoly_test.patch
 %bcond_with tpm12
 %bcond_without tpm2
 %bcond_without gost
-%bcond_with certificate_compression
+%bcond_without certificate_compression
 %bcond_without tests
 
 %if 0%{?fedora} && 0%{?fedora} < 38
