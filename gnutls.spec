@@ -12,7 +12,7 @@ sha256sum:close()
 print(string.sub(hash, 0, 16))
 }
 
-Version: 3.8.5
+Version: 3.8.6
 Release: %{?autorelease}%{!?autorelease:1%{?dist}}
 Patch: gnutls-3.2.7-rpath.patch
 
