@@ -66,7 +66,7 @@ BuildRequires: zlib-devel, brotli-devel, libzstd-devel
 %if %{with bootstrap}
 BuildRequires: automake, autoconf, gperf, libtool, texinfo
 %endif
-BuildRequires: nettle-devel >= 3.9.1
+BuildRequires: nettle-devel >= 3.10
 %if %{with tpm12}
 BuildRequires: trousers-devel >= 0.3.11.2
 %endif
@@ -85,7 +85,7 @@ Requires: crypto-policies
 Requires: p11-kit-trust
 Requires: libtasn1 >= 4.3
 # always bump when a nettle release is packaged
-Requires: nettle >= 3.9.1
+Requires: nettle >= 3.10
 %if %{with tpm12}
 Recommends: trousers >= 0.3.11.2
 %endif
