@@ -380,6 +380,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls-dane.pc
 %if %{with fips}
 # doing it twice should be a no-op the second time,
 # and this way we avoid redefining it and missing a future change
+%global __debug_package 1
 %{__spec_install_post}
 fname=`basename $RPM_BUILD_ROOT%{_libdir}/libgnutls.so.30.*.*`
 ./lib/fipshmac "$RPM_BUILD_ROOT%{_libdir}/libgnutls.so.30" > "$RPM_BUILD_ROOT%{_libdir}/.$fname.hmac"
