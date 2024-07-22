@@ -19,6 +19,7 @@ Patch: gnutls-3.2.7-rpath.patch
 # follow https://gitlab.com/gnutls/gnutls/-/issues/1443
 Patch: gnutls-3.7.8-ktls_skip_tls12_chachapoly_test.patch
 Patch: gnutls-3.8.6-compression-dlwrap.patch
+Patch: gnutls-3.8.6-liboqs-x25519-kyber768d00.patch
 
 %bcond_without bootstrap
 %bcond_without dane
@@ -27,6 +28,7 @@ Patch: gnutls-3.8.6-compression-dlwrap.patch
 %bcond_without tpm2
 %bcond_without gost
 %bcond_without certificate_compression
+%bcond_without liboqs
 %bcond_without tests
 
 %if 0%{?fedora} && 0%{?fedora} < 38
@@ -63,6 +65,9 @@ BuildRequires: p11-kit-devel >= 0.21.3, gettext-devel
 BuildRequires: readline-devel, libtasn1-devel >= 4.3
 %if %{with certificate_compression}
 BuildRequires: zlib-devel, brotli-devel, libzstd-devel
+%endif
+%if %{with liboqs}
+BuildRequires: liboqs-devel
 %endif
 %if %{with bootstrap}
 BuildRequires: automake, autoconf, gperf, libtool, texinfo
@@ -337,6 +342,11 @@ pushd native_build
 	   --with-zlib --with-brotli --with-zstd \
 %else
 	   --without-zlib --without-brotli --without-zstd \
+%endif
+%if %{with liboqs}
+           --with-liboqs \
+%else
+           --without-liboqs \
 %endif
            --disable-rpath \
            --with-default-priority-string="@SYSTEM"
