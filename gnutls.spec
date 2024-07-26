@@ -20,6 +20,7 @@ Patch: gnutls-3.2.7-rpath.patch
 Patch: gnutls-3.7.8-ktls_skip_tls12_chachapoly_test.patch
 Patch: gnutls-3.8.6-compression-dlwrap.patch
 Patch: gnutls-3.8.6-liboqs-x25519-kyber768d00.patch
+Patch: gnutls-3.8.6-nettle-rsa-oaep.patch
 
 %bcond_without bootstrap
 %bcond_without dane
