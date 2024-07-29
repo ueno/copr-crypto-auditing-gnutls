@@ -23,7 +23,7 @@ Patch: gnutls-3.8.6-liboqs-x25519-kyber768d00.patch
 Patch: gnutls-3.8.6-nettle-rsa-oaep.patch
 
 # Not upstreamed: adds USDT probe points for crypto-auditing
-Patch: gnutls-3.8.2-usdt.patch
+Patch: gnutls-3.8.6-usdt.patch
 
 %bcond_without bootstrap
 %bcond_without dane
