@@ -12,15 +12,15 @@ sha256sum:close()
 print(string.sub(hash, 0, 16))
 }
 
-Version: 3.8.2
+Version: 3.8.6
 Release: %{?autorelease}%{!?autorelease:1%{?dist}}.usdt.1
 Patch: gnutls-3.2.7-rpath.patch
 
 # follow https://gitlab.com/gnutls/gnutls/-/issues/1443
 Patch: gnutls-3.7.8-ktls_skip_tls12_chachapoly_test.patch
-
-# tentatively reverted for https://gitlab.com/gnutls/gnutls/-/issues/1515
-Patch: gnutls-3.8.2-revert-pkcs11-ed448.patch
+Patch: gnutls-3.8.6-compression-dlwrap.patch
+Patch: gnutls-3.8.6-liboqs-x25519-kyber768d00.patch
+Patch: gnutls-3.8.6-nettle-rsa-oaep.patch
 
 # Not upstreamed: adds USDT probe points for crypto-auditing
 Patch: gnutls-3.8.2-usdt.patch
@@ -31,7 +31,8 @@ Patch: gnutls-3.8.2-usdt.patch
 %bcond_with tpm12
 %bcond_without tpm2
 %bcond_without gost
-%bcond_with certificate_compression
+%bcond_without certificate_compression
+%bcond_without liboqs
 %bcond_without tests
 
 %if 0%{?fedora} && 0%{?fedora} < 38
@@ -48,6 +49,19 @@ Patch: gnutls-3.8.2-usdt.patch
 
 %bcond_without usdt
 
+%if 0%{?rhel} >= 9 && %{with fips}
+%bcond_without bundled_gmp
+%else
+%bcond_with bundled_gmp
+%endif
+
+
+%define fips_requires() %{lua:
+local f = assert(io.popen("rpm -q --queryformat '%{EVR}' --whatprovides "..rpm.expand("'%1%{?_isa}'")))
+local v = f:read("*all")
+f:close()
+print("Requires: "..rpm.expand("%1%{?_isa}").." = "..v.."\\n")
+}
 
 Summary: A TLS protocol implementation
 Name: gnutls
@@ -58,10 +72,13 @@ BuildRequires: readline-devel, libtasn1-devel >= 4.3
 %if %{with certificate_compression}
 BuildRequires: zlib-devel, brotli-devel, libzstd-devel
 %endif
+%if %{with liboqs}
+BuildRequires: liboqs-devel
+%endif
 %if %{with bootstrap}
 BuildRequires: automake, autoconf, gperf, libtool, texinfo
 %endif
-BuildRequires: nettle-devel >= 3.5.1
+BuildRequires: nettle-devel >= 3.10
 %if %{with tpm12}
 BuildRequires: trousers-devel >= 0.3.11.2
 %endif
@@ -82,7 +99,8 @@ BuildRequires: p11-kit-trust, ca-certificates
 Requires: crypto-policies
 Requires: p11-kit-trust
 Requires: libtasn1 >= 4.3
-Requires: nettle >= 3.4.1
+# always bump when a nettle release is packaged
+Requires: nettle >= 3.10
 %if %{with tpm12}
 Recommends: trousers >= 0.3.11.2
 %endif
@@ -117,6 +135,12 @@ Source0: https://www.gnupg.org/ftp/gcrypt/gnutls/v%{short_version}/%{name}-%{ver
 Source1: https://www.gnupg.org/ftp/gcrypt/gnutls/v%{short_version}/%{name}-%{version}.tar.xz.sig
 Source2: https://gnutls.org/gnutls-release-keyring.gpg
 
+%if %{with bundled_gmp}
+Source100:	gmp-6.2.1.tar.xz
+# Taken from the main gmp package
+Source101:	gmp-6.2.1-intel-cet.patch
+%endif
+
 # Wildcard bundling exception https://fedorahosted.org/fpc/ticket/174
 Provides: bundled(gnulib) = 20130424
 
@@ -145,6 +169,16 @@ Requires: %{name}-dane%{?_isa} = %{version}-%{release}
 %package dane
 Summary: A DANE protocol implementation for GnuTLS
 Requires: %{name}%{?_isa} = %{version}-%{release}
+%endif
+
+%if %{with fips}
+%package fips
+Summary: Virtual package to install packages required to use %{name} under FIPS mode
+Requires: %{name}%{?_isa} = %{version}-%{release}
+%{fips_requires nettle}
+%if !%{with bundled_gmp}
+%{fips_requires gmp}
+%endif
 %endif
 
 %description
@@ -190,6 +224,17 @@ This package contains library that implements the DANE protocol for verifying
 TLS certificates through DNSSEC.
 %endif
 
+%if %{with fips}
+%description fips
+GnuTLS is a secure communications library implementing the SSL, TLS and DTLS 
+protocols and technologies around them. It provides a simple C language 
+application programming interface (API) to access the secure communications 
+protocols as well as APIs to parse and write X.509, PKCS #12, OpenPGP and 
+other required structures.
+This package does not contain any file, but installs required packages
+to use GnuTLS under FIPS mode.
+%endif
+
 %if %{with mingw}
 %package -n mingw32-%{name}
 Summary:        MinGW GnuTLS TLS/SSL encryption library
@@ -219,8 +264,27 @@ for MinGW.
 
 %autosetup -p1 -S git
 
+%if %{with bundled_gmp}
+mkdir -p bundled_gmp
+pushd bundled_gmp
+tar --strip-components=1 -xf %{SOURCE100}
+patch -p1 < %{SOURCE101}
+popd
+%endif
+
 %build
 %define _lto_cflags %{nil}
+
+%if %{with bundled_gmp}
+pushd bundled_gmp
+autoreconf -ifv
+%configure --disable-cxx --disable-shared --enable-fat --with-pic
+%make_build
+popd
+
+export GMP_CFLAGS="-I$PWD/bundled_gmp"
+export GMP_LIBS="$PWD/bundled_gmp/.libs/libgmp.a"
+%endif
 
 %if %{with bootstrap}
 autoreconf -fi
@@ -291,6 +355,11 @@ pushd native_build
 %if %{with usdt}
 	   --enable-crypto-auditing \
 %endif
+%if %{with liboqs}
+           --with-liboqs \
+%else
+           --without-liboqs \
+%endif
            --disable-rpath \
            --with-default-priority-string="@SYSTEM"
 
@@ -334,6 +403,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/gnutls-dane.pc
 %if %{with fips}
 # doing it twice should be a no-op the second time,
 # and this way we avoid redefining it and missing a future change
+%global __debug_package 1
 %{__spec_install_post}
 fname=`basename $RPM_BUILD_ROOT%{_libdir}/libgnutls.so.30.*.*`
 ./lib/fipshmac "$RPM_BUILD_ROOT%{_libdir}/libgnutls.so.30" > "$RPM_BUILD_ROOT%{_libdir}/.$fname.hmac"
@@ -445,6 +515,10 @@ popd
 %if %{with dane}
 %files dane
 %{_libdir}/libgnutls-dane.so.*
+%endif
+
+%if %{with fips}
+%files fips
 %endif
 
 %if %{with mingw}
