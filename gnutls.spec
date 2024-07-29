@@ -32,7 +32,11 @@ Patch: gnutls-3.8.2-usdt.patch
 %bcond_without tpm2
 %bcond_without gost
 %bcond_without certificate_compression
+%if 0%{?fedora} && 0%{?fedora} > 40
 %bcond_without liboqs
+%else
+%bcond_with liboqs
+%endif
 %bcond_without tests
 
 %if 0%{?fedora} && 0%{?fedora} < 38
