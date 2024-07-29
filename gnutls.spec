@@ -39,6 +39,12 @@ Patch: gnutls-3.8.6-usdt.patch
 %endif
 %bcond_without tests
 
+%if 0%{?fedora} && 0%{?fedora} > 40
+%global nettle_required_version 3.10
+%else
+%global nettle_required_version 3.9
+%endif
+
 %if 0%{?fedora} && 0%{?fedora} < 38
 %bcond_without srp
 %else
@@ -82,7 +88,7 @@ BuildRequires: liboqs-devel
 %if %{with bootstrap}
 BuildRequires: automake, autoconf, gperf, libtool, texinfo
 %endif
-BuildRequires: nettle-devel >= 3.10
+BuildRequires: nettle-devel >= %{nettle_required_version}
 %if %{with tpm12}
 BuildRequires: trousers-devel >= 0.3.11.2
 %endif
@@ -104,7 +110,7 @@ Requires: crypto-policies
 Requires: p11-kit-trust
 Requires: libtasn1 >= 4.3
 # always bump when a nettle release is packaged
-Requires: nettle >= 3.10
+Requires: nettle >= %{nettle_required_version}
 %if %{with tpm12}
 Recommends: trousers >= 0.3.11.2
 %endif
